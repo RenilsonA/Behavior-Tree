@@ -132,6 +132,24 @@ bt_definition_status_t bt_process_node(bt_definition_t *tree, uint8_t *bt_index)
             break;
         }
 
+        case BT_DEFINITION_NODE_ACTION:
+        case BT_DEFINITION_NODE_CONDITION:
+        {
+            if(self.last_node_state != BT_DEFINITION_STATUS_RUNNING)
+            {
+                *bt_index = 0;
+                return BT_DEFINITION_STATUS_ERROR;
+            }
+
+            status = tree[*bt_index].node.interation_node.interation();
+            if(status == BT_DEFINITION_STATUS_RUNNING)
+            {
+                return BT_DEFINITION_STATUS_RUNNING;
+            }
+
+            break;
+        }
+
         default:
         {
             *bt_index = 0;
