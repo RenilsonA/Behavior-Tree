@@ -73,6 +73,7 @@ typedef enum
     BT_DEFINITION_NODE_FALLBACK,            /**< Type of composite fallback node. */
     BT_DEFINITION_NODE_CONDITION,           /**< Type of interation condition node. */
     BT_DEFINITION_NODE_ACTION,              /**< Type of interation action node. */
+    BT_DEFINITION_NODE_ACTION_TIMEOUT,      /**< Type of interation action timeout node. */
 } bt_definition_node_type_t;
 
 /**

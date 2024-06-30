@@ -150,6 +150,19 @@ bt_definition_status_t bt_process_node(bt_definition_t *tree, uint8_t *bt_index)
             break;
         }
 
+        case BT_DEFINITION_NODE_ACTION_TIMEOUT:
+        {
+            if(tree[*bt_index].node.interation_node.timeout_ms == 0)
+            {
+                *bt_index = 0;
+                return BT_DEFINITION_STATUS_ERROR;
+            }
+
+            status = bt_common_action_timeout(tree[*bt_index].node.interation_node.timeout_ms);
+
+            break;
+        }
+
         default:
         {
             *bt_index = 0;
