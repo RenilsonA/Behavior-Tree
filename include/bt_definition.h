@@ -30,13 +30,13 @@
 #define INCLUDE_BT_DEFINITION_H_
 
 /**
- * @brief Item inexistente.
+ * @brief Non-existing item.
  *
  */
 #define BT_DEFINITION_TREE_UNRELATED 255
 
 /**
- * @brief Checagem de erro de uma função do tipo bt_definition_status_t.
+ * @brief Error checking a function of type bt_definition_status_t.
  *
  */
 #define BT_DEFINITION_TREE_STATUS(_err)      \
@@ -48,18 +48,18 @@
     } while (0)
 
 /**
- * @brief Enumera os tipos de retornos da árvore.
+ * @brief Enumerates the types of tree returns.
  *
  */
 typedef enum
 {
-    BT_DEFINITION_STATUS_SUCCESS = 0,     /**< Status da árvore parada. */                                      
-    BT_DEFINITION_STATUS_FAIL,            /**< Status da árvore executada com falha. */                             
-    BT_DEFINITION_STATUS_ERROR,           /**< Status da árvore montada com erro. */                             
+    BT_DEFINITION_STATUS_SUCCESS = 0,     /**< Sucess status node or tree. */
+    BT_DEFINITION_STATUS_FAIL,            /**< Failed status node or tree. */
+    BT_DEFINITION_STATUS_ERROR,           /**< Error status node or tree. */
 } bt_definition_status_t;
 
 /**
- * @brief Enumera os tipos de nós da árvore.
+ * @brief Enumerates the types of nodes in the tree.
  *
  */
 typedef enum
@@ -67,12 +67,12 @@ typedef enum
 } bt_definition_node_type_t;
 
 /**
- * @brief Estrutura de um nó da árvore.
+ * @brief Structure of a tree node.
  *
  */
 typedef struct __attribute__((__packed__)) bt_definition
 {
-      bt_definition_node_type_t node_type;                  /**< Tipo de nó. */
+      bt_definition_node_type_t node_type;                  /**< Node type. */
 } bt_definition_t;
 
 #endif /* INCLUDE_BT_DEFINITION_H_ */
