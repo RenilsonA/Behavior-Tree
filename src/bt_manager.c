@@ -43,12 +43,25 @@ static struct
  */
 static void bt_manager_leave_subtree();
 
+/**
+ * @brief Exit the current tree and enter in a subtree.
+ *
+ */
+static void bt_manager_enter_subtree();
+
 static void bt_manager_leave_subtree()
 {
     uint8_t index = self.tree[self.bt_index].root_node.parent_tree_index;
 
     self.tree = self.tree[self.bt_index].root_node.tree_index;
     self.bt_index = index;
+}
+
+static void bt_manager_enter_subtree()
+{
+    //Input here on self.tree array trees index (self.tree[self.bt_index].node.subtree_node.subtree_index)
+    //example: self.tree = BT_TREES[self.tree[self.bt_index].node.subtree_node.subtree_index];
+    self.bt_index = 0;
 }
 
 bt_definition_status_t bt_manager_tick_tree()
@@ -72,6 +85,10 @@ bt_definition_status_t bt_manager_tick_tree()
     else if(tree_status == BT_DEFINITION_STATUS_LEAVE_TREE)
     {
         bt_manager_leave_subtree();
+    }
+    else if(tree_status == BT_DEFINITION_STATUS_ENTER_TREE)
+    {
+        bt_manager_enter_subtree();
     }
 
     return tree_status;
