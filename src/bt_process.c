@@ -163,6 +163,19 @@ bt_definition_status_t bt_process_node(bt_definition_t *tree, uint8_t *bt_index)
             break;
         }
 
+
+        case BT_DEFINITION_NODE_SUBTREE:
+        {
+            if(self.last_node_state == BT_DEFINITION_STATUS_RUNNING)
+            {
+                return BT_DEFINITION_STATUS_ENTER_TREE;
+            }
+
+            status = self.last_node_state;
+
+            break;
+        }
+
         default:
         {
             *bt_index = 0;
