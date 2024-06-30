@@ -39,6 +39,51 @@ static struct
     .last_node_state = BT_DEFINITION_STATUS_RUNNING,
 };
 
+/**
+ * @brief Performs a node check, whose parent may be a fallback.
+ *
+ * @param tree Tree to be checked.
+ * @param bt_index Tree index.
+ * @param status Status of the node.
+ * @return int 0 if the check is not false, 1 if the check is true.
+ */
+static int bt_process_check_parent_fallback(bt_definition_t *tree, uint8_t bt_index, bt_definition_status_t status);
+
+/**
+ * @brief Performs a node check, whose parent can be a sequence.
+ *
+ * @param tree Tree to be checked.
+ * @param bt_index Tree index.
+ * @param status Status of the node.
+ * @return int 0 if the check is not false, 1 if the check is true.
+ */
+static int bt_process_check_parent_sequence(bt_definition_t *tree, uint8_t bt_index, bt_definition_status_t status);
+
+/**
+ * @brief Checks whether the node has a sibling.
+ *
+ * @param tree Tree to be checked.
+ * @param bt_index Tree index.
+ * @param status Status of the node.
+ * @return int 0 if the check is not false, 1 if the check is true.
+ */
+static int bt_process_check_sibling(bt_definition_t *tree, uint8_t bt_index);
+
+static int bt_process_check_parent_fallback(bt_definition_t *tree, uint8_t bt_index, bt_definition_status_t status)
+{
+    return (status == BT_DEFINITION_STATUS_SUCCESS) && (tree[tree[bt_index].node.parent_index].node_type == BT_DEFINITION_NODE_FALLBACK);
+}
+
+static int bt_process_check_parent_sequence(bt_definition_t *tree, uint8_t bt_index, bt_definition_status_t status)
+{
+    return (status == BT_DEFINITION_STATUS_FAIL) && (tree[tree[bt_index].node.parent_index].node_type == BT_DEFINITION_NODE_SEQUENCE);
+}
+
+static int bt_process_check_sibling(bt_definition_t *tree, uint8_t bt_index)
+{
+    return tree[bt_index].node.sibling_index == BT_DEFINITION_TREE_UNRELATED;
+}
+
 bt_definition_status_t bt_process_node(bt_definition_t *tree, uint8_t *bt_index)
 {
     bt_definition_status_t status = 0;
@@ -66,11 +111,45 @@ bt_definition_status_t bt_process_node(bt_definition_t *tree, uint8_t *bt_index)
             return BT_DEFINITION_STATUS_RUNNING;
         }
 
+        case BT_DEFINITION_NODE_SEQUENCE:
+        case BT_DEFINITION_NODE_FALLBACK:
+        {
+            if(self.last_node_state == BT_DEFINITION_STATUS_RUNNING)
+            {
+                if(tree[*bt_index].node.composite_node.children_index == BT_DEFINITION_TREE_UNRELATED)
+                {
+                    *bt_index = 0;
+                    return BT_DEFINITION_STATUS_ERROR;
+                }
+
+                *bt_index = tree[*bt_index].node.composite_node.children_index;
+
+                return BT_DEFINITION_STATUS_RUNNING;
+            }
+
+            status = self.last_node_state;
+
+            break;
+        }
+
         default:
         {
             *bt_index = 0;
             return BT_DEFINITION_STATUS_ERROR;
         }
+    }
+
+    if((bt_process_check_parent_fallback(tree, *bt_index, status)) ||
+       (bt_process_check_parent_sequence(tree, *bt_index, status)) ||
+       (bt_process_check_sibling(tree, *bt_index)))
+    {
+        self.last_node_state = status;
+        *bt_index = tree[*bt_index].node.parent_index;
+    }
+    else
+    {
+        self.last_node_state = BT_DEFINITION_STATUS_RUNNING;
+        *bt_index = tree[*bt_index].node.sibling_index;
     }
 
     return BT_DEFINITION_STATUS_RUNNING;
