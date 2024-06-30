@@ -29,6 +29,8 @@
 #ifndef INCLUDE_BT_DEFINITION_H_
 #define INCLUDE_BT_DEFINITION_H_
 
+#include <stdint.h>
+
 /**
  * @brief Non-existing item.
  *
@@ -39,12 +41,12 @@
  * @brief Error checking a function of type bt_definition_status_t.
  *
  */
-#define BT_DEFINITION_TREE_STATUS(_err)      \
+#define BT_DEFINITION_TREE_STATUS(_err)         \
     do {                                        \
         if (_err) {                             \
-            return BT_DEFINITION_STATUS_FAIL;\
+            return BT_DEFINITION_STATUS_FAIL;   \
         }                                       \
-        return BT_DEFINITION_STATUS_SUCCESS; \
+        return BT_DEFINITION_STATUS_SUCCESS;    \
     } while (0)
 
 /**
@@ -54,8 +56,10 @@
 typedef enum
 {
     BT_DEFINITION_STATUS_SUCCESS = 0,     /**< Sucess status node or tree. */
+    BT_DEFINITION_STATUS_RUNNING,         /**< Running status node or tree. */
     BT_DEFINITION_STATUS_FAIL,            /**< Failed status node or tree. */
-    BT_DEFINITION_STATUS_ERROR,           /**< Error status node or tree. */
+    BT_DEFINITION_STATUS_ERROR,           /**< Error status node or tree. */            
+    BT_DEFINITION_STATUS_LEAVE_TREE,   /**< Leave Tree status on root node. */
 } bt_definition_status_t;
 
 /**
@@ -64,7 +68,19 @@ typedef enum
  */
 typedef enum
 {
+    BT_DEFINITION_NODE_ROOT = 0,            /**< Type of root node. */
 } bt_definition_node_type_t;
+
+/**
+ * @brief Data loaded into a root node.
+ *
+ */
+typedef struct bt_root_node
+{
+    uint8_t children_index;    /**< Index to the first child node. */
+    uint8_t tree_index;        /**< Index of where the tree that called it is located. */
+    uint8_t parent_tree_index; /**< Index of where the tree that called it stopped is. */
+} bt_definition_root_node_t;
 
 /**
  * @brief Structure of a tree node.
@@ -72,7 +88,22 @@ typedef enum
  */
 typedef struct __attribute__((__packed__)) bt_definition
 {
-      bt_definition_node_type_t node_type;                  /**< Node type. */
+    bt_definition_node_type_t node_type;                  /**< Node type. */
+    union {
+          bt_definition_root_node_t root_node;         /**< Node type root. */
+      };
 } bt_definition_t;
+
+/**
+ * @brief Macro that creates a root node.
+ *
+ */
+#define BT_DEFINITION_CREATE_NODE_ROOT(_children, _parent_tree, _parent_index)             \
+                                      {                                                       \
+                                         .node_type = BT_DEFINITION_NODE_ROOT,             \
+                                         .root_node.children_index = _children,               \
+                                         .root_node.tree_index = _parent_tree,                \
+                                         .root_node.parent_tree_index = _parent_index,        \
+                                      }
 
 #endif /* INCLUDE_BT_DEFINITION_H_ */
