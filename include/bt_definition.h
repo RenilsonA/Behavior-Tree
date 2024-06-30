@@ -71,8 +71,6 @@ typedef enum
     BT_DEFINITION_NODE_ROOT = 0,            /**< Type of root node. */
     BT_DEFINITION_NODE_SEQUENCE,            /**< Type of composite sequence node. */
     BT_DEFINITION_NODE_FALLBACK,            /**< Type of composite fallback node. */
-    BT_DEFINITION_NODE_CONDITION,           /**< Type of interation condition node. */
-    BT_DEFINITION_NODE_ACTION,              /**< Type of interation action node. */
 } bt_definition_node_type_t;
 
 /**
@@ -96,31 +94,17 @@ typedef struct bt_definition_composite_node
 } bt_definition_composite_node_t;
 
 /**
- * @brief Data loaded into an interaction type node.
- *
- */
-typedef struct bt_definition_interation_node
-{
-      union
-      {
-          int (*interation)(void);   /**< Pointer to interaction function. */
-          uint32_t timeout_ms;       /**< Delay timeout value for interation action node delay. */
-      };
-} bt_definition_interation_node_t;
-
-/**
  * @brief Data loaded into a tree leaf node.
  *
  */
 typedef struct bt_definition_node
 {
-    uint8_t sibling_index;                                    /**< Index to the leaf's sister structure. */
-    uint8_t parent_index;                                     /**< Index to the parent structure. */
-    union
-    {
-          bt_definition_composite_node_t composite_node;      /**< Data for composite type node. */
-          bt_definition_interation_node_t interation_node;    /**< Data for interation type node. */
-    };
+      uint8_t sibling_index;                                    /**< Index to the leaf's sister structure. */
+      uint8_t parent_index;                                     /**< Index to the parent structure. */
+      union
+      {
+            bt_definition_composite_node_t composite_node;   /**< Data for composite type node. */
+      };
 } bt_definition_node_t;
 
 /**
@@ -129,59 +113,47 @@ typedef struct bt_definition_node
  */
 typedef struct __attribute__((__packed__)) bt_definition
 {
-    bt_definition_node_type_t node_type;     /**< Node type. */
+    bt_definition_node_type_t node_type;          /**< Node type. */
     union {
-        bt_definition_root_node_t root_node; /**< Node type root. */
-        bt_definition_node_t node;           /**< Node type leaf. */
-    };
+          bt_definition_root_node_t root_node;    /**< Node type root. */
+          bt_definition_node_t node;           /**< Node type leaf. */
+      };
 } bt_definition_t;
 
 /**
  * @brief Macro that creates a root node.
  *
  */
-#define BT_DEFINITION_CREATE_NODE_ROOT(_children, _parent_tree, _parent_index)            \
-                                      {                                                   \
-                                         .node_type = BT_DEFINITION_NODE_ROOT,            \
-                                         .root_node.children_index = _children,           \
-                                         .root_node.tree_index = _parent_tree,            \
-                                         .root_node.parent_tree_index = _parent_index,    \
+#define BT_DEFINITION_CREATE_NODE_ROOT(_children, _parent_tree, _parent_index)             \
+                                      {                                                       \
+                                         .node_type = BT_DEFINITION_NODE_ROOT,             \
+                                         .root_node.children_index = _children,               \
+                                         .root_node.tree_index = _parent_tree,                \
+                                         .root_node.parent_tree_index = _parent_index,        \
                                       }
 
 /**
- * @brief Macro that creates condition node.
+ * @brief Macro that creates a composite sequence node.
  *
  */
-#define BT_DEFINITION_CREATE_NODE_CONDITION(_interation, _sibling, _parent)              \
+#define BT_DEFINITION_CREATE_NODE_SEQUENCE(_children, _sibling, _parent)                \
+                                      {                                                 \
+                                        .node_type = BT_DEFINITION_NODE_SEQUENCE,       \
+                                        .node.composite_node.children_index = _children,\
+                                        .node.sibling_index = _sibling,                 \
+                                        .node.parent_index = _parent,                   \
+                                      }
+
+/**
+ * @brief Macro that creates a composite fallback node.
+ *
+ */
+#define BT_DEFINITION_CREATE_NODE_FALLBACK(_children, _sibling, _parent)                 \
                                       {                                                  \
-                                         .node_type = BT_DEFINITION_NODE_CONDITION,      \
-                                         .node.interation_node.interation = _interation, \
+                                         .node_type = BT_DEFINITION_NODE_FALLBACK,       \
+                                         .node.composite_node.children_index = _children,\
                                          .node.sibling_index = _sibling,                 \
                                          .node.parent_index = _parent,                   \
-                                      }
-
-/**
- * @brief Macro that creates action node.
- *
- */
-#define BT_DEFINITION_CREATE_NODE_ACTION(_interation, _sibling, _parent)                \
-                                      {                                                 \
-                                        .node_type = BT_DEFINITION_NODE_ACTION,         \
-                                        .node.interation_node.interation = _interation, \
-                                        .node.sibling_index = _sibling,                 \
-                                        .node.parent_index = _parent,                   \
-                                      }
-
-/**
- * @brief Macro that creates delay action node.
- *
- */
-#define BT_DEFINITION_CREATE_NODE_ACTION_DELAY(_timeout_ms, _sibling, _parent)          \
-                                      {                                                 \
-                                        .node_type = BT_DEFINITION_NODE_ACTION,         \
-                                        .node.interation_node.timeout_ms = _timeout_ms, \
-                                        .node.sibling_index = _sibling,                 \
-                                        .node.parent_index = _parent,                   \
                                       }
 
 #endif /* INCLUDE_BT_DEFINITION_H_ */
