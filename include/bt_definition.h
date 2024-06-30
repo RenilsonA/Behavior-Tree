@@ -59,7 +59,7 @@ typedef enum
     BT_DEFINITION_STATUS_RUNNING,         /**< Running status node or tree. */
     BT_DEFINITION_STATUS_FAIL,            /**< Failed status node or tree. */
     BT_DEFINITION_STATUS_ERROR,           /**< Error status node or tree. */            
-    BT_DEFINITION_STATUS_LEAVE_TREE,   /**< Leave Tree status on root node. */
+    BT_DEFINITION_STATUS_LEAVE_TREE,      /**< Leave Tree status on root node. */
 } bt_definition_status_t;
 
 /**
@@ -69,6 +69,8 @@ typedef enum
 typedef enum
 {
     BT_DEFINITION_NODE_ROOT = 0,            /**< Type of root node. */
+    BT_DEFINITION_NODE_SEQUENCE,            /**< Type of composite sequence node. */
+    BT_DEFINITION_NODE_FALLBACK,            /**< Type of composite fallback node. */
 } bt_definition_node_type_t;
 
 /**
@@ -83,14 +85,38 @@ typedef struct bt_root_node
 } bt_definition_root_node_t;
 
 /**
+ * @brief Data loaded into a composition type node.
+ *
+ */
+typedef struct bt_definition_composite_node
+{
+      uint8_t children_index;    /**< Index to first child structure. */
+} bt_definition_composite_node_t;
+
+/**
+ * @brief Data loaded into a tree leaf node.
+ *
+ */
+typedef struct bt_definition_node
+{
+      uint8_t sibling_index;                                    /**< Index to the leaf's sister structure. */
+      uint8_t parent_index;                                     /**< Index to the parent structure. */
+      union
+      {
+            bt_definition_composite_node_t composite_node;   /**< Data for composite type node. */
+      };
+} bt_definition_node_t;
+
+/**
  * @brief Structure of a tree node.
  *
  */
 typedef struct __attribute__((__packed__)) bt_definition
 {
-    bt_definition_node_type_t node_type;                  /**< Node type. */
+    bt_definition_node_type_t node_type;          /**< Node type. */
     union {
-          bt_definition_root_node_t root_node;         /**< Node type root. */
+          bt_definition_root_node_t root_node;    /**< Node type root. */
+          bt_definition_node_t node;           /**< Node type leaf. */
       };
 } bt_definition_t;
 
