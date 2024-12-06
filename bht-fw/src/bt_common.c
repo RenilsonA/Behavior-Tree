@@ -1,9 +1,9 @@
 /**
- * @file bt_process.h
+ * @file bt_common.c
  * @author Renilson Almeida (renilson.123@hotmail.com)
- * @brief Header of behavior tree process.
+ * @brief Behavior tree common.
  * @version 1.0
- * @date 26/06/24
+ * @date 30/06/24
  * 
  * @copyright Copyright (c) 2024 Renilson Almeida
  * 
@@ -26,16 +26,25 @@
  * SOFTWARE.
  */
 
-#ifndef INCLUDE_BT_PROCESS_H_
-#define INCLUDE_BT_PROCESS_H_
-
 #include "bt_common.h"
 
-/**
- * @brief Executes the tree nodes. Each function call is a tick.
- *
- * @return bt_definition_t state of the tree.
- */
-bt_definition_status_t bt_process_node(bt_definition_t *tree, uint8_t *bt_index);
+bt_definition_status_t bt_common_action_timeout(uint32_t timeout_ms)
+{
+    uint8_t hours;
+    uint8_t minutes;
+    uint8_t seconds;
+    uint16_t milliseconds;
 
-#endif /* INCLUDE_BT_PROCESS_H_ */
+    hours = timeout_ms / (BT_COMMON_MILLISECONDS_DIVISOR * BT_COMMON_SECONDS_DIVISOR * BT_COMMON_MINUTES_DIVISOR);
+    milliseconds %= (BT_COMMON_MILLISECONDS_DIVISOR * BT_COMMON_SECONDS_DIVISOR * BT_COMMON_MINUTES_DIVISOR);
+
+    minutes = milliseconds / (BT_COMMON_MILLISECONDS_DIVISOR * BT_COMMON_SECONDS_DIVISOR);
+    milliseconds %= (BT_COMMON_MILLISECONDS_DIVISOR * BT_COMMON_SECONDS_DIVISOR);
+
+    seconds = milliseconds / (BT_COMMON_MILLISECONDS_DIVISOR);
+    milliseconds %= (BT_COMMON_MILLISECONDS_DIVISOR);
+
+    //Input here delay funcion
+
+    return BT_DEFINITION_STATUS_SUCCESS;
+}

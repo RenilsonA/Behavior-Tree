@@ -1,9 +1,9 @@
 /**
- * @file bt_process.c
+ * @file bt_process.h
  * @author Renilson Almeida (renilson.123@hotmail.com)
- * @brief Header of behavior tree common.
+ * @brief Header of behavior tree process.
  * @version 1.0
- * @date 30/06/24
+ * @date 26/06/24
  * 
  * @copyright Copyright (c) 2024 Renilson Almeida
  * 
@@ -26,35 +26,19 @@
  * SOFTWARE.
  */
 
-#ifndef INCLUDE_BT_COMMON_H_
-#define INCLUDE_BT_COMMON_H_
+#ifndef BT_PROCESS_H_
+#define BT_PROCESS_H_
 
-#include "bt_definition.h"
-
-/**
- * @brief Divisor value for milliseconds.
- *
- */
-#define BT_COMMON_MILLISECONDS_DIVISOR 1000
+#include "bt_common.h"
 
 /**
- * @brief Divisor value for seconds.
+ * @brief Executes nodes. Each function call is a tick.
  *
+ * @retval BT_DEFINITION_STATUS_SUCCESS if successfully executed node;
+ * @retval BT_DEFINITION_STATUS_FAIL if failed node;
+ * @retval BT_DEFINITION_STATUS_RUNNING if running node;
+ * @retval BT_DEFINITION_STATUS_ERROR if irregular node;
  */
-#define BT_COMMON_SECONDS_DIVISOR 60
+bt_definition_status_t bt_process_node(bt_definition_node_t *tree, uint32_t *bt_index);
 
-/**
- * @brief Divisor value for minutes.
- *
- */
-#define BT_COMMON_MINUTES_DIVISOR 60
-
-/**
- * @brief Function for delay within the behavior tree.
- *
- * @param timeout_ms Wait timeout value in milliseconds.
- * @return bt_definition_status_t BT_DEFINITION_STATUS_SUCCESS if successful, BT_DEFINITION_STATUS_FAIL otherwise.
- */
-bt_definition_status_t bt_common_action_timeout(uint32_t timeout_ms);
-
-#endif /* INCLUDE_BT_COMMON_H_ */
+#endif /* BT_PROCESS_H_ */

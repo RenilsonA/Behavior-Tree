@@ -1,7 +1,7 @@
 /**
- * @file bt_manager.h
+ * @file bt_process.h
  * @author Renilson Almeida (renilson.123@hotmail.com)
- * @brief Header of behavior tree manager.
+ * @brief Header of behavior tree process.
  * @version 1.0
  * @date 26/06/24
  * 
@@ -26,33 +26,19 @@
  * SOFTWARE.
  */
 
-#ifndef INCLUDE_BT_MANAGER_H_
-#define INCLUDE_BT_MANAGER_H_
+#ifndef BT_PROCESS_H_
+#define BT_PROCESS_H_
 
-#include "bt_process.h"
+#include "bt_common.h"
 
 /**
- * @brief Tree root address.
+ * @brief Executes nodes. Each function call is a tick.
  *
+ * @retval BT_DEFINITION_STATUS_SUCCESS if successfully executed node;
+ * @retval BT_DEFINITION_STATUS_FAIL if failed node;
+ * @retval BT_DEFINITION_STATUS_RUNNING if running node;
+ * @retval BT_DEFINITION_STATUS_ERROR if irregular node;
  */
-#define BT_MANAGER_ROOT_INDEX 0
+bt_definition_status_t bt_process_node(bt_definition_node_t *tree, uint32_t *bt_index);
 
-/**
- * @brief Function that manages and performs a step in the tree.
- *
- * @return behavior_tree_status_t
- * BT_DEFINITION_STATUS_SUCCESS for successfully executed tree;
- * BT_DEFINITION_STATUS_FAIL for failed tree;
- * BT_DEFINITION_STATUS_RUNNING for running tree;
- * BT_DEFINITION_STATUS_ERROR for irregular tree;
- */
-bt_definition_status_t bt_manager_tick_tree();
-
-/**
- * @brief Function to init behavior tree.
- * 
- * @return int 0 for success, other case fail.
- */
-int tc_bt_manager_init();
-
-#endif /* INCLUDE_BT_MANAGER_H_ */
+#endif /* BT_PROCESS_H_ */
