@@ -34,18 +34,20 @@
 /**
  * @brief Function that manages and performs a step in the tree.
  *
+ * @param data_tree[in] Pointer to tree struct.
  * @retval BT_DEFINITION_STATUS_SUCCESS if successfully executed tree;
  * @retval BT_DEFINITION_STATUS_FAIL if failed tree;
  * @retval BT_DEFINITION_STATUS_RUNNING if running tree;
  * @retval BT_DEFINITION_STATUS_ERROR if irregular tree;
  */
-bt_definition_status_t bt_manager_tick_tree();
+bt_definition_status_t bt_manager_tick_tree(bt_definition_tree_data_t *data_tree);
 
 /**
  * @brief Function to init behavior tree.
  * 
+ * @param data_tree[in] Pointer to tree struct.
  * @return int 0 for success, other case fail.
  */
-int bt_manager_init();
+int bt_manager_init(bt_definition_tree_data_t *data_tree);
 
 #endif /* BT_MANAGER_H_ */

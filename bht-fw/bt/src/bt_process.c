@@ -26,88 +26,53 @@
  * SOFTWARE.
  */
 
-#include <bt_process.h>
-
-/**
- * @brief Standard data structure for behavior tree processing.
- *
- */
-static struct
-{
-    bt_definition_status_t last_node_state;    /**< Stores the state of the last node. */
-} self = {
-    .last_node_state = BT_DEFINITION_STATUS_RUNNING,
-};
+#include "bt_process.h"
 
 bt_definition_status_t bt_process_node(bt_definition_tree_data_t *data_tree)
 {
+    bt_index_t index = data_tree->node_index;
     bt_definition_status_t status = 0;
-    bt_definition_node_type_t node_type = data_tree.node_type;
+    const bt_definition_node_t *node_struct = &(data_tree->tree[index]);
+    bt_definition_node_type_t node_type = node_struct->node_type;
 
     switch(node_type)
     {
         case BT_DEFINITION_NODE_CONDITION:
         case BT_DEFINITION_NODE_ACTION:
         {
-            if(self.last_node_state != BT_DEFINITION_STATUS_RUNNING)
+            if(data_tree->last_node_state != BT_DEFINITION_STATUS_RUNNING)
             {
-                *bt_index = 0;
+                data_tree->node_index = 0;
                 return BT_DEFINITION_STATUS_ERROR;
             }
 
-            status = tree[*bt_index].node.interation_node.interation();
-            if(status == BT_DEFINITION_STATUS_RUNNING)
-            {
-                return BT_DEFINITION_STATUS_RUNNING;
-            }
-            else if(status == BT_DEFINITION_STATUS_SUCCESS)
-            {
-                *bt_index = tree[*bt_index].interation_node.st_index;
-            }
-            else if(status == BT_DEFINITION_STATUS_FAIL)
-            {
-                *bt_index = tree[*bt_index].interation_node.ft_index;
-            }
+            status = node_struct->interation_node.interation.function();
             if(node_type == BT_DEFINITION_NODE_CONDITION)
             {
-
+                data_tree->condition_index = node_struct->interation_node.condition.st_condition_index;
             }
-
-
             break;
         }
 
         case BT_DEFINITION_NODE_ACTION_TIMEOUT:
         {
-            if(tree[*bt_index].node.interation_node.timeout_ms == 0)
-            {
-                *bt_index = 0;
-                return BT_DEFINITION_STATUS_ERROR;
-            }
-
-            status = bt_common_action_timeout(tree[*bt_index].node.interation_node.timeout_ms);
 
             break;
         }
 
         default:
         {
-            *bt_index = 0;
             return BT_DEFINITION_STATUS_ERROR;
         }
     }
 
-    if((bt_process_check_parent_fallback(tree, *bt_index, status)) ||
-       (bt_process_check_parent_sequence(tree, *bt_index, status)) ||
-       (bt_process_check_sibling(tree, *bt_index)))
+    if(status == BT_DEFINITION_STATUS_SUCCESS)
     {
-        self.last_node_state = status;
-        *bt_index = tree[*bt_index].node.parent_index;
+        data_tree->node_index = node_struct->st_index;
     }
-    else
+    else if(status == BT_DEFINITION_STATUS_FAIL)
     {
-        self.last_node_state = BT_DEFINITION_STATUS_RUNNING;
-        *bt_index = tree[*bt_index].node.sibling_index;
+        data_tree->node_index = node_struct->ft_index;
     }
 
     return BT_DEFINITION_STATUS_RUNNING;

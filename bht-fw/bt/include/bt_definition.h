@@ -29,14 +29,38 @@
 #ifndef BT_DEFINITION_H_
 #define BT_DEFINITION_H_
 
-#include <stdint.h>
+#include "stdint.h"
+
+/**
+ * @brief Define type of indexes.
+ *
+ */
+#if BT_SIZE == 8
+typedef uint8_t bt_index_t;
+#elif BT_SIZE == 16
+typedef uint16_t bt_index_t;
+#else
+typedef uint32_t bt_index_t;
+#endif
+
+/**
+ * @brief Index of first node.
+ *
+ */
+#define BT_DEFINITON_NODE_FIRST_INDEX 0
 
 /**
  * @brief Non-existing item.
- * Last ID of 32-bit value.
+ * Last ID of 8-bit, 16-bit 32-bit value, respectively.
  *
  */
+#if BT_SIZE == 8
+#define BT_DEFINITION_TREE_UNRELATED 0xFF
+#elif BT_SIZE == 16
+#define BT_DEFINITION_TREE_UNRELATED 0xFFFF
+#else
 #define BT_DEFINITION_TREE_UNRELATED 0xFFFFFFFF
+#endif
 
 /**
  * @brief Error checking a function of type bt_definition_status_t.
@@ -86,7 +110,7 @@ typedef struct bt_definition_interation_funtion
     union
     {
         int (*function)(void); /**< Pointer to interaction function. */
-        uint32_t timeout_ms;   /**< Delay timeout value for interation action node delay. */
+        bt_index_t timeout_ms;   /**< Delay timeout value for interation action node delay. */
     };
 } bt_definition_interation_funtion_t;
 
@@ -96,8 +120,8 @@ typedef struct bt_definition_interation_funtion
  */
 typedef struct bt_definition_interation_condition
 {
-    uint32_t st_condition_index; /**< Index to next struture condition if have success. */
-    uint32_t ft_condition_index; /**< Index to next struture condition if have fail. */
+    bt_index_t st_condition_index; /**< Index to next struture condition if have success. */
+    bt_index_t ft_condition_index; /**< Index to next struture condition if have fail. */
 } bt_definition_interation_condition_t;
 
 /**
@@ -106,8 +130,6 @@ typedef struct bt_definition_interation_condition
  */
 typedef struct bt_definition_node_interation
 {
-    uint32_t st_index;                             /**< Index to next struture if have success. */
-    uint32_t ft_index;                             /**< Index to next struture if have fail. */
     bt_definition_interation_funtion_t interation; /**< Data of interation. */
     union
     {
@@ -122,6 +144,8 @@ typedef struct bt_definition_node_interation
 typedef struct bt_definition_node
 {
     bt_definition_node_type_t node_type; /**< Node type. */
+    bt_index_t st_index;                             /**< Index to next node struture if have success. */
+    bt_index_t ft_index;                             /**< Index to next node struture if have fail. */
     union
     {
         bt_definition_node_interation_t interation_node;
@@ -135,9 +159,10 @@ typedef struct bt_definition_node
 typedef struct bt_definition_tree_data
 {
     bt_definition_status_t last_node_state; /**< State of tree execution. */
-    uint32_t node_index;                    /**< Node to be executed. */
-    uint32_t condition_index;               /**< Node condition to be executed. */
-    bt_definition_node_t *tree;             /**< Tree. */
+    bt_index_t node_index;                    /**< Node to be executed. */
+    bt_index_t condition_index;               /**< Node condition to be executed in next tick. */
+    bt_index_t tree_size;                     /**< Size of tree. */
+    const bt_definition_node_t *tree;       /**< Pointer to tree. */
 } bt_definition_tree_data_t;
 
 /**
@@ -147,9 +172,9 @@ typedef struct bt_definition_tree_data
 #define BT_DEFINITION_CREATE_NODE_CONDITION(_function, _success_target, _fail_target) \
     {                                                                                 \
         .node_type = BT_DEFINITION_NODE_CONDITION,                                    \
+        .st_index = _success_target,                                                  \
+        .ft_index = _fail_target,                                                     \
         .interation_node.interation.function = _function,                             \
-        .interation_node.success_target_index = _success_target,                      \
-        .interation_node.fail_target_index = _fail_target,                            \
     }
 
 /**
@@ -158,10 +183,10 @@ typedef struct bt_definition_tree_data
  */
 #define BT_DEFINITION_CREATE_NODE_ACTION(_function, _success_target, _fail_target) \
     {                                                                              \
+        .st_index = _success_target,                                               \
+        .ft_index = _fail_target,                                                  \
         .node_type = BT_DEFINITION_NODE_ACTION,                                    \
         .interation_node.interation.function = _function,                          \
-        .interation_node.st_index = _success_target,                               \
-        .interation_node.ft_index = _fail_target,                                  \
     }
 
 /**

@@ -34,11 +34,12 @@
 /**
  * @brief Executes nodes. Each function call is a tick.
  *
+ * @param data_tree[in] Data struct of tree.
  * @retval BT_DEFINITION_STATUS_SUCCESS if successfully executed node;
  * @retval BT_DEFINITION_STATUS_FAIL if failed node;
  * @retval BT_DEFINITION_STATUS_RUNNING if running node;
  * @retval BT_DEFINITION_STATUS_ERROR if irregular node;
  */
-bt_definition_status_t bt_process_node(bt_definition_node_t *tree, uint32_t *bt_index);
+bt_definition_status_t bt_process_node(bt_definition_tree_data_t *data_tree);
 
 #endif /* BT_PROCESS_H_ */

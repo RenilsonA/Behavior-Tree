@@ -26,11 +26,13 @@
  * SOFTWARE.
  */
 
-#include <bt_manager.h>
+#include "bt_manager.h"
 
-bt_definition_status_t bt_manager_tick_tree()
+bt_definition_status_t bt_manager_tick_tree(bt_definition_tree_data_t *data_tree)
 {
     bt_definition_status_t tree_status = BT_DEFINITION_STATUS_SUCCESS;
+
+    tree_status = bt_process_node(data_tree);
 
     return tree_status;
 }

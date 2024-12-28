@@ -29,7 +29,7 @@
 #ifndef BT_COMMON_H_
 #define BT_COMMON_H_
 
-#include "bt_definition.h"
+#include "../../bt/include/bt_definition.h"
 
 /**
  * @brief Divisor value for milliseconds.

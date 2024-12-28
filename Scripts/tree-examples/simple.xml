@@ -6,27 +6,24 @@
         <ScriptCondition code="condition1"/>
         <Script code="action1"/>
         <Fallback>
-          <ScriptCondition code="condition2"/>
           <Script code="action2"/>
           <Script code="action3"/>
-          <Sequence>
-            <Script code="action4"/>
-            <Script code="action5"/>
-            <Script code="action6"/>
-            <SubTree ID="subtree"/>
-          </Sequence>
         </Fallback>
+        <Script code="action4"/>
+        <SubTree ID="subtree"/>
+        <Script code="action5"/>
       </Sequence>
-      <Fallback>
-        <ScriptCondition code="condition3"/>
-        <Script code="action7"/>
-        <Script code="action8"/>
-      </Fallback>
+      <ScriptCondition code="condition2"/>
+      <Script code="action6"/>
     </Fallback>
   </BehaviorTree>
 
   <BehaviorTree ID="subtree">
-    <ScriptCondition code="condition4"/>
+    <Fallback>
+      <ScriptCondition code="condition3"/>
+      <Script code="action7"/>
+      <Script code="action8"/>
+    </Fallback>
   </BehaviorTree>
 
   <!-- Description of Node Models (used by Groot) -->
