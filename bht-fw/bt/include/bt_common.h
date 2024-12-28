@@ -26,10 +26,10 @@
  * SOFTWARE.
  */
 
-#ifndef INCLUDE_BT_COMMON_H_
-#define INCLUDE_BT_COMMON_H_
+#ifndef BT_COMMON_H_
+#define BT_COMMON_H_
 
-#include "bt_definition.h"
+#include "../../bt/include/bt_definition.h"
 
 /**
  * @brief Divisor value for milliseconds.
@@ -53,8 +53,10 @@
  * @brief Function for delay within the behavior tree.
  *
  * @param timeout_ms Wait timeout value in milliseconds.
- * @return bt_definition_status_t BT_DEFINITION_STATUS_SUCCESS if successful, BT_DEFINITION_STATUS_FAIL otherwise.
+ * @retval BT_DEFINITION_STATUS_SUCCESS if successful
+ * @retval BT_DEFINITION_STATUS_RUNNING if delay initiated.
+ * @retval BT_DEFINITION_STATUS_FAIL if fail something.
  */
 bt_definition_status_t bt_common_action_timeout(uint32_t timeout_ms);
 
-#endif /* INCLUDE_BT_COMMON_H_ */
+#endif /* BT_COMMON_H_ */

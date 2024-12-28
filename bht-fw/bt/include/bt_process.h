@@ -26,16 +26,20 @@
  * SOFTWARE.
  */
 
-#ifndef INCLUDE_BT_PROCESS_H_
-#define INCLUDE_BT_PROCESS_H_
+#ifndef BT_PROCESS_H_
+#define BT_PROCESS_H_
 
 #include "bt_common.h"
 
 /**
- * @brief Executes the tree nodes. Each function call is a tick.
+ * @brief Executes nodes. Each function call is a tick.
  *
- * @return bt_definition_t state of the tree.
+ * @param data_tree[in] Data struct of tree.
+ * @retval BT_DEFINITION_STATUS_SUCCESS if successfully executed node;
+ * @retval BT_DEFINITION_STATUS_FAIL if failed node;
+ * @retval BT_DEFINITION_STATUS_RUNNING if running node;
+ * @retval BT_DEFINITION_STATUS_ERROR if irregular node;
  */
-bt_definition_status_t bt_process_node(bt_definition_t *tree, uint8_t *bt_index);
+bt_definition_status_t bt_process_node(bt_definition_tree_data_t *data_tree);
 
-#endif /* INCLUDE_BT_PROCESS_H_ */
+#endif /* BT_PROCESS_H_ */
