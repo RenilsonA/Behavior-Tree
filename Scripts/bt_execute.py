@@ -1,27 +1,27 @@
+#Behavior Tree like Tree.
 INDEX_NODE_TYPE = 1
 INDEX_NODE_CHILDREN = 2
 INDEX_NODE_SIBLING = 3
 INDEX_NODE_PARENT = 4
 INDEX_NODE_FUNCTION = 2
 
-STATUS_TREE_SUCCESS = 1
-STATUS_TREE_FAIL = 2
-STATUS_TREE_RUNNING = 3
-
+#Tree like DAG
 INDEX_SUCCESS_CASE = 3
 INDEX_FAIL_CASE = 4
+INDEX_NEXT_CONDITION = 5
 
+#Node invalid
 NODE_UNRELATED = "BT_DEFINITION_TREE_UNRELATED"
 
+#Macros of nodes
 macro_node_condition = "BT_DEFINITION_CREATE_NODE_CONDITION"
 macro_node_action = "BT_DEFINITION_CREATE_NODE_ACTION"
 
+#Status of nodes
 status_node = [ 'success', 'fail']
 status_fail = 'fail'
 status_success = 'success'
 status_running = 'Running'
-path_success = []
-path_fail = []
 
 class BT_EXECUTE:
     def __init__(self):
@@ -71,6 +71,8 @@ class BT_EXECUTE:
         for i in range(len(tree)):
             if((tree[i][INDEX_NODE_TYPE] == self.node_condition) or
                (tree[i][INDEX_NODE_TYPE] == self.node_action)):
+                is_condition = True if tree[i][INDEX_NODE_TYPE] == self.node_condition else False
+                next_condition = NODE_UNRELATED
                 value = []
                 for status in status_node:
                     status_tree = self.process_node(tree[i], status)
@@ -79,17 +81,26 @@ class BT_EXECUTE:
                           (tree[self.next_node][INDEX_NODE_TYPE] != self.node_action) and
                           (status_tree == status_running)):
                         self.process_node(tree[self.next_node], self.tree_status)
+                    if ((is_condition) and (tree[self.next_node][INDEX_NODE_TYPE] == self.node_condition)):
+                        next_condition = tree[self.next_node][INDEX_NODE_FUNCTION]
                     value.append(self.next_node)
                 if tree[i][INDEX_NODE_TYPE] == self.node_condition:
                     node_type = macro_node_condition
+                    self.nodes_path.append([index, node_type, tree[i][INDEX_NODE_FUNCTION], tree[value[0]][INDEX_NODE_FUNCTION], 
+                                            tree[value[1]][INDEX_NODE_FUNCTION], next_condition])
                 elif tree[i][INDEX_NODE_TYPE] == self.node_action:
                     node_type = macro_node_action
-                self.nodes_path.append([index, node_type, tree[i][INDEX_NODE_FUNCTION], tree[value[0]][INDEX_NODE_FUNCTION], tree[value[1]][INDEX_NODE_FUNCTION]])
+                    self.nodes_path.append([index, node_type, tree[i][INDEX_NODE_FUNCTION], tree[value[0]][INDEX_NODE_FUNCTION], 
+                                            tree[value[1]][INDEX_NODE_FUNCTION]])
                 index += 1
         
         for i in range(len(self.nodes_path)):
             succes_case = False
             fail_case = False
+            condition_whitout_next_condition = True
+            if ((self.nodes_path[i][INDEX_NODE_TYPE] == macro_node_condition) and
+                (self.nodes_path[i][INDEX_NEXT_CONDITION] != NODE_UNRELATED)):
+                condition_whitout_next_condition =  False
             for j in range(len(self.nodes_path)):
                 if(self.nodes_path[i][INDEX_SUCCESS_CASE] == self.nodes_path[j][INDEX_NODE_FUNCTION]):
                     self.nodes_path[i][INDEX_SUCCESS_CASE] = self.nodes_path[j][0]
@@ -97,7 +108,10 @@ class BT_EXECUTE:
                 if(self.nodes_path[i][INDEX_FAIL_CASE] == self.nodes_path[j][INDEX_NODE_FUNCTION]):
                     self.nodes_path[i][INDEX_FAIL_CASE] = self.nodes_path[j][0]
                     fail_case = True
-                if(succes_case and fail_case):
+                if((not condition_whitout_next_condition) and (self.nodes_path[i][INDEX_NEXT_CONDITION] == self.nodes_path[j][INDEX_NODE_FUNCTION])):
+                    self.nodes_path[i][INDEX_NEXT_CONDITION] = self.nodes_path[j][0]
+                    condition_whitout_next_condition = True
+                if((succes_case) and (fail_case) and (condition_whitout_next_condition)):
                     break
 
         return self.nodes_path

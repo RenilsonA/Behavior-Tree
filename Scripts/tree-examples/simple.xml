@@ -1,21 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4">
   <BehaviorTree ID="example">
-    <Fallback>
-      <Sequence>
-        <ScriptCondition code="condition1"/>
-        <Script code="action1"/>
-        <Fallback>
-          <Script code="action2"/>
-          <Script code="action3"/>
-        </Fallback>
-        <Script code="action4"/>
-        <SubTree ID="subtree"/>
-        <Script code="action5"/>
-      </Sequence>
-      <ScriptCondition code="condition2"/>
-      <Script code="action6"/>
-    </Fallback>
+    <Sequence>
+      <Fallback>
+        <Sequence>
+          <ScriptCondition code="condition1"/>
+          <Script code="action1"/>
+          <Fallback>
+            <ScriptCondition code="condition2"/>
+            <Script code="action2"/>
+            <Script code="action3"/>
+          </Fallback>
+          <SubTree ID="subtree"/>
+          <Script code="action4"/>
+          <Script code="action5"/>
+        </Sequence>
+        <Script code="action6"/>
+      </Fallback>
+      <Fallback>
+        <ScriptCondition code="condition4"/>
+        <Script code="action9"/>
+      </Fallback>
+      <Fallback>
+        <ScriptCondition code="condition5"/>
+        <Script code="action10"/>
+      </Fallback>
+    </Sequence>
   </BehaviorTree>
 
   <BehaviorTree ID="subtree">
