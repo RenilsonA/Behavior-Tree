@@ -30,17 +30,32 @@
 #define BT_DEFINITION_H_
 
 #include "stdint.h"
+#include "stddef.h"
 
 /**
  * @brief Define type of indexes.
+ * Type index of 32-bit, 16-bit 8-bit value, respectively.
  *
  */
-#if BT_SIZE == 8
-typedef uint8_t bt_index_t;
+#if BT_SIZE == 32
+typedef uint32_t bt_index_t;
 #elif BT_SIZE == 16
 typedef uint16_t bt_index_t;
 #else
-typedef uint32_t bt_index_t;
+typedef uint8_t bt_index_t;
+#endif
+
+/**
+ * @brief Non-existing item.
+ * Last ID of 32-bit, 16-bit 8-bit value, respectively.
+ *
+ */
+#if BT_SIZE == 32
+#define BT_DEFINITION_TREE_UNRELATED 0xFFFFFFFF
+#elif BT_SIZE == 16
+#define BT_DEFINITION_TREE_UNRELATED 0xFFFF
+#else
+#define BT_DEFINITION_TREE_UNRELATED 0xFF
 #endif
 
 /**
@@ -48,19 +63,6 @@ typedef uint32_t bt_index_t;
  *
  */
 #define BT_DEFINITON_NODE_FIRST_INDEX 0
-
-/**
- * @brief Non-existing item.
- * Last ID of 8-bit, 16-bit 32-bit value, respectively.
- *
- */
-#if BT_SIZE == 8
-#define BT_DEFINITION_TREE_UNRELATED 0xFF
-#elif BT_SIZE == 16
-#define BT_DEFINITION_TREE_UNRELATED 0xFFFF
-#else
-#define BT_DEFINITION_TREE_UNRELATED 0xFFFFFFFF
-#endif
 
 /**
  * @brief Error checking a function of type bt_definition_status_t.
@@ -159,9 +161,8 @@ typedef struct bt_definition_node
 typedef struct bt_definition_tree_data
 {
     bt_definition_status_t last_node_state; /**< State of tree execution. */
-    bt_index_t node_index;                    /**< Node to be executed. */
-    bt_index_t condition_index;               /**< Node condition to be executed in next tick. */
-    bt_index_t tree_size;                     /**< Size of tree. */
+    bt_index_t node_index;                  /**< Node to be executed. */
+    bt_index_t tree_size;                   /**< Size of tree. */
     const bt_definition_node_t *tree;       /**< Pointer to tree. */
 } bt_definition_tree_data_t;
 

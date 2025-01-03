@@ -3,27 +3,34 @@
   <BehaviorTree ID="example">
     <Sequence>
       <Fallback>
+        <ScriptCondition code="condition1"/>
         <Sequence>
-          <ScriptCondition code="condition1"/>
           <Script code="action1"/>
           <Fallback>
             <ScriptCondition code="condition2"/>
             <Script code="action2"/>
             <Script code="action3"/>
           </Fallback>
-          <SubTree ID="subtree"/>
-          <Script code="action4"/>
-          <Script code="action5"/>
         </Sequence>
-        <Script code="action6"/>
       </Fallback>
       <Fallback>
         <ScriptCondition code="condition4"/>
         <Script code="action9"/>
       </Fallback>
-      <Fallback>
+      <Sequence>
         <ScriptCondition code="condition5"/>
         <Script code="action10"/>
+      </Sequence>
+      <Fallback>
+        <ScriptCondition code="condition6"/>
+        <Fallback>
+          <ScriptCondition code="condition7"/>
+          <Script code="action11"/>
+        </Fallback>
+        <Fallback>
+          <ScriptCondition code="condition8"/>
+          <Script code="action12"/>
+        </Fallback>
       </Fallback>
     </Sequence>
   </BehaviorTree>

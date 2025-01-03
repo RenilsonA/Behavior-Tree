@@ -28,29 +28,30 @@
 
 #include "bt_process.h"
 
-bt_definition_status_t bt_process_node(bt_definition_tree_data_t *data_tree)
+bt_definition_status_t bt_process_node(bt_definition_tree_data_t *struct_tree)
 {
-    bt_index_t index = data_tree->node_index;
+    bt_index_t index = struct_tree->node_index;
     bt_definition_status_t status = 0;
-    const bt_definition_node_t *node_struct = &(data_tree->tree[index]);
+    const bt_definition_node_t *node_struct = &(struct_tree->tree[index]);
     bt_definition_node_type_t node_type = node_struct->node_type;
+
+    if(struct_tree == NULL)
+    {
+        return BT_DEFINITION_STATUS_ERROR;
+    }
 
     switch(node_type)
     {
         case BT_DEFINITION_NODE_CONDITION:
         case BT_DEFINITION_NODE_ACTION:
         {
-            if(data_tree->last_node_state != BT_DEFINITION_STATUS_RUNNING)
+            if(struct_tree->last_node_state != BT_DEFINITION_STATUS_RUNNING)
             {
-                data_tree->node_index = 0;
+                struct_tree->node_index = 0;
                 return BT_DEFINITION_STATUS_ERROR;
             }
 
             status = node_struct->interation_node.interation.function();
-            if(node_type == BT_DEFINITION_NODE_CONDITION)
-            {
-                data_tree->condition_index = node_struct->interation_node.condition.st_condition_index;
-            }
             break;
         }
 
@@ -68,11 +69,11 @@ bt_definition_status_t bt_process_node(bt_definition_tree_data_t *data_tree)
 
     if(status == BT_DEFINITION_STATUS_SUCCESS)
     {
-        data_tree->node_index = node_struct->st_index;
+        struct_tree->node_index = node_struct->st_index;
     }
     else if(status == BT_DEFINITION_STATUS_FAIL)
     {
-        data_tree->node_index = node_struct->ft_index;
+        struct_tree->node_index = node_struct->ft_index;
     }
 
     return BT_DEFINITION_STATUS_RUNNING;

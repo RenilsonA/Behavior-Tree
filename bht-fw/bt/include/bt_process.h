@@ -30,6 +30,7 @@
 #define BT_PROCESS_H_
 
 #include "bt_common.h"
+#include "stddef.h"
 
 /**
  * @brief Executes nodes. Each function call is a tick.
@@ -40,6 +41,6 @@
  * @retval BT_DEFINITION_STATUS_RUNNING if running node;
  * @retval BT_DEFINITION_STATUS_ERROR if irregular node;
  */
-bt_definition_status_t bt_process_node(bt_definition_tree_data_t *data_tree);
+bt_definition_status_t bt_process_node(bt_definition_tree_data_t *struct_tree);
 
 #endif /* BT_PROCESS_H_ */

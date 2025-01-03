@@ -3,7 +3,7 @@
  * @author Renilson Almeida (joserenilson.silva@edge.ufal.br)
  * @brief Header da interface da behavior tree array.
  * @version 1.0
- * @date 27/12/2024
+ * @date 03/01/2025
  *
  */
 
@@ -13,10 +13,10 @@
 #include "test_bt_blackboard.h"
 
 /**
- * @brief Tamanho da árvore test_.
+ * @brief Tamanho da árvore test.
  *
  */
-#define TEST_BT_ARRAY_SIZE 11
+#define TEST_BT_ARRAY_SIZE 14
 
 /**
  * @brief Array contendo os nós da árvore test.
@@ -28,6 +28,6 @@ extern const bt_definition_node_t test_bt_array[TEST_BT_ARRAY_SIZE];
  * @brief Externaliza estrutura de controle da árvore test, caso precise.
  *
  */
-extern bt_definition_tree_data_t test_bt_struct;
+extern bt_definition_tree_data_t test_bt_control;
 
 #endif /* TEST_BT_ARRAY_H_ */

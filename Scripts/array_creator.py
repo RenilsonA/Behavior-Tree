@@ -6,8 +6,8 @@ from library_creator import ARCHIVE_CREATOR
 class BT_ARRAY:
     def __init__(self):
         self.node_root = 'Root'
-        self.node_fallback = 'Fallback'
         self.node_sequence = 'Sequence'
+        self.node_fallback = 'Fallback'
         self.node_action = 'Script'
         self.node_condition = 'ScriptCondition'
         self.node_decorator_attempts = 'RetryUntilSuccessful'
@@ -38,11 +38,12 @@ class BT_ARRAY:
     def set_archive_data(self, project_id = None, name = None, email = None, version = None, copyrights = None, project = None):
         self.library.set_text(project_id=project_id, name=name, email=email, version=version, copyrights=copyrights, project=project)
 
-    def set_nodes_name(self, node_root = None, node_fallback = None, node_sequence = None, node_action = None, node_condition = None, 
-                       node_decorator_attempts = None, node_delay = None, node_subtree = None):
+    def set_nodes_name(self, node_root = None, node_fallback = None, node_sequence = None, 
+                       node_action = None, node_condition = None, node_decorator_attempts = None, 
+                       node_delay = None, node_subtree = None):
         self.node_root = node_root
-        self.node_fallback = node_fallback
         self.node_sequence = node_sequence
+        self.node_fallback = node_fallback
         self.node_action = node_action
         self.node_condition = node_condition
         self.node_decorator_attempts = node_decorator_attempts
@@ -59,7 +60,6 @@ class BT_ARRAY:
                     sibling_index = self.tree[j][0]
 
     def mount_nodes(self, element, node_parent_number):
-        global attempts
         global attempts_max
         self.node_number += 1
 
@@ -89,7 +89,7 @@ class BT_ARRAY:
 
         elif self.node_decorator_attempts == element.tag:
             self.tree.append([self.node_number, self.node_decorator_attempts, "BT_DEFINITION_TREE_UNRELATED", element.get('num_attempts'), 
-                              f'&tc_{self.library.project.lower()}_bht_commom_attempts[{attempts}]', "BT_DEFINITION_TREE_UNRELATED",  node_parent_number])
+                              f'&tc_{self.library.project.lower()}_bht_commom_attempts[{self.attempts}]', "BT_DEFINITION_TREE_UNRELATED",  node_parent_number])
             node_parent_number = self.node_number
             self.attempts += 1
             is_decoration_attempts = True

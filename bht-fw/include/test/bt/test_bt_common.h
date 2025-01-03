@@ -3,7 +3,7 @@
  * @author Renilson Almeida (joserenilson.silva@edge.ufal.br)
  * @brief Header da interface das variáveis comuns do test_.
  * @version 1.0
- * @date 27/12/2024
+ * @date 03/01/2025
  *
  */
 

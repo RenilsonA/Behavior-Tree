@@ -111,7 +111,7 @@ class ARCHIVE_CREATOR:
     
     def tree_general_inc(self, tree_size):
         self.text         += "/**\n"
-        self.text         += f" * @brief Tamanho da árvore {self.project.lower()}.\n"
+        self.text         += f" * @brief Tamanho da árvore {self.project[:-1].lower()}.\n"
         self.text         += " *\n */\n"
         self.text         += f"#define {self.project.upper()}BT_ARRAY_SIZE {tree_size}\n\n"
         self.text         += "/**\n"
@@ -121,7 +121,7 @@ class ARCHIVE_CREATOR:
         self.text         += "/**\n"
         self.text         += f" * @brief Externaliza estrutura de controle da árvore {self.project[:-1].lower()}, caso precise.\n"
         self.text         += " *\n */\n"
-        self.text         += f"extern bt_definition_tree_data_t {self.project.lower()}bt_struct;\n\n"
+        self.text         += f"extern bt_definition_tree_data_t {self.project.lower()}bt_control;\n\n"
 
     def tree_general_src(self, bt_array):
         self.text         += "/**\n"
@@ -135,11 +135,10 @@ class ARCHIVE_CREATOR:
         self.text         += "/**\n"
         self.text         += f" * @brief Estrutura de controle da árvore {self.project[:-1].lower()}.\n"
         self.text         += " *\n */\n"
-        self.text         += f"bt_definition_tree_data_t {self.project.lower()}bt_struct = "
+        self.text         += f"bt_definition_tree_data_t {self.project.lower()}bt_control = "
         self.text         += "{\n"
         self.text         += "    .last_node_state = BT_DEFINITION_STATUS_RUNNING,\n"
         self.text         += "    .node_index      = BT_DEFINITON_NODE_FIRST_INDEX,\n"
-        self.text         += "    .condition_index = 0,\n"
         self.text         += f"    .tree_size       = {self.project.upper()}BT_ARRAY_SIZE,\n"
         self.text         += f"    .tree            = {self.project.lower()}bt_array,\n"
         self.text         += "};\n\n"

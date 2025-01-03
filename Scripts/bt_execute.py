@@ -6,6 +6,7 @@ INDEX_NODE_PARENT = 4
 INDEX_NODE_FUNCTION = 2
 
 #Tree like DAG
+INDEX_OF_POSITION = 0
 INDEX_SUCCESS_CASE = 3
 INDEX_FAIL_CASE = 4
 INDEX_NEXT_CONDITION = 5
@@ -35,7 +36,9 @@ class BT_EXECUTE:
         self.next_node = 0
         self.nodes_path = []
 
-    def get_nodes_name(self, node_root, node_fallback = None, node_sequence = None, node_action = None, node_condition = None, node_decorator_attempts = None, node_delay = None, node_subtree = None):
+    def get_nodes_name(self, node_root = None, node_fallback = None,node_sequence = None, 
+                       node_action = None, node_condition = None, node_decorator_attempts = None, 
+                       node_delay = None, node_subtree = None):
         self.node_root = node_root
         self.node_fallback = node_fallback
         self.node_sequence = node_sequence
@@ -68,10 +71,10 @@ class BT_EXECUTE:
     def init_process(self, tree):
         self.tree = tree
         index = 0
+        index_last_condition = -1
         for i in range(len(tree)):
             if((tree[i][INDEX_NODE_TYPE] == self.node_condition) or
                (tree[i][INDEX_NODE_TYPE] == self.node_action)):
-                is_condition = True if tree[i][INDEX_NODE_TYPE] == self.node_condition else False
                 next_condition = NODE_UNRELATED
                 value = []
                 for status in status_node:
@@ -81,26 +84,17 @@ class BT_EXECUTE:
                           (tree[self.next_node][INDEX_NODE_TYPE] != self.node_action) and
                           (status_tree == status_running)):
                         self.process_node(tree[self.next_node], self.tree_status)
-                    if ((is_condition) and (tree[self.next_node][INDEX_NODE_TYPE] == self.node_condition)):
-                        next_condition = tree[self.next_node][INDEX_NODE_FUNCTION]
                     value.append(self.next_node)
-                if tree[i][INDEX_NODE_TYPE] == self.node_condition:
-                    node_type = macro_node_condition
-                    self.nodes_path.append([index, node_type, tree[i][INDEX_NODE_FUNCTION], tree[value[0]][INDEX_NODE_FUNCTION], 
-                                            tree[value[1]][INDEX_NODE_FUNCTION], next_condition])
-                elif tree[i][INDEX_NODE_TYPE] == self.node_action:
+                node_type = macro_node_condition
+                if tree[i][INDEX_NODE_TYPE] == self.node_action:
                     node_type = macro_node_action
-                    self.nodes_path.append([index, node_type, tree[i][INDEX_NODE_FUNCTION], tree[value[0]][INDEX_NODE_FUNCTION], 
-                                            tree[value[1]][INDEX_NODE_FUNCTION]])
+                self.nodes_path.append([index, node_type, tree[i][INDEX_NODE_FUNCTION], tree[value[0]][INDEX_NODE_FUNCTION], 
+                                        tree[value[1]][INDEX_NODE_FUNCTION]])
                 index += 1
         
         for i in range(len(self.nodes_path)):
             succes_case = False
             fail_case = False
-            condition_whitout_next_condition = True
-            if ((self.nodes_path[i][INDEX_NODE_TYPE] == macro_node_condition) and
-                (self.nodes_path[i][INDEX_NEXT_CONDITION] != NODE_UNRELATED)):
-                condition_whitout_next_condition =  False
             for j in range(len(self.nodes_path)):
                 if(self.nodes_path[i][INDEX_SUCCESS_CASE] == self.nodes_path[j][INDEX_NODE_FUNCTION]):
                     self.nodes_path[i][INDEX_SUCCESS_CASE] = self.nodes_path[j][0]
@@ -108,10 +102,7 @@ class BT_EXECUTE:
                 if(self.nodes_path[i][INDEX_FAIL_CASE] == self.nodes_path[j][INDEX_NODE_FUNCTION]):
                     self.nodes_path[i][INDEX_FAIL_CASE] = self.nodes_path[j][0]
                     fail_case = True
-                if((not condition_whitout_next_condition) and (self.nodes_path[i][INDEX_NEXT_CONDITION] == self.nodes_path[j][INDEX_NODE_FUNCTION])):
-                    self.nodes_path[i][INDEX_NEXT_CONDITION] = self.nodes_path[j][0]
-                    condition_whitout_next_condition = True
-                if((succes_case) and (fail_case) and (condition_whitout_next_condition)):
+                if((succes_case) and (fail_case)):
                     break
 
         return self.nodes_path
