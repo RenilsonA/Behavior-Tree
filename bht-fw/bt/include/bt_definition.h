@@ -104,38 +104,15 @@ typedef enum
 } bt_definition_node_type_t;
 
 /**
- * @brief Data loaded into an interaction type node containing function.
- *
- */
-typedef struct bt_definition_interation_funtion
-{
-    union
-    {
-        int (*function)(void); /**< Pointer to interaction function. */
-        bt_index_t timeout_ms;   /**< Delay timeout value for interation action node delay. */
-    };
-} bt_definition_interation_funtion_t;
-
-/**
- * @brief Data loaded into a condition interation node.
- *
- */
-typedef struct bt_definition_interation_condition
-{
-    bt_index_t st_condition_index; /**< Index to next struture condition if have success. */
-    bt_index_t ft_condition_index; /**< Index to next struture condition if have fail. */
-} bt_definition_interation_condition_t;
-
-/**
- * @brief Data loaded into interation condition node.
+ * @brief Data loaded into interation node.
  *
  */
 typedef struct bt_definition_node_interation
 {
-    bt_definition_interation_funtion_t interation; /**< Data of interation. */
     union
     {
-        bt_definition_interation_condition_t condition; /**< indexes of conditions structs already executed. */
+        int (*function)(void); /**< Pointer to interaction function. */
+        bt_index_t timeout_ms; /**< Delay timeout value for interation action node delay. */
     };
 } bt_definition_node_interation_t;
 
@@ -146,11 +123,11 @@ typedef struct bt_definition_node_interation
 typedef struct bt_definition_node
 {
     bt_definition_node_type_t node_type; /**< Node type. */
-    bt_index_t st_index;                             /**< Index to next node struture if have success. */
-    bt_index_t ft_index;                             /**< Index to next node struture if have fail. */
+    bt_index_t st_index;                 /**< Index to next node struture if have success. */
+    bt_index_t ft_index;                 /**< Index to next node struture if have fail. */
     union
     {
-        bt_definition_node_interation_t interation_node;
+        bt_definition_node_interation_t interation_node; /**< Interation type node. */
     };
 } bt_definition_node_t;
 

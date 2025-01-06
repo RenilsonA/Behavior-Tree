@@ -30,7 +30,7 @@
 
 bt_definition_status_t bt_manager_tick_tree(bt_definition_tree_data_t *struct_tree)
 {
-    if(struct_tree == NULL)
+    if (struct_tree == NULL)
     {
         return BT_DEFINITION_STATUS_ERROR;
     }
@@ -43,22 +43,22 @@ bt_definition_status_t bt_manager_reactivity_tick_tree(bt_definition_tree_data_t
     bt_definition_status_t tree_status = BT_DEFINITION_STATUS_SUCCESS;
     bt_index_t node_index = struct_tree->node_index;
 
-    if(struct_tree == NULL)
+    if (struct_tree == NULL)
     {
         return BT_DEFINITION_STATUS_ERROR;
     }
 
     struct_tree->node_index = BT_DEFINITON_NODE_FIRST_INDEX;
 
-    while(struct_tree->node_index < node_index)
+    while (struct_tree->node_index < node_index)
     {
         tree_status = bt_manager_tick_tree(struct_tree);
-        if(tree_status != BT_DEFINITION_STATUS_RUNNING)
+        if (tree_status != BT_DEFINITION_STATUS_RUNNING)
         {
             return tree_status;
         }
 
-        //TODO: Refazer a partir do ponto.
+        // TODO: Refazer a partir do ponto.
     }
 
     tree_status = bt_manager_tick_tree(struct_tree);
@@ -68,7 +68,7 @@ bt_definition_status_t bt_manager_reactivity_tick_tree(bt_definition_tree_data_t
 
 bt_definition_status_t bt_manager_reset_tree(bt_definition_tree_data_t *struct_tree)
 {
-    if(struct_tree == NULL)
+    if (struct_tree == NULL)
     {
         return BT_DEFINITION_STATUS_ERROR;
     }
