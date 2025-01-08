@@ -30,7 +30,7 @@
 
 bt_definition_status_t bt_manager_tick_tree(bt_definition_tree_data_t *struct_tree)
 {
-    if (struct_tree == NULL)
+    if(struct_tree == NULL)
     {
         return BT_DEFINITION_STATUS_ERROR;
     }
@@ -44,30 +44,30 @@ bt_definition_status_t bt_manager_reactivity_tick_tree(bt_definition_tree_data_t
     bt_index_t node_index = struct_tree->node_index;
     const bt_definition_node_t *tree = (bt_definition_node_t *)struct_tree->tree;
 
-    if (struct_tree == NULL)
+    if(struct_tree == NULL)
     {
         return BT_DEFINITION_STATUS_ERROR;
     }
 
-    if (tree[node_index].node_type == BT_DEFINITION_NODE_CONDITION)
+    if(tree[node_index].node_type == BT_DEFINITION_NODE_CONDITION)
     {
         struct_tree->first_condition_index = tree[node_index].interaction_node.first_condition_ramification;
     }
 
     struct_tree->node_index = struct_tree->first_condition_index;
 
-    while (struct_tree->node_index < node_index)
+    while(struct_tree->node_index < node_index)
     {
         tree_status = bt_manager_tick_tree(struct_tree);
-        if (tree_status != BT_DEFINITION_STATUS_RUNNING)
+        if(tree_status != BT_DEFINITION_STATUS_RUNNING)
         {
             return tree_status;
         }
         SEGGER_RTT_printf(0, "\n");
-        if (tree[struct_tree->node_index].node_type == BT_DEFINITION_NODE_ACTION)
+        if(tree[struct_tree->node_index].node_type == BT_DEFINITION_NODE_ACTION)
         {
             struct_tree->node_index = tree[node_index].interaction_node.next_condition_in_ramification;
-            if (struct_tree->node_index > node_index)
+            if(struct_tree->node_index > node_index)
             {
                 struct_tree->node_index = node_index;
             }
@@ -82,7 +82,7 @@ bt_definition_status_t bt_manager_reactivity_tick_tree(bt_definition_tree_data_t
 
 bt_definition_status_t bt_manager_reset_tree(bt_definition_tree_data_t *struct_tree)
 {
-    if (struct_tree == NULL)
+    if(struct_tree == NULL)
     {
         return BT_DEFINITION_STATUS_ERROR;
     }

@@ -11,16 +11,22 @@
             <Script code="action2"/>
             <Script code="action3"/>
           </Fallback>
+          <Fallback>
+            <ScriptCondition code="condition4"/>
+            <Script code="action9"/>
+          </Fallback>
         </Sequence>
       </Fallback>
       <Fallback>
-        <ScriptCondition code="condition4"/>
-        <Script code="action9"/>
-      </Fallback>
-      <Sequence>
         <ScriptCondition code="condition5"/>
-        <Script code="action10"/>
-      </Sequence>
+        <Fallback>
+          <ScriptCondition code="condition9"/>
+          <Fallback>
+            <ScriptCondition code="condition10"/>
+            <Script code="action10"/>
+          </Fallback>
+        </Fallback>
+      </Fallback>
       <Fallback>
         <ScriptCondition code="condition6"/>
         <Fallback>

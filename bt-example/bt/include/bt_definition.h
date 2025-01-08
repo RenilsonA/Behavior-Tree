@@ -111,12 +111,10 @@ typedef struct bt_definition_node_interaction
 {
     union
     {
-        struct
-        {
+        struct {
             int (*function)(void); /**< Pointer to interaction function. */
-            union
-            {
-                bt_index_t first_condition_ramification;   /**< Indicates first index in ramification who check condition for reactivity in condition interaction. */
+            union {
+                bt_index_t first_condition_ramification;    /**< Indicates first index in ramification who check condition for reactivity in condition interaction. */
                 bt_index_t next_condition_in_ramification; /**< Indicates next index in ramification who check condition for reactivity in action interaction. */
             };
         };
@@ -157,12 +155,12 @@ typedef struct bt_definition_tree_data
  *
  */
 #define BT_DEFINITION_CREATE_NODE_CONDITION(_function, _success_target, _fail_target, _first_condition) \
-    {                                                                                                   \
-        .node_type = BT_DEFINITION_NODE_CONDITION,                                                      \
-        .st_index = _success_target,                                                                    \
-        .ft_index = _fail_target,                                                                       \
-        .interaction_node.function = _function,                                                         \
-        .interaction_node.first_condition_ramification = _first_condition,                              \
+    {                                                                                 \
+        .node_type = BT_DEFINITION_NODE_CONDITION,                                    \
+        .st_index = _success_target,                                                  \
+        .ft_index = _fail_target,                                                     \
+        .interaction_node.function = _function,                             \
+        .interaction_node.first_condition_ramification = _first_condition,                             \
     }
 
 /**
@@ -170,12 +168,12 @@ typedef struct bt_definition_tree_data
  *
  */
 #define BT_DEFINITION_CREATE_NODE_ACTION(_function, _success_target, _fail_target, _next_condition) \
-    {                                                                                               \
-        .st_index = _success_target,                                                                \
-        .ft_index = _fail_target,                                                                   \
-        .node_type = BT_DEFINITION_NODE_ACTION,                                                     \
-        .interaction_node.function = _function,                                                     \
-        .interaction_node.next_condition_in_ramification = _next_condition,                         \
+    {                                                                              \
+        .st_index = _success_target,                                               \
+        .ft_index = _fail_target,                                                  \
+        .node_type = BT_DEFINITION_NODE_ACTION,                                    \
+        .interaction_node.function = _function,                          \
+        .interaction_node.next_condition_in_ramification = _next_condition,                             \
     }
 
 /**
@@ -185,9 +183,9 @@ typedef struct bt_definition_tree_data
 #define BT_DEFINITION_CREATE_NODE_ACTION_DELAY(_timeout_ms, _sibling, _parent) \
     {                                                                          \
         .node_type = BT_DEFINITION_NODE_ACTION,                                \
-        .interaction_node.interaction.timeout_ms = _timeout_ms,                \
-        .interaction_node.st_index = _sibling,                                 \
-        .interaction_node.ft_index = _parent,                                  \
+        .interaction_node.interaction.timeout_ms = _timeout_ms,                  \
+        .interaction_node.st_index = _sibling,                                  \
+        .interaction_node.ft_index = _parent,                                   \
     }
 
 #endif /* BT_DEFINITION_H_ */

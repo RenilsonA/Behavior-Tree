@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="uc.module.setup.ucConfig.com.silabs.ss.framework.project.toolchain.core.default#com.silabs.ss.tool.ide.arm.toolchain.gnu.cdt:10.3.1.20210824.gcc" propertyScope="project">
+  <folder name="config">
+    <file name="sl_memory_config.h" generated="true" linked="false"/>
+    <file name="sl_sleeptimer_config.h" generated="true" linked="false"/>
+    <file name="sl_device_init_lfxo_config.h" generated="true" linked="false"/>
+    <file name="sl_board_control_config.h" generated="true" linked="false"/>
+    <file name="sl_device_init_hfxo_config.h" generated="true" linked="false"/>
+    <file name="SEGGER_RTT_Conf.h" generated="true" linked="false"/>
+    <file name="sl_device_init_emu_config.h" generated="true" linked="false"/>
+    <file name="sl_device_init_dcdc_config.h" generated="true" linked="false"/>
+    <file name="emlib_core_debug_config.h" generated="true" linked="false"/>
+    <file name="sl_mx25_flash_shutdown_usart_config.h" generated="true" linked="false"/>
+  </folder>
+  <includePath uri="studio:/project/config"/>
+</project>
