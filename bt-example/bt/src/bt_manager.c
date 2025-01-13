@@ -27,6 +27,7 @@
  */
 
 #include "bt_manager.h"
+#include "test_bt_common.h"
 
 bt_definition_status_t bt_manager_tick_tree(bt_definition_tree_data_t *struct_tree)
 {
@@ -37,44 +38,67 @@ bt_definition_status_t bt_manager_tick_tree(bt_definition_tree_data_t *struct_tr
 
     return bt_process_node(struct_tree);
 }
-
+#include "SEGGER_RTT.h"
 bt_definition_status_t bt_manager_reactivity_tick_tree(bt_definition_tree_data_t *struct_tree)
 {
     bt_definition_status_t tree_status = BT_DEFINITION_STATUS_SUCCESS;
     bt_index_t node_index = struct_tree->node_index;
-    const bt_definition_node_t *tree = (bt_definition_node_t *)struct_tree->tree;
+    bt_index_t index_status_key = node_index % 32;
+    uint32_t index_status_position = node_index / 32;
+    uint32_t value_status = struct_tree->nodes_status[index_status_position];
+    uint32_t mask = (0b1 << (value_status));
+    bool check_node = (value_status & mask) >> index_status_key;
+    uint32_t valor = (value_status & (~mask));
+    const bt_definition_node_t *tree = &(struct_tree->tree);
 
     if(struct_tree == NULL)
     {
         return BT_DEFINITION_STATUS_ERROR;
     }
 
-    if(tree[node_index].node_type == BT_DEFINITION_NODE_CONDITION)
-    {
-        struct_tree->first_condition_index = tree[node_index].interaction_node.first_condition_ramification;
-    }
-
-    struct_tree->node_index = struct_tree->first_condition_index;
+    struct_tree->node_index = 0;
 
     while(struct_tree->node_index < node_index)
     {
-        tree_status = bt_manager_tick_tree(struct_tree);
-        if(tree_status != BT_DEFINITION_STATUS_RUNNING)
+        if((!check_node))
         {
-            return tree_status;
-        }
-        SEGGER_RTT_printf(0, "\n");
-        if(tree[struct_tree->node_index].node_type == BT_DEFINITION_NODE_ACTION)
-        {
-            struct_tree->node_index = tree[node_index].interaction_node.next_condition_in_ramification;
-            if(struct_tree->node_index > node_index)
+            tree_status = bt_process_node_with_memory(struct_tree, index_status_key, index_status_position, valor);
+            if(tree_status != BT_DEFINITION_STATUS_RUNNING)
             {
-                struct_tree->node_index = node_index;
+                return tree_status;
             }
+            SEGGER_RTT_printf(0, "\n");
         }
+
+        index_status_key = struct_tree->node_index % 32;
+        index_status_position = struct_tree->node_index / 32;
+        value_status = struct_tree->nodes_status[index_status_position];
+        mask = (0b1 << (index_status_key));
+        check_node = (value_status & mask) >> index_status_key;
+        valor = (value_status & (~mask));
+
+        if(check_node)
+        {
+            struct_tree->node_index = struct_tree->tree[struct_tree->node_index].st_index;
+        }
+        else if((struct_tree->tree[struct_tree->node_index].node_type == BT_DEFINITION_NODE_ACTION) &&
+                (struct_tree->tree[struct_tree->node_index].ft_index == (struct_tree->node_index + 1) &&
+                (struct_tree->node_index < node_index)))
+        {
+            struct_tree->node_index = struct_tree->tree[struct_tree->node_index].ft_index;
+        }
+
+        sl_sleeptimer_delay_millisecond(50);
     }
 
-    tree_status = bt_manager_tick_tree(struct_tree);
+    index_status_key = struct_tree->node_index % 32;
+    index_status_position = struct_tree->node_index / 32;
+    value_status = struct_tree->nodes_status[index_status_position];
+    mask = (0b1 << (index_status_key));
+    valor = (value_status & (~mask));
+
+    tree_status = bt_process_node_with_memory(struct_tree, index_status_key, index_status_position, valor);
+
     SEGGER_RTT_printf(0, "\n");
 
     return tree_status;

@@ -9,9 +9,7 @@
 
 #include "test_bt_common.h"
 
-/**
- * @brief Guarda o número de tentativas dos nós decorators.
- *
- */
 uint8_t test_bt_commom_attempts[TEST_BT_COMMON_ATTEMPTS_SIZE];
+
+uint32_t test_bt_status_nodes[TEST_BT_COMMON_STATUS_NODES_SIZE];
 

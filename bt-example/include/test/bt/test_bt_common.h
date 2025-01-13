@@ -19,9 +19,21 @@
 #define TEST_BT_COMMON_ATTEMPTS_SIZE 0
 
 /**
+ * @brief Número máximo de itens para o array de nós.
+ *
+ */
+#define TEST_BT_COMMON_STATUS_NODES_SIZE 1
+
+/**
  * @brief Referência o array de tentativas.
  *
  */
 extern uint8_t test_bt_commom_attempts[TEST_BT_COMMON_ATTEMPTS_SIZE];
+
+/**
+ * @brief Guarda os status dos nós executados.
+ *
+ */
+extern uint32_t test_bt_status_nodes[TEST_BT_COMMON_STATUS_NODES_SIZE];
 
 #endif /* TEST_BT_COMMON_H_ */

@@ -42,8 +42,8 @@ bt_definition_status_t bt_process_node(bt_definition_tree_data_t *struct_tree)
 
     switch(node_type)
     {
-        case BT_DEFINITION_NODE_CONDITION:
         case BT_DEFINITION_NODE_ACTION:
+        case BT_DEFINITION_NODE_CONDITION:
         {
             if(struct_tree->last_node_state != BT_DEFINITION_STATUS_RUNNING)
             {
@@ -74,6 +74,64 @@ bt_definition_status_t bt_process_node(bt_definition_tree_data_t *struct_tree)
     else if(status == BT_DEFINITION_STATUS_FAIL)
     {
         struct_tree->node_index = node_struct->ft_index;
+    }
+
+    return BT_DEFINITION_STATUS_RUNNING;
+}
+
+bt_definition_status_t bt_process_node_with_memory(bt_definition_tree_data_t *struct_tree,
+                                                   bt_index_t index_status_key,
+                                                   uint32_t index_status_position,
+                                                   uint32_t value_status)
+{
+    bt_index_t index = struct_tree->node_index;
+    bt_definition_status_t status = 0;
+    const bt_definition_node_t *node_struct = &(struct_tree->tree[index]);
+    bt_definition_node_type_t node_type = node_struct->node_type;
+
+    if(struct_tree == NULL)
+    {
+        return BT_DEFINITION_STATUS_ERROR;
+    }
+
+    switch(node_type)
+    {
+        case BT_DEFINITION_NODE_ACTION:
+        case BT_DEFINITION_NODE_CONDITION:
+        {
+            if(struct_tree->last_node_state != BT_DEFINITION_STATUS_RUNNING)
+            {
+                struct_tree->node_index = 0;
+                return BT_DEFINITION_STATUS_ERROR;
+            }
+
+            status = node_struct->interaction_node.function();
+            break;
+        }
+
+        case BT_DEFINITION_NODE_ACTION_TIMEOUT:
+        {
+
+            break;
+        }
+
+        default:
+        {
+            return BT_DEFINITION_STATUS_ERROR;
+        }
+    }
+
+    if(status == BT_DEFINITION_STATUS_SUCCESS)
+    {
+        struct_tree->node_index = node_struct->st_index;
+        uint32_t x = (value_status) | (0b1 << (index_status_key));
+        struct_tree->nodes_status[index_status_position] = x;
+    }
+    else if(status == BT_DEFINITION_STATUS_FAIL)
+    {
+        struct_tree->node_index = node_struct->ft_index;
+        uint32_t x = (value_status) | (0b0 << (index_status_key));
+        struct_tree->nodes_status[index_status_position] = x;
     }
 
     return BT_DEFINITION_STATUS_RUNNING;

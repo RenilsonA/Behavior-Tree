@@ -30,6 +30,7 @@
 #define BT_COMMON_H_
 
 #include "../../bt/include/bt_definition.h"
+#include "stdbool.h"
 
 /**
  * @brief Divisor value for milliseconds.

@@ -43,4 +43,9 @@
  */
 bt_definition_status_t bt_process_node(bt_definition_tree_data_t *struct_tree);
 
+bt_definition_status_t bt_process_node_with_memory(bt_definition_tree_data_t *struct_tree,
+                                                   bt_index_t index_status_key,
+                                                   uint32_t index_status_position,
+                                                   uint32_t value_status);
+
 #endif /* BT_PROCESS_H_ */
