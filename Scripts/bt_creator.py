@@ -3,6 +3,8 @@ from array_creator import BT_ARRAY
 node_root = 'Root'
 node_sequence = 'Sequence'
 node_fallback = 'Fallback'
+node_reactive_sequence = 'ReactiveSequence'
+node_reactive_fallback = 'ReactiveFallback'
 node_action = 'Script'
 node_condition = 'ScriptCondition'
 node_subtree = 'SubTree'
@@ -20,5 +22,5 @@ project = "test"
 
 x = BT_ARRAY()
 x.set_archive_data(project_id, name, email, version, copyrights, project)
-x.set_nodes_name(node_root, node_fallback, node_sequence, node_action, node_condition, node_decorator_attempts, node_delay, node_subtree)
+x.set_nodes_name(node_root, node_fallback, node_reactive_fallback, node_sequence, node_reactive_sequence, node_action, node_condition, node_decorator_attempts, node_delay, node_subtree)
 x.create_trees(folder, main_tree)

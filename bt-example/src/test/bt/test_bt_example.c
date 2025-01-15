@@ -71,6 +71,30 @@ bt_definition_status_t test_bt_example_action9(void)
   return BT_DEFINITION_STATUS_SUCCESS;
 }
 
+bt_definition_status_t test_bt_example_action14(void)
+{
+  SEGGER_RTT_printf(0, "Action14 ");
+  return BT_DEFINITION_STATUS_SUCCESS;
+}
+
+bt_definition_status_t test_bt_example_action15(void)
+{
+  SEGGER_RTT_printf(0, "Action15 ");
+  return BT_DEFINITION_STATUS_SUCCESS;
+}
+
+bt_definition_status_t test_bt_example_condition11(void)
+{
+  SEGGER_RTT_printf(0, "Condition11 ");
+  return BT_DEFINITION_STATUS_SUCCESS;
+}
+
+bt_definition_status_t test_bt_example_action16(void)
+{
+  SEGGER_RTT_printf(0, "Action16 ");
+  return BT_DEFINITION_STATUS_SUCCESS;
+}
+
 bt_definition_status_t test_bt_example_condition5(void)
 {
   SEGGER_RTT_printf(0, "Condition5 ");
@@ -103,7 +127,7 @@ bt_definition_status_t test_bt_example_condition10(void)
 
 bt_definition_status_t test_bt_example_action13(void)
 {
-  SEGGER_RTT_printf(0, "Action10 ");
+  SEGGER_RTT_printf(0, "Action13 ");
   c5 = 1;
   return BT_DEFINITION_STATUS_SUCCESS;
 }
@@ -128,7 +152,7 @@ bt_definition_status_t test_bt_example_action11(void)
 {
   SEGGER_RTT_printf(0, "Action11 ");
   c7 = 1;
-  return BT_DEFINITION_STATUS_SUCCESS;
+  return BT_DEFINITION_STATUS_FAIL;
 }
 
 bt_definition_status_t test_bt_example_condition8(void)

@@ -38,6 +38,22 @@
           <Script code="action12"/>
         </Fallback>
       </Fallback>
+      <ReactiveFallback>
+        <ScriptCondition code="condition9"/>
+        <Sequence>
+          <Script code="action13"/>
+          <ReactiveFallback>
+            <ScriptCondition code="condition10"/>
+            <Script code="action14"/>
+            <Script code="action15"/>
+          </ReactiveFallback>
+          <Script code="action9"/>
+          <ReactiveFallback>
+            <ScriptCondition code="condition11"/>
+            <Script code="action16"/>
+          </ReactiveFallback>
+        </Sequence>
+      </ReactiveFallback>
     </Sequence>
   </BehaviorTree>
 

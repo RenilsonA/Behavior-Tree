@@ -96,6 +96,19 @@ bt_definition_status_t bt_process_node_with_memory(bt_definition_tree_data_t *st
 
     switch(node_type)
     {
+        case BT_DEFINITION_NODE_REACTIVE_ACTION:
+        case BT_DEFINITION_NODE_REACTIVE_CONDITION:
+        {
+            if(struct_tree->last_node_state != BT_DEFINITION_STATUS_RUNNING)
+            {
+                struct_tree->node_index = 0;
+                return BT_DEFINITION_STATUS_ERROR;
+            }
+
+            status = node_struct->interaction_node.function();
+            break;
+        }
+
         case BT_DEFINITION_NODE_ACTION:
         case BT_DEFINITION_NODE_CONDITION:
         {
@@ -124,15 +137,17 @@ bt_definition_status_t bt_process_node_with_memory(bt_definition_tree_data_t *st
     if(status == BT_DEFINITION_STATUS_SUCCESS)
     {
         struct_tree->node_index = node_struct->st_index;
+        SEGGER_RTT_printf(0, "%d, ", struct_tree->node_index);
         uint32_t x = (value_status) | (0b1 << (index_status_key));
         struct_tree->nodes_status[index_status_position] = x;
     }
     else if(status == BT_DEFINITION_STATUS_FAIL)
     {
         struct_tree->node_index = node_struct->ft_index;
+        SEGGER_RTT_printf(0, "%d, ", struct_tree->node_index);
         uint32_t x = (value_status) | (0b0 << (index_status_key));
         struct_tree->nodes_status[index_status_position] = x;
     }
 
-    return BT_DEFINITION_STATUS_RUNNING;
+    return status;
 }

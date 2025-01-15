@@ -8,6 +8,8 @@ class BT_ARRAY:
         self.node_root = 'Root'
         self.node_sequence = 'Sequence'
         self.node_fallback = 'Fallback'
+        self.node_reactive_sequence = 'ReactiveSequence'
+        self.node_reactive_fallback = 'ReactiveFallback'
         self.node_action = 'Script'
         self.node_condition = 'ScriptCondition'
         self.node_decorator_attempts = 'RetryUntilSuccessful'
@@ -38,12 +40,15 @@ class BT_ARRAY:
     def set_archive_data(self, project_id = None, name = None, email = None, version = None, copyrights = None, project = None):
         self.library.set_text(project_id=project_id, name=name, email=email, version=version, copyrights=copyrights, project=project)
 
-    def set_nodes_name(self, node_root = None, node_fallback = None, node_sequence = None, 
+    def set_nodes_name(self, node_root = None, node_fallback = None, node_reactive_fallback = None, 
+                       node_sequence = None, node_reactive_sequence = None, 
                        node_action = None, node_condition = None, node_decorator_attempts = None, 
                        node_delay = None, node_subtree = None):
         self.node_root = node_root
-        self.node_sequence = node_sequence
         self.node_fallback = node_fallback
+        self.node_reactive_fallback = node_reactive_fallback
+        self.node_sequence = node_sequence
+        self.node_reactive_sequence = node_reactive_sequence
         self.node_action = node_action
         self.node_condition = node_condition
         self.node_decorator_attempts = node_decorator_attempts
@@ -71,6 +76,14 @@ class BT_ARRAY:
 
         elif self.node_sequence == element.tag:
             self.tree.append([self.node_number, self.node_sequence, self.node_number + 1, "BT_DEFINITION_TREE_UNRELATED", node_parent_number])
+            node_parent_number = self.node_number
+
+        elif self.node_reactive_fallback == element.tag:
+            self.tree.append([self.node_number, self.node_reactive_fallback, self.node_number + 1, "BT_DEFINITION_TREE_UNRELATED", node_parent_number])
+            node_parent_number = self.node_number
+
+        elif self.node_reactive_sequence == element.tag:
+            self.tree.append([self.node_number, self.node_reactive_sequence, self.node_number + 1, "BT_DEFINITION_TREE_UNRELATED", node_parent_number])
             node_parent_number = self.node_number
 
         elif self.node_action == element.tag:
