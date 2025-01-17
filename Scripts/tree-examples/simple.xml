@@ -2,9 +2,9 @@
 <root BTCPP_format="4">
   <BehaviorTree ID="example">
     <Sequence>
-      <Fallback>
+      <ReactiveFallback>
         <ScriptCondition code="condition1"/>
-        <Sequence>
+        <ReactiveSequence>
           <Script code="action1"/>
           <Fallback>
             <ScriptCondition code="condition2"/>
@@ -15,8 +15,8 @@
             <ScriptCondition code="condition4"/>
             <Script code="action9"/>
           </Fallback>
-        </Sequence>
-      </Fallback>
+        </ReactiveSequence>
+      </ReactiveFallback>
       <Fallback>
         <ScriptCondition code="condition5"/>
         <Fallback>
@@ -52,16 +52,39 @@
             <ScriptCondition code="condition11"/>
             <Script code="action16"/>
           </ReactiveFallback>
+          <ReactiveSequence>
+            <Script code="action9"/>
+            <Script code="action13"/>
+          </ReactiveSequence>
         </Sequence>
       </ReactiveFallback>
+      <Fallback>
+        <ScriptCondition code="condition7"/>
+        <Script code="action12"/>
+      </Fallback>
     </Sequence>
   </BehaviorTree>
 
   <BehaviorTree ID="subtree">
     <Fallback>
-      <ScriptCondition code="condition3"/>
-      <Script code="action7"/>
-      <Script code="action8"/>
+      <Sequence>
+        <RetryUntilSuccessful num_attempts="5">
+          <RetryUntilSuccessful num_attempts="4">
+            <Fallback>
+              <ScriptCondition code="condition20"/>
+              <RetryUntilSuccessful num_attempts="3">
+                <Script code="action21"/>
+              </RetryUntilSuccessful>
+              <Script code="action22"/>
+            </Fallback>
+          </RetryUntilSuccessful>
+        </RetryUntilSuccessful>
+        <Fallback>
+          <ScriptCondition code="condition21"/>
+          <Script code="action22"/>
+        </Fallback>
+      </Sequence>
+      <Script code="action23"/>
     </Fallback>
   </BehaviorTree>
 

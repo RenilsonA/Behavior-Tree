@@ -228,4 +228,40 @@ bt_definition_status_t test_bt_example_condition8(void);
 */
 bt_definition_status_t test_bt_example_action12(void);
 
+/**
+* @brief
+*
+* @retval BT_DEFINITION_STATUS_SUCCESS para sucesso;
+* @retval BT_DEFINITION_STATUS_FAIL caso ainda não tenha recebido a respectiva resposta;
+* @retval BT_DEFINITION_STATUS_STAND_BY caso ainda não esteja configurada;
+*/
+bt_definition_status_t test_bt_example_action13(void);
+
+/**
+* @brief
+*
+* @retval BT_DEFINITION_STATUS_SUCCESS para sucesso;
+* @retval BT_DEFINITION_STATUS_FAIL caso ainda não tenha recebido a respectiva resposta;
+* @retval BT_DEFINITION_STATUS_STAND_BY caso ainda não esteja configurada;
+*/
+bt_definition_status_t test_bt_example_action14(void);
+
+/**
+* @brief
+*
+* @retval BT_DEFINITION_STATUS_SUCCESS para sucesso;
+* @retval BT_DEFINITION_STATUS_FAIL caso ainda não tenha recebido a respectiva resposta;
+* @retval BT_DEFINITION_STATUS_STAND_BY caso ainda não esteja configurada;
+*/
+bt_definition_status_t test_bt_example_action15(void);
+
+/**
+* @brief
+*
+* @retval BT_DEFINITION_STATUS_SUCCESS para sucesso;
+* @retval BT_DEFINITION_STATUS_FAIL caso ainda não tenha recebido a respectiva resposta;
+* @retval BT_DEFINITION_STATUS_STAND_BY caso ainda não esteja configurada;
+*/
+bt_definition_status_t test_bt_example_condition11(void);
+
 #endif /* TEST_BT_EXAMPLE_H_ */

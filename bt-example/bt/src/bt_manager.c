@@ -144,6 +144,7 @@ bt_definition_status_t bt_manager_tick_reactive_tree(bt_definition_tree_data_t *
                 return tree_status;
             }
             SEGGER_RTT_printf(0, "\n");
+            continue;
         }
 
         index_status_key = struct_tree->node_index % 32;

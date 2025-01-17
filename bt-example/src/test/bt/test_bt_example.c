@@ -113,7 +113,7 @@ bt_definition_status_t test_bt_example_action10(void)
 bt_definition_status_t test_bt_example_condition9(void)
 {
   SEGGER_RTT_printf(0, "Condition9 ");
-  if(c9 != 0)
+  if(c9 >= 2)
     return BT_DEFINITION_STATUS_SUCCESS;
   return BT_DEFINITION_STATUS_FAIL;
 }
@@ -128,7 +128,7 @@ bt_definition_status_t test_bt_example_condition10(void)
 bt_definition_status_t test_bt_example_action13(void)
 {
   SEGGER_RTT_printf(0, "Action13 ");
-  c5 = 1;
+  c9 += 1;
   return BT_DEFINITION_STATUS_SUCCESS;
 }
 
@@ -169,4 +169,3 @@ bt_definition_status_t test_bt_example_action12(void)
   c8 = 1;
   return BT_DEFINITION_STATUS_SUCCESS;
 }
-

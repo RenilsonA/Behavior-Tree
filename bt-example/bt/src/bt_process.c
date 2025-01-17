@@ -140,6 +140,7 @@ bt_definition_status_t bt_process_node_with_memory(bt_definition_tree_data_t *st
         SEGGER_RTT_printf(0, "%d, ", struct_tree->node_index);
         uint32_t x = (value_status) | (0b1 << (index_status_key));
         struct_tree->nodes_status[index_status_position] = x;
+        SEGGER_RTT_printf(0, "Success ");
     }
     else if(status == BT_DEFINITION_STATUS_FAIL)
     {
@@ -147,6 +148,7 @@ bt_definition_status_t bt_process_node_with_memory(bt_definition_tree_data_t *st
         SEGGER_RTT_printf(0, "%d, ", struct_tree->node_index);
         uint32_t x = (value_status) | (0b0 << (index_status_key));
         struct_tree->nodes_status[index_status_position] = x;
+        SEGGER_RTT_printf(0, "Fail ");
     }
 
     return status;

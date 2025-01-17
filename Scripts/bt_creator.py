@@ -12,8 +12,8 @@ node_decorator_attempts = 'RetryUntilSuccessful'
 node_delay = 'Sleep'
 
 folder = 'tree-examples'
-main_tree = 'example'
-project_id =''
+main_tree = 'subtree'
+project_id = ''
 name = "Renilson Almeida"
 email = "joserenilson.silva@edge.ufal.br"
 version = "1.0"

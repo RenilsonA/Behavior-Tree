@@ -12,7 +12,7 @@ class BT_ARRAY:
         self.node_reactive_fallback = 'ReactiveFallback'
         self.node_action = 'Script'
         self.node_condition = 'ScriptCondition'
-        self.node_decorator_attempts = 'RetryUntilSuccessful'
+        self.node_retry_until_successful = 'RetryUntilSuccessful'
         self.node_delay = 'Sleep'
         self.node_subtree = 'SubTree'
         self.is_node_root_main = False
@@ -42,7 +42,7 @@ class BT_ARRAY:
 
     def set_nodes_name(self, node_root = None, node_fallback = None, node_reactive_fallback = None, 
                        node_sequence = None, node_reactive_sequence = None, 
-                       node_action = None, node_condition = None, node_decorator_attempts = None, 
+                       node_action = None, node_condition = None, node_retry_until_successful = None, 
                        node_delay = None, node_subtree = None):
         self.node_root = node_root
         self.node_fallback = node_fallback
@@ -51,7 +51,7 @@ class BT_ARRAY:
         self.node_reactive_sequence = node_reactive_sequence
         self.node_action = node_action
         self.node_condition = node_condition
-        self.node_decorator_attempts = node_decorator_attempts
+        self.node_retry_until_successful = node_retry_until_successful
         self.node_delay = node_delay
         self.node_subtree = node_subtree
 
@@ -100,14 +100,14 @@ class BT_ARRAY:
             if not element.get('code') in self.functions:
                 self.functions[self.tree_function_index].append(element.get('code'))
 
-        elif self.node_decorator_attempts == element.tag:
-            self.tree.append([self.node_number, self.node_decorator_attempts, "BT_DEFINITION_TREE_UNRELATED", element.get('num_attempts'), 
-                              f'&tc_{self.library.project.lower()}_bht_commom_attempts[{self.attempts}]', "BT_DEFINITION_TREE_UNRELATED",  node_parent_number])
+        elif self.node_retry_until_successful == element.tag:
+            self.tree.append([self.node_number, self.node_retry_until_successful, f'&{self.library.project.lower()}bt_attempts[{self.attempts}]', 
+                              element.get('num_attempts'), self.node_number + 1, "BT_DEFINITION_TREE_UNRELATED", node_parent_number])
             node_parent_number = self.node_number
             self.attempts += 1
             is_decoration_attempts = True
-            if self.attempts > attempts_max:
-                attempts_max = self.attempts
+            if self.attempts > self.attempts_max:
+                self.attempts_max = self.attempts
 
         elif self.node_delay == element.tag:
             self.tree.append([self.node_number, self.node_delay, element.get('msec'), "BT_DEFINITION_TREE_UNRELATED",  node_parent_number])
