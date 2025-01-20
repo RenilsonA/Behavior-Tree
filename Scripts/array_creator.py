@@ -13,6 +13,12 @@ class BT_ARRAY:
         self.node_action = 'Script'
         self.node_condition = 'ScriptCondition'
         self.node_retry_until_successful = 'RetryUntilSuccessful'
+        self.node_decorator_repeat = 'Repeat'
+        self.node_decorator_keep_running_until_failure = 'KeepRunningUntilFailure'
+        self.node_decorator_force_failure = 'ForceFailure'
+        self.node_decorator_force_success = 'ForceSuccess'
+        self.node_decorator_inverter = 'Inverter'
+        self.node_decorator_timeout = 'Timeout'
         self.node_delay = 'Sleep'
         self.node_subtree = 'SubTree'
         self.is_node_root_main = False
@@ -43,6 +49,9 @@ class BT_ARRAY:
     def set_nodes_name(self, node_root = None, node_fallback = None, node_reactive_fallback = None, 
                        node_sequence = None, node_reactive_sequence = None, 
                        node_action = None, node_condition = None, node_retry_until_successful = None, 
+                       node_decorator_repeat = None, node_keep_running_until_failure = None, 
+                       node_decorator_force_failure = None, node_decorator_force_success = None, 
+                       node_decorator_inverter = None, node_decorator_timeout = None, 
                        node_delay = None, node_subtree = None):
         self.node_root = node_root
         self.node_fallback = node_fallback
@@ -52,6 +61,12 @@ class BT_ARRAY:
         self.node_action = node_action
         self.node_condition = node_condition
         self.node_retry_until_successful = node_retry_until_successful
+        self.node_decorator_repeat = node_decorator_repeat
+        self.node_keep_running_until_failure = node_keep_running_until_failure
+        self.node_decorator_force_failure = node_decorator_force_failure
+        self.node_decorator_force_success = node_decorator_force_success
+        self.node_decorator_inverter = node_decorator_inverter
+        self.node_decorator_timeout = node_decorator_timeout
         self.node_delay = node_delay
         self.node_subtree = node_subtree
 
@@ -108,6 +123,40 @@ class BT_ARRAY:
             is_decoration_attempts = True
             if self.attempts > self.attempts_max:
                 self.attempts_max = self.attempts
+
+        elif self.node_decorator_repeat == element.tag:
+            self.tree.append([self.node_number, self.node_decorator_repeat, f'&{self.library.project.lower()}bt_attempts[{self.attempts}]', 
+                              element.get('num_cycles'), self.node_number + 1, "BT_DEFINITION_TREE_UNRELATED", node_parent_number])
+            node_parent_number = self.node_number
+            self.attempts += 1
+            is_decoration_attempts = True
+            if self.attempts > self.attempts_max:
+                self.attempts_max = self.attempts
+
+        elif self.node_decorator_keep_running_until_failure == element.tag:
+            self.tree.append([self.node_number, self.node_decorator_keep_running_until_failure,
+                              self.node_number + 1, "BT_DEFINITION_TREE_UNRELATED", node_parent_number])
+            node_parent_number = self.node_number
+
+        elif self.node_decorator_force_failure == element.tag:
+            self.tree.append([self.node_number, self.node_decorator_force_failure,
+                              self.node_number + 1, "BT_DEFINITION_TREE_UNRELATED", node_parent_number])
+            node_parent_number = self.node_number
+
+        elif self.node_decorator_force_success == element.tag:
+            self.tree.append([self.node_number, self.node_decorator_force_success,
+                              self.node_number + 1, "BT_DEFINITION_TREE_UNRELATED", node_parent_number])
+            node_parent_number = self.node_number
+
+        elif self.node_decorator_inverter == element.tag:
+            self.tree.append([self.node_number, self.node_decorator_inverter,
+                              self.node_number + 1, "BT_DEFINITION_TREE_UNRELATED", node_parent_number])
+            node_parent_number = self.node_number
+
+        elif self.node_decorator_timeout == element.tag:
+            self.tree.append([self.node_number, self.node_decorator_timeout, element.get('msec'), 
+                              self.node_number + 1, "BT_DEFINITION_TREE_UNRELATED", node_parent_number])
+            node_parent_number = self.node_number
 
         elif self.node_delay == element.tag:
             self.tree.append([self.node_number, self.node_delay, element.get('msec'), "BT_DEFINITION_TREE_UNRELATED",  node_parent_number])

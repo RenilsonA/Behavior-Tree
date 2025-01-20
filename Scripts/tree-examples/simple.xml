@@ -69,22 +69,32 @@
     <Fallback>
       <Sequence>
         <RetryUntilSuccessful num_attempts="5">
-          <RetryUntilSuccessful num_attempts="4">
+          <Inverter>
             <Fallback>
               <ScriptCondition code="condition20"/>
               <RetryUntilSuccessful num_attempts="3">
                 <Script code="action21"/>
               </RetryUntilSuccessful>
-              <Script code="action22"/>
+              <Repeat num_cycles="12">
+                <Script code="action22"/>
+              </Repeat>
             </Fallback>
-          </RetryUntilSuccessful>
+          </Inverter>
         </RetryUntilSuccessful>
         <Fallback>
-          <ScriptCondition code="condition21"/>
-          <Script code="action22"/>
+          <ForceFailure>
+            <ScriptCondition code="condition21"/>
+          </ForceFailure>
+          <ForceSuccess>
+            <Script code="action23"/>
+          </ForceSuccess>
         </Fallback>
       </Sequence>
-      <Script code="action23"/>
+      <KeepRunningUntilFailure>
+        <Timeout msec="500">
+          <Script code="action24"/>
+        </Timeout>
+      </KeepRunningUntilFailure>
     </Fallback>
   </BehaviorTree>
 
