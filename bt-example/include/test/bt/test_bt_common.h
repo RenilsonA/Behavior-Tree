@@ -16,7 +16,7 @@
  * @brief Número máximo de nós de tentativas em uma ramificação.
  *
  */
-#define TEST_BT_COMMON_ATTEMPTS_SIZE 0
+#define TEST_BT_COMMON_ATTEMPTS_SIZE 2
 
 /**
  * @brief Número máximo de itens para o array de nós.
@@ -28,7 +28,7 @@
  * @brief Referência o array de tentativas.
  *
  */
-extern uint8_t test_bt_commom_attempts[TEST_BT_COMMON_ATTEMPTS_SIZE];
+extern uint32_t test_bt_common_attempts[TEST_BT_COMMON_ATTEMPTS_SIZE];
 
 /**
  * @brief Guarda os status dos nós executados.

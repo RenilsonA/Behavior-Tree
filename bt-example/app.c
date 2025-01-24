@@ -24,7 +24,8 @@
 void app_init(void)
 {
   while(1){
-    bt_manager_tick_reactive_tree(&test_bt_control);
+      bt_manager_tick_reactive_tree(&test_bt_control);
+      sl_sleeptimer_delay_millisecond(100);
   }
 }
 

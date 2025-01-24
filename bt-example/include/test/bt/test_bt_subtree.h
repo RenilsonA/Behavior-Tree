@@ -3,7 +3,7 @@
  * @author Renilson Almeida (joserenilson.silva@edge.ufal.br)
  * @brief Header da interface da behavior tree subtree.
  * @version 1.0
- * @date 03/01/2025
+ * @date 20/01/2025
  *
  */
 
@@ -19,7 +19,34 @@
 * @retval BT_DEFINITION_STATUS_FAIL caso ainda não tenha recebido a respectiva resposta;
 * @retval BT_DEFINITION_STATUS_STAND_BY caso ainda não esteja configurada;
 */
-bt_definition_status_t test_bt_subtree_condition3(void);
+bt_definition_status_t test_bt_subtree_condition20(void);
+
+/**
+* @brief
+*
+* @retval BT_DEFINITION_STATUS_SUCCESS para sucesso;
+* @retval BT_DEFINITION_STATUS_FAIL caso ainda não tenha recebido a respectiva resposta;
+* @retval BT_DEFINITION_STATUS_STAND_BY caso ainda não esteja configurada;
+*/
+bt_definition_status_t test_bt_subtree_action21(void);
+
+/**
+* @brief
+*
+* @retval BT_DEFINITION_STATUS_SUCCESS para sucesso;
+* @retval BT_DEFINITION_STATUS_FAIL caso ainda não tenha recebido a respectiva resposta;
+* @retval BT_DEFINITION_STATUS_STAND_BY caso ainda não esteja configurada;
+*/
+bt_definition_status_t test_bt_subtree_action22(void);
+
+/**
+* @brief
+*
+* @retval BT_DEFINITION_STATUS_SUCCESS para sucesso;
+* @retval BT_DEFINITION_STATUS_FAIL caso ainda não tenha recebido a respectiva resposta;
+* @retval BT_DEFINITION_STATUS_STAND_BY caso ainda não esteja configurada;
+*/
+bt_definition_status_t test_bt_subtree_condition21(void);
 
 /**
 * @brief 
@@ -28,7 +55,7 @@ bt_definition_status_t test_bt_subtree_condition3(void);
 * @retval BT_DEFINITION_STATUS_FAIL caso ainda não tenha recebido a respectiva resposta;
 * @retval BT_DEFINITION_STATUS_STAND_BY caso ainda não esteja configurada;
 */
-bt_definition_status_t test_bt_subtree_action7(void);
+bt_definition_status_t test_bt_subtree_action23(void);
 
 /**
 * @brief 
@@ -37,6 +64,6 @@ bt_definition_status_t test_bt_subtree_action7(void);
 * @retval BT_DEFINITION_STATUS_FAIL caso ainda não tenha recebido a respectiva resposta;
 * @retval BT_DEFINITION_STATUS_STAND_BY caso ainda não esteja configurada;
 */
-bt_definition_status_t test_bt_subtree_action8(void);
+bt_definition_status_t test_bt_subtree_action24(void);
 
 #endif /* TEST_BT_SUBTREE_H_ */

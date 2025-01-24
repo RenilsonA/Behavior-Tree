@@ -8,7 +8,7 @@ INDEX_NODE_PARENT = -1
 INDEX_NODE_FUNCTION = 2
 INDEX_NODE_DECORATOR_POINTER = 2
 INDEX_NODE_DECORATOR_NUM_ATTEMPTS = 3
-INDEX_NODE_DECORATOR_TIMEOUT_TIME = 3
+INDEX_NODE_DECORATOR_TIMEOUT_TIME = 2
 INDEX_NODE_DECORATOR_PARENT = 5
 
 #Tree like DAG
@@ -26,7 +26,7 @@ macro_node_action = "BT_DEFINITION_CREATE_NODE_ACTION"
 macro_node_retry_until_success = "BT_DEFINITION_CREATE_NODE_RETRY_UNTIL_SUCCESS"
 macro_node_repeat = "BT_DEFINITION_CREATE_NODE_REPEAT"
 macro_node_keep_running_until_failure = "BT_DEFINITION_CREATE_NODE_KEEP_RUNNING_UNTIL_FAILURE"
-macro_node_force_failure = "BT_DEFINITION_CREATE_NODE_FORCE_FAILURE"
+macro_node_force_failure = "BT_DEFINITION_CREATE_NODE_FORCE_FAIL"
 macro_node_force_success = "BT_DEFINITION_CREATE_NODE_FORCE_SUCCESS"
 macro_node_inverter = "BT_DEFINITION_CREATE_NODE_INVERTER"
 macro_node_decorator_timeout = "BT_DEFINITION_CREATE_NODE_DECORATOR_TIMEOUT"
@@ -36,7 +36,7 @@ macro_node_reactive_action = "BT_DEFINITION_CREATE_NODE_REACTIVE_ACTION"
 macro_node_reactive_retry_until_success = "BT_DEFINITION_CREATE_NODE_REACTIVE_RETRY_UNTIL_SUCCESS"
 macro_node_reactive_repeat = "BT_DEFINITION_CREATE_NODE_REACTIVE_REPEAT"
 macro_node_reactive_keep_running_until_failure = "BT_DEFINITION_CREATE_NODE_REACTIVE_KEEP_RUNNING_UNTIL_FAILURE"
-macro_node_reactive_force_failure = "BT_DEFINITION_CREATE_NODE_REACTIVE_FORCE_FAILURE"
+macro_node_reactive_force_failure = "BT_DEFINITION_CREATE_NODE_REACTIVE_FORCE_FAIL"
 macro_node_reactive_force_success = "BT_DEFINITION_CREATE_NODE_REACTIVE_FORCE_SUCCESS"
 macro_node_reactive_inverter = "BT_DEFINITION_CREATE_NODE_REACTIVE_INVERTER"
 macro_node_reactive_decorator_timeout = "BT_DEFINITION_CREATE_NODE_REACTIVE_DECORATOR_TIMEOUT"
@@ -136,9 +136,6 @@ class BT_EXECUTE:
         elif ((self.is_decorator_node(self.tree[node[INDEX_NODE_PARENT]][INDEX_NODE_TYPE]) and (node_status == status_running))):
             self.next_node = node[INDEX_NODE_DECORATOR_TARGET]
             self.tree_status = node_status
-            # (self.tree[node[INDEX_NODE_PARENT]][INDEX_NODE_TYPE] == self.node_decorator_force_failure) or 
-            # (self.tree[node[INDEX_NODE_PARENT]][INDEX_NODE_TYPE] == self.node_decorator_force_success) or 
-            # (self.tree[node[INDEX_NODE_PARENT]][INDEX_NODE_TYPE] == self.node_decorator_inverter) or 
         else:
             self.tree_status = status_running
             self.next_node = node[INDEX_NODE_SIBLING]
@@ -233,6 +230,5 @@ class BT_EXECUTE:
 
         for i in self.nodes_path:
             i.pop()
-            print(i)
 
         return self.nodes_path

@@ -1,6 +1,8 @@
 import os
 from datetime import date
 
+NODE_UNRELATED = "BT_DEFINITION_TREE_UNRELATED"
+
 class ARCHIVE_CREATOR:
     def __init__(self):
         self.text = ""
@@ -60,7 +62,7 @@ class ARCHIVE_CREATOR:
         for item in bt_array:
             index          = item[0]
             node_type      = item[1]
-            if isinstance(item[2], str):
+            if isinstance(item[2], str) and item[2] != NODE_UNRELATED:
                 item[2]    =  f"&{self.project.lower()}" + item[2]
             params         = ', '.join(map(str, item[2:]))
             text     += f"         [{index}] = {node_type}({params}), \\\n"
@@ -238,7 +240,7 @@ class ARCHIVE_CREATOR:
         self.text += "/**\n"
         self.text += " * @brief Referência o array de tentativas.\n"
         self.text += " *\n */\n"
-        self.text += f"extern uint8_t {self.project.lower()}bt_commom_attempts[{self.project.upper()}BT_COMMON_ATTEMPTS_SIZE];\n\n"
+        self.text += f"extern uint32_t {self.project.lower()}bt_common_attempts[{self.project.upper()}BT_COMMON_ATTEMPTS_SIZE];\n\n"
         self.archive_end("common")
 
     def generate_common_src(self):
@@ -247,7 +249,7 @@ class ARCHIVE_CREATOR:
         self.text += "/**\n"
         self.text += " * @brief Guarda o número de tentativas dos nós decorators.\n"
         self.text += " *\n */\n"
-        self.text += f"uint8_t {self.project.lower()}bt_commom_attempts[{self.project.upper()}BT_COMMON_ATTEMPTS_SIZE];\n\n"
+        self.text += f"uint32_t {self.project.lower()}bt_common_attempts[{self.project.upper()}BT_COMMON_ATTEMPTS_SIZE];\n\n"
         self.archive_end("common", src=True)
 
     def generate_common(self, num_max_attempts):

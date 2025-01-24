@@ -28,6 +28,29 @@
 
 #include "bt_process.h"
 
+/**
+ * @brief Minimum quantity of attempts.
+ *
+ */
+#define BT_PROCESS_MIN_ATTEMPTS 0
+
+#define BT_PROCESS_CHECK_RUNNING(_tree_ptr) \
+    do {\
+        if((_tree_ptr)->last_node_state != BT_DEFINITION_STATUS_RUNNING)\
+        {\
+            (_tree_ptr)->node_index = 0;\
+            return BT_DEFINITION_STATUS_ERROR;\
+        }\
+    } while(0)
+
+#define BT_PROCESS_CHECK_TARGET(_tree_ptr, _index) \
+    do {                                                                              \
+        if ((_tree_ptr)->tree[index].decorator_node.target_index == BT_DEFINITION_TREE_UNRELATED) { \
+            (_tree_ptr)->node_index = BT_DEFINITON_NODE_FIRST_INDEX;                   \
+            return BT_DEFINITION_STATUS_ERROR;                                        \
+        }                                                                             \
+    } while (0)
+
 bt_definition_status_t bt_process_node(bt_definition_tree_data_t *struct_tree)
 {
     bt_index_t index = struct_tree->node_index;
@@ -45,11 +68,7 @@ bt_definition_status_t bt_process_node(bt_definition_tree_data_t *struct_tree)
         case BT_DEFINITION_NODE_ACTION:
         case BT_DEFINITION_NODE_CONDITION:
         {
-            if(struct_tree->last_node_state != BT_DEFINITION_STATUS_RUNNING)
-            {
-                struct_tree->node_index = 0;
-                return BT_DEFINITION_STATUS_ERROR;
-            }
+            BT_PROCESS_CHECK_RUNNING(struct_tree);
 
             status = node_struct->interaction_node.function();
             break;
@@ -79,6 +98,37 @@ bt_definition_status_t bt_process_node(bt_definition_tree_data_t *struct_tree)
     return BT_DEFINITION_STATUS_RUNNING;
 }
 
+uint8_t nomes[][40] = {
+    "CONDITION",
+    "ACTION",
+    "ACTION_TIMEOUT",
+    "DECORATOR_TIMEOUT",
+    "RETRY_UNTIL_SUCCESS",
+    "REPEAT",
+    "KEEP_RUNNING_UNTIL_FAILURE",
+    "INVERTER",
+    "FORCE_SUCCESS",
+    "FORCE_FAIL",
+    " ",
+    " ",
+    " ",
+    " ",
+    " ",
+    " ",
+    " ",
+    "REACTIVE_CONDITION",
+    "REACTIVE_ACTION",
+    "REACTIVE_ACTION_TIMEOUT",
+    "REACTIVE_DECORATOR_TIMEOUT",
+    "REACTIVE_RETRY_UNTIL_SUCCESS",
+    "REACTIVE_REPEAT",
+    "REACTIVE_KEEP_RUNNING_UNTIL_FAILURE",
+    "REACTIVE_INVERTER",
+    "REACTIVE_FORCE_SUCCESS",
+    "REACTIVE_FORCE_FAIL",
+    "__AMOUNT"
+};
+
 bt_definition_status_t bt_process_node_with_memory(bt_definition_tree_data_t *struct_tree,
                                                    bt_index_t index_status_key,
                                                    uint32_t index_status_position,
@@ -94,36 +144,194 @@ bt_definition_status_t bt_process_node_with_memory(bt_definition_tree_data_t *st
         return BT_DEFINITION_STATUS_ERROR;
     }
 
+    //if(node_type < __BT_DEFINITION_NODE_AMOUNT)
+    //    SEGGER_RTT_printf(0, "[%d]: %s, ", index, nomes[node_type]);
+    SEGGER_RTT_printf(0, "[%d] ", index);
+
     switch(node_type)
     {
+        case BT_DEFINITION_NODE_ACTION:
+        case BT_DEFINITION_NODE_CONDITION:
         case BT_DEFINITION_NODE_REACTIVE_ACTION:
         case BT_DEFINITION_NODE_REACTIVE_CONDITION:
         {
-            if(struct_tree->last_node_state != BT_DEFINITION_STATUS_RUNNING)
-            {
-                struct_tree->node_index = 0;
-                return BT_DEFINITION_STATUS_ERROR;
-            }
+//            BT_PROCESS_CHECK_RUNNING(struct_tree);
 
             status = node_struct->interaction_node.function();
             break;
         }
 
-        case BT_DEFINITION_NODE_ACTION:
-        case BT_DEFINITION_NODE_CONDITION:
+        case BT_DEFINITION_NODE_RETRY_UNTIL_SUCCESS:
+        case BT_DEFINITION_NODE_REACTIVE_RETRY_UNTIL_SUCCESS:
         {
-            if(struct_tree->last_node_state != BT_DEFINITION_STATUS_RUNNING)
+            BT_PROCESS_CHECK_TARGET(struct_tree, index);
+
+            if (struct_tree->last_node_state == BT_DEFINITION_STATUS_RUNNING)
             {
-                struct_tree->node_index = 0;
-                return BT_DEFINITION_STATUS_ERROR;
+                if(node_struct->decorator_node.ties_node.times <= 0){
+                    status = BT_DEFINITION_STATUS_FAIL;
+                    break;
+                }
+
+                *node_struct->decorator_node.ties_node.local = node_struct->decorator_node.ties_node.times - 1;
+
+                struct_tree->node_index = node_struct->decorator_node.target_index;
+
+                uint32_t x = (value_status) | (0b00 << (index_status_key));
+                struct_tree->nodes_status[index_status_position] = x;
+                struct_tree->last_node_state = BT_DEFINITION_STATUS_RUNNING;
+                return BT_DEFINITION_STATUS_RUNNING;
+            }
+            else if((struct_tree->last_node_state == BT_DEFINITION_STATUS_FAIL) &&
+                    (*node_struct->decorator_node.ties_node.local > BT_PROCESS_MIN_ATTEMPTS))
+            {
+                *node_struct->decorator_node.ties_node.local -= 1;
+                SEGGER_RTT_printf(0, "%d, ", *node_struct->decorator_node.ties_node.local);
+                struct_tree->node_index = node_struct->decorator_node.target_index;
+                status = BT_DEFINITION_STATUS_RUNNING;
+            }
+            else
+            {
+                status = struct_tree->last_node_state;
+                *node_struct->decorator_node.ties_node.local = BT_PROCESS_MIN_ATTEMPTS;
             }
 
-            status = node_struct->interaction_node.function();
+            break;
+        }
+
+        case BT_DEFINITION_NODE_REPEAT:
+        case BT_DEFINITION_NODE_REACTIVE_REPEAT:
+        {
+            BT_PROCESS_CHECK_TARGET(struct_tree, index);
+            if((struct_tree->last_node_state == BT_DEFINITION_STATUS_RUNNING))
+            {
+                if(node_struct->decorator_node.ties_node.times <= 0){
+                    status = BT_DEFINITION_STATUS_FAIL;
+                    break;
+                }
+
+                *node_struct->decorator_node.ties_node.local = node_struct->decorator_node.ties_node.times - 1;
+
+                struct_tree->node_index = node_struct->decorator_node.target_index;
+
+                uint32_t x = (value_status) | (0b00 << (index_status_key));
+                struct_tree->nodes_status[index_status_position] = x;
+                struct_tree->last_node_state = BT_DEFINITION_STATUS_RUNNING;
+                return BT_DEFINITION_STATUS_RUNNING;
+            }
+            else if(*node_struct->decorator_node.ties_node.local > BT_PROCESS_MIN_ATTEMPTS)
+            {
+                *node_struct->decorator_node.ties_node.local -= 1;
+//                SEGGER_RTT_printf(0, "%d, ", *node_struct->decorator_node.ties_node.local);
+                struct_tree->node_index = node_struct->decorator_node.target_index;
+                status = BT_DEFINITION_STATUS_RUNNING;
+            }
+            else
+            {
+                status = struct_tree->last_node_state;
+                *node_struct->decorator_node.ties_node.local = BT_PROCESS_MIN_ATTEMPTS;
+//                SEGGER_RTT_printf(0, "%d, ", 0xFF);
+            }
+
+            break;
+        }
+
+        case BT_DEFINITION_NODE_KEEP_RUNNING_UNTIL_FAILURE:
+        case BT_DEFINITION_NODE_REACTIVE_KEEP_RUNNING_UNTIL_FAILURE:
+        {
+            BT_PROCESS_CHECK_TARGET(struct_tree, index);
+            if (struct_tree->last_node_state == BT_DEFINITION_STATUS_RUNNING) {
+
+                struct_tree->node_index = node_struct->decorator_node.target_index;
+
+                uint32_t x = (value_status) | (0b00 << (index_status_key));
+                struct_tree->nodes_status[index_status_position] = x;
+                struct_tree->last_node_state = BT_DEFINITION_STATUS_RUNNING;
+                return BT_DEFINITION_STATUS_RUNNING;
+            }
+            else if(struct_tree->last_node_state == BT_DEFINITION_STATUS_FAIL)
+            {
+                struct_tree->node_index = node_struct->decorator_node.target_index;
+                status = BT_DEFINITION_STATUS_RUNNING;
+            }
+            else
+            {
+                status = struct_tree->last_node_state;
+            }
+
+            break;
+        }
+
+        case BT_DEFINITION_NODE_INVERTER:
+        case BT_DEFINITION_NODE_REACTIVE_INVERTER:
+        {
+            BT_PROCESS_CHECK_TARGET(struct_tree, index);
+
+            if(struct_tree->last_node_state == BT_DEFINITION_STATUS_SUCCESS)
+            {
+                status = BT_DEFINITION_STATUS_FAIL;
+            }
+            else if (struct_tree->last_node_state == BT_DEFINITION_STATUS_FAIL)
+            {
+                status = BT_DEFINITION_STATUS_SUCCESS;
+            }
+            else
+            {
+                struct_tree->node_index = node_struct->decorator_node.target_index;
+                status = BT_DEFINITION_STATUS_RUNNING;
+            }
+            break;
+        }
+
+        case BT_DEFINITION_NODE_FORCE_SUCCESS:
+        case BT_DEFINITION_NODE_REACTIVE_FORCE_SUCCESS:
+        {
+            BT_PROCESS_CHECK_TARGET(struct_tree, index);
+            struct_tree->node_index = node_struct->decorator_node.target_index;
+            status = BT_DEFINITION_STATUS_RUNNING;
+            if(struct_tree->last_node_state != BT_DEFINITION_STATUS_RUNNING)
+            {
+                status = BT_DEFINITION_STATUS_SUCCESS;
+            }
+            break;
+        }
+
+        case BT_DEFINITION_NODE_FORCE_FAIL:
+        case BT_DEFINITION_NODE_REACTIVE_FORCE_FAIL:
+        {
+            BT_PROCESS_CHECK_TARGET(struct_tree, index);
+            struct_tree->node_index = node_struct->decorator_node.target_index;
+            status = BT_DEFINITION_STATUS_RUNNING;
+            if(struct_tree->last_node_state != BT_DEFINITION_STATUS_RUNNING)
+            {
+                status = BT_DEFINITION_STATUS_FAIL;
+            }
             break;
         }
 
         case BT_DEFINITION_NODE_ACTION_TIMEOUT:
+        case BT_DEFINITION_NODE_REACTIVE_ACTION_TIMEOUT:
         {
+            status = bt_common_action_timeout(node_struct->decorator_node.timeout_ms);
+            break;
+        }
+
+        case BT_DEFINITION_NODE_DECORATOR_TIMEOUT:
+        case BT_DEFINITION_NODE_REACTIVE_DECORATOR_TIMEOUT:
+        {
+            BT_PROCESS_CHECK_TARGET(struct_tree, index);
+            if (struct_tree->last_node_state == BT_DEFINITION_STATUS_RUNNING)
+            {
+                status = bt_common_action_timeout(node_struct->decorator_node.timeout_ms);
+                struct_tree->node_index = node_struct->decorator_node.target_index;
+
+                uint32_t x = (value_status) | (0b00 << (index_status_key));
+                struct_tree->nodes_status[index_status_position] = x;
+                struct_tree->last_node_state = BT_DEFINITION_STATUS_RUNNING;
+                return BT_DEFINITION_STATUS_RUNNING;
+            }
+
+            status = struct_tree->last_node_state;
 
             break;
         }
@@ -135,20 +343,49 @@ bt_definition_status_t bt_process_node_with_memory(bt_definition_tree_data_t *st
     }
 
     if(status == BT_DEFINITION_STATUS_SUCCESS)
+      SEGGER_RTT_printf(0, "Success ");
+    if(status == BT_DEFINITION_STATUS_FAIL)
+      SEGGER_RTT_printf(0, "Fail ");
+    if(status == BT_DEFINITION_STATUS_RUNNING)
+      SEGGER_RTT_printf(0, "Running ");
+
+    if((status == BT_DEFINITION_STATUS_SUCCESS))
     {
         struct_tree->node_index = node_struct->st_index;
-        SEGGER_RTT_printf(0, "%d, ", struct_tree->node_index);
-        uint32_t x = (value_status) | (0b1 << (index_status_key));
-        struct_tree->nodes_status[index_status_position] = x;
-        SEGGER_RTT_printf(0, "Success ");
+        if((node_type >= BT_DEFINITION_NODE_REACTIVE_DECORATOR_TIMEOUT) && (node_type <= BT_DEFINITION_NODE_REACTIVE_FORCE_FAIL))
+          struct_tree->nodes_status[index_status_position] = (value_status) | (0b11 << (index_status_key));
+        else
+          struct_tree->nodes_status[index_status_position] = (value_status) | (0b01 << (index_status_key));
     }
-    else if(status == BT_DEFINITION_STATUS_FAIL)
+    else if((status == BT_DEFINITION_STATUS_FAIL))
     {
         struct_tree->node_index = node_struct->ft_index;
-        SEGGER_RTT_printf(0, "%d, ", struct_tree->node_index);
-        uint32_t x = (value_status) | (0b0 << (index_status_key));
-        struct_tree->nodes_status[index_status_position] = x;
-        SEGGER_RTT_printf(0, "Fail ");
+        if((node_type >= BT_DEFINITION_NODE_REACTIVE_DECORATOR_TIMEOUT) && (node_type <= BT_DEFINITION_NODE_REACTIVE_FORCE_FAIL))
+          struct_tree->nodes_status[index_status_position] = (value_status) | (0b11 << (index_status_key));
+        else
+          struct_tree->nodes_status[index_status_position] = (value_status) | (0b10 << (index_status_key));
+    }
+    else
+    {
+        struct_tree->nodes_status[index_status_position] = (value_status) | (0b00 << (index_status_key));
+    }
+
+    struct_tree->last_node_state = BT_DEFINITION_STATUS_RUNNING;
+    if(index > struct_tree->node_index){
+        struct_tree->last_node_state = status;
+        bt_index_t key = (struct_tree->node_index % 16) * 2;
+        bt_index_t position = struct_tree->node_index / 16;
+        uint32_t nodes_status = struct_tree->nodes_status[position];
+        uint32_t mask = (0b11 << (key));
+        uint32_t valor = (nodes_status & (~mask));
+        if(status == BT_DEFINITION_STATUS_SUCCESS)
+        {
+            struct_tree->nodes_status[position] = (valor) | (0b01 << (key));
+        }
+        else if(status == BT_DEFINITION_STATUS_FAIL)
+        {
+            struct_tree->nodes_status[position] = (valor) | (0b10 << (key));
+        }
     }
 
     return status;

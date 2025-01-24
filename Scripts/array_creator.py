@@ -102,21 +102,21 @@ class BT_ARRAY:
             node_parent_number = self.node_number
 
         elif self.node_action == element.tag:
-            self.tree.append([self.node_number, self.node_action, f"bt_{self.archives[self.tree_function_index].lower()}_" + element.get('code'), 
+            self.tree.append([self.node_number, self.node_action, f"&{self.library.project.lower()}bt_{self.archives[self.tree_function_index].lower()}_" + element.get('code'), 
                               "BT_DEFINITION_TREE_UNRELATED", node_parent_number])
             node_parent_number -= 1
             if not element.get('code') in self.functions:
                 self.functions[self.tree_function_index].append(element.get('code'))
 
         elif self.node_condition == element.tag:
-            self.tree.append([self.node_number, self.node_condition, f"bt_{self.archives[self.tree_function_index].lower()}_" + element.get('code'), 
+            self.tree.append([self.node_number, self.node_condition, f"&{self.library.project.lower()}bt_{self.archives[self.tree_function_index].lower()}_" + element.get('code'), 
                               "BT_DEFINITION_TREE_UNRELATED", node_parent_number])
             node_parent_number -= 1
             if not element.get('code') in self.functions:
                 self.functions[self.tree_function_index].append(element.get('code'))
 
         elif self.node_retry_until_successful == element.tag:
-            self.tree.append([self.node_number, self.node_retry_until_successful, f'&{self.library.project.lower()}bt_attempts[{self.attempts}]', 
+            self.tree.append([self.node_number, self.node_retry_until_successful, f'&{self.library.project.lower()}bt_common_attempts[{self.attempts}]', 
                               element.get('num_attempts'), self.node_number + 1, "BT_DEFINITION_TREE_UNRELATED", node_parent_number])
             node_parent_number = self.node_number
             self.attempts += 1
@@ -125,7 +125,7 @@ class BT_ARRAY:
                 self.attempts_max = self.attempts
 
         elif self.node_decorator_repeat == element.tag:
-            self.tree.append([self.node_number, self.node_decorator_repeat, f'&{self.library.project.lower()}bt_attempts[{self.attempts}]', 
+            self.tree.append([self.node_number, self.node_decorator_repeat, f'&{self.library.project.lower()}bt_common_attempts[{self.attempts}]', 
                               element.get('num_cycles'), self.node_number + 1, "BT_DEFINITION_TREE_UNRELATED", node_parent_number])
             node_parent_number = self.node_number
             self.attempts += 1
@@ -207,6 +207,8 @@ class BT_ARRAY:
                 self.set_sibling()
                 x = bt_execute.BT_EXECUTE()
                 tree_remodeled = x.init_process(self.tree)
+                for i in tree_remodeled:
+                    print(i)
                 text = self.library.tree_vector(self.tree_id, tree_remodeled)
                 self.tree_remodeled_size = len(tree_remodeled)
                 self.tree.clear()
