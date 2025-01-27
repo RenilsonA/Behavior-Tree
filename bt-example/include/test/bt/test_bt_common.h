@@ -16,13 +16,13 @@
  * @brief Número máximo de nós de tentativas em uma ramificação.
  *
  */
-#define TEST_BT_COMMON_ATTEMPTS_SIZE 2
+#define TEST_BT_COMMON_ATTEMPTS_SIZE 3
 
 /**
  * @brief Número máximo de itens para o array de nós.
  *
  */
-#define TEST_BT_COMMON_STATUS_NODES_SIZE 1
+#define TEST_BT_COMMON_STATUS_NODES_SIZE 3
 
 /**
  * @brief Referência o array de tentativas.

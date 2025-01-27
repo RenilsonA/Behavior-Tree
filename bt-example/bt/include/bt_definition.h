@@ -133,6 +133,7 @@ typedef struct bt_definition_node_decorator
             uint32_t *local;
         } ties_node;
         uint32_t timeout_ms;
+        uint32_t node_limit;
     };
 } bt_definition_node_decorator_t;
 
@@ -235,12 +236,13 @@ typedef struct bt_definition_tree_data
  * @brief Macro that creates keep running until failure node.
  *
  */
-#define BT_DEFINITION_CREATE_NODE_KEEP_RUNNING_UNTIL_FAILURE(_success_target, _fail_target, _target) \
+#define BT_DEFINITION_CREATE_NODE_KEEP_RUNNING_UNTIL_FAILURE(_success_target, _fail_target, _target, _node_limit) \
     {                                                                          \
         .node_type = BT_DEFINITION_NODE_KEEP_RUNNING_UNTIL_FAILURE,                   \
         .st_index = _success_target,                                 \
         .ft_index = _fail_target,                                  \
         .decorator_node.target_index = _target, \
+        .decorator_node.node_limit = _node_limit, \
     }
 
 /**

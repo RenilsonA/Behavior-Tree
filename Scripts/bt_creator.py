@@ -18,7 +18,7 @@ node_decorator_timeout = 'Timeout'
 node_delay = 'Sleep'
 
 folder = 'tree-examples'
-main_tree = 'example'
+main_tree = 'subtree'
 project_id = ''
 name = "Renilson Almeida"
 email = "joserenilson.silva@edge.ufal.br"

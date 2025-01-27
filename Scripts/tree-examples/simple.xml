@@ -66,8 +66,27 @@
   </BehaviorTree>
 
   <BehaviorTree ID="subtree">
-    <ReactiveFallback>
+    <Sequence>
       <ReactiveSequence>
+        <ForceSuccess>
+          <ScriptCondition code="condition21"/>
+        </ForceSuccess>
+        <ForceSuccess>
+          <ForceFailure>
+            <ForceSuccess>
+              <Inverter>
+                <Fallback>
+                  <ForceFailure>
+                    <ScriptCondition code="condition21"/>
+                  </ForceFailure>
+                  <ForceSuccess>
+                    <Script code="action23"/>
+                  </ForceSuccess>
+                </Fallback>
+              </Inverter>
+            </ForceSuccess>
+          </ForceFailure>
+        </ForceSuccess>
         <RetryUntilSuccessful num_attempts="5">
           <ReactiveFallback>
             <ScriptCondition code="condition20"/>
@@ -76,25 +95,19 @@
             </Repeat>
           </ReactiveFallback>
         </RetryUntilSuccessful>
-        <ForceSuccess>
-          <Inverter>
-            <ReactiveFallback>
-              <ForceFailure>
-                <ScriptCondition code="condition21"/>
-              </ForceFailure>
-              <ForceSuccess>
-                <Script code="action23"/>
-              </ForceSuccess>
-            </ReactiveFallback>
-          </Inverter>
-        </ForceSuccess>
       </ReactiveSequence>
       <KeepRunningUntilFailure>
         <Timeout msec="500">
           <Script code="action24"/>
         </Timeout>
       </KeepRunningUntilFailure>
-    </ReactiveFallback>
+      <RetryUntilSuccessful num_attempts="9">
+        <ReactiveSequence>
+          <Script code="action25"/>
+          <Script code="action25"/>
+        </ReactiveSequence>
+      </RetryUntilSuccessful>
+    </Sequence>
   </BehaviorTree>
 
   <!-- Description of Node Models (used by Groot) -->

@@ -18,6 +18,14 @@ int a6 = 0;
 int a7 = 0;
 int a8 = 0;
 
+bt_definition_status_t test_bt_subtree_action25(void)
+{
+  SEGGER_RTT_printf(0, "action25 ");
+  if(a8++ > 6)
+    return BT_DEFINITION_STATUS_SUCCESS;
+  return BT_DEFINITION_STATUS_FAIL;
+}
+
 bt_definition_status_t test_bt_subtree_condition20(void)
 {
   SEGGER_RTT_printf(0, "condition20 ");

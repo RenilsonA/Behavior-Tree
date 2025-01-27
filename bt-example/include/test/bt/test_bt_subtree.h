@@ -12,6 +12,8 @@
 
 #include "test_bt_blackboard.h"
 
+bt_definition_status_t test_bt_subtree_action25(void);
+
 /**
 * @brief 
 *
