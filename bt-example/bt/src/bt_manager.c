@@ -37,7 +37,22 @@ bt_definition_status_t bt_manager_tick_tree(bt_definition_tree_data_t *struct_tr
         return BT_DEFINITION_STATUS_ERROR;
     }
 
-    return bt_process_node(struct_tree);
+    bt_index_t node_index = struct_tree->node_index;;
+    bt_index_t index = struct_tree->node_index;
+    bt_index_t index_status_key = 0;
+    uint32_t index_status_position = 0;
+    uint32_t mask = 0;
+    uint32_t valor = 0;
+    uint32_t value_status = struct_tree->nodes_status[BT_DEFINITON_NODE_FIRST_INDEX];
+
+    index = struct_tree->node_index;
+    index_status_key = (struct_tree->node_index % 16) * 2;
+    index_status_position = struct_tree->node_index / 16;
+    value_status = struct_tree->nodes_status[index_status_position];
+    mask = (0b11 << (index_status_key));
+    valor = (value_status & (~mask));
+
+    return bt_process_node(struct_tree, index_status_key, index_status_position, valor);
 }
 
 bt_definition_status_t bt_manager_tick_reactive_tree(bt_definition_tree_data_t *struct_tree)
@@ -82,25 +97,15 @@ bt_definition_status_t bt_manager_tick_reactive_tree(bt_definition_tree_data_t *
             if(((node_type >= BT_DEFINITION_NODE_REACTIVE_DECORATOR_TIMEOUT) && (node_type <= BT_DEFINITION_NODE_REACTIVE_FORCE_FAIL))
               || ((node_type >= BT_DEFINITION_NODE_DECORATOR_TIMEOUT) && (node_type <= BT_DEFINITION_NODE_FORCE_FAIL)))
             {
-//                if(check_node != BT_DEFINITION_STATUS_RUNNING)
-//                {
-//                    bt_index_t key = (struct_tree->node_index % 16) * 2;
-//                    bt_index_t position = struct_tree->node_index / 16;
-//                    uint32_t nodes_status = struct_tree->nodes_status[position];
-//                    mask = (0b11 << (key));
-//                    uint32_t value = (nodes_status & (~mask));
-//                    struct_tree->nodes_status[position] = (value) | (0b00 << (key));
-//                    check_node = (nodes_status & mask) >> key;
-//                }
                 struct_tree->last_node_state = check_node;
             }
 
-            tree_status = bt_process_node_with_memory(struct_tree, index_status_key, index_status_position, valor);
+            tree_status = bt_process_node(struct_tree, index_status_key, index_status_position, valor);
 //            if((tree_status == BT_DEFINITION_STATUS_RUNNING) && (tree_status != BT_DEFINITION_STATUS_RE_EXECUTE))
 //            {
 //                return tree_status;
 //            }
-            SEGGER_RTT_printf(0, "\n");
+//            SEGGER_RTT_printf(0, "\n");
             continue;
         }
 
@@ -159,7 +164,7 @@ bt_definition_status_t bt_manager_tick_reactive_tree(bt_definition_tree_data_t *
         struct_tree->last_node_state = check_node;
     }
 
-    tree_status = bt_process_node_with_memory(struct_tree, index_status_key, index_status_position, valor);
+    tree_status = bt_process_node(struct_tree, index_status_key, index_status_position, valor);
 
     SEGGER_RTT_printf(0, "\n");
 

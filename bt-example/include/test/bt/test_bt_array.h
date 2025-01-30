@@ -16,7 +16,7 @@
  * @brief Tamanho da árvore test.
  *
  */
-#define TEST_BT_ARRAY_SIZE 28
+#define TEST_BT_ARRAY_SIZE 48
 
 /**
  * @brief Array contendo os nós da árvore test.

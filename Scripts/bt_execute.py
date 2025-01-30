@@ -172,6 +172,7 @@ class BT_EXECUTE:
                     value.append(tree[self.next_node])
                     if (tree[self.next_node][INDEX_NODE_TYPE] == self.node_root):
                         value[-1] = NODE_UNRELATED
+                print(tree[tree[i][INDEX_NODE_PARENT]][INDEX_NODE_TYPE])
                 if ((tree[tree[i][INDEX_NODE_PARENT]][INDEX_NODE_TYPE] == self.node_reactive_sequence) or \
                     (tree[tree[i][INDEX_NODE_PARENT]][INDEX_NODE_TYPE] == self.node_reactive_fallback)):
                     is_reactive = True

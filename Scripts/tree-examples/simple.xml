@@ -62,6 +62,7 @@
         <ScriptCondition code="condition7"/>
         <Script code="action12"/>
       </Fallback>
+      <SubTree ID="subtree"/>
     </Sequence>
   </BehaviorTree>
 
@@ -71,21 +72,20 @@
         <ForceSuccess>
           <ScriptCondition code="condition21"/>
         </ForceSuccess>
+        <Inverter>
+          <Timeout msec="500">
+            <Script code="action24"/>
+          </Timeout>
+        </Inverter>
         <ForceSuccess>
-          <ForceFailure>
+          <Fallback>
+            <ForceFailure>
+              <ScriptCondition code="condition21"/>
+            </ForceFailure>
             <ForceSuccess>
-              <Inverter>
-                <Fallback>
-                  <ForceFailure>
-                    <ScriptCondition code="condition21"/>
-                  </ForceFailure>
-                  <ForceSuccess>
-                    <Script code="action23"/>
-                  </ForceSuccess>
-                </Fallback>
-              </Inverter>
+              <Script code="action23"/>
             </ForceSuccess>
-          </ForceFailure>
+          </Fallback>
         </ForceSuccess>
         <RetryUntilSuccessful num_attempts="5">
           <ReactiveFallback>
@@ -98,7 +98,7 @@
       </ReactiveSequence>
       <KeepRunningUntilFailure>
         <Timeout msec="500">
-          <Script code="action24"/>
+          <Script code="action25"/>
         </Timeout>
       </KeepRunningUntilFailure>
       <RetryUntilSuccessful num_attempts="9">

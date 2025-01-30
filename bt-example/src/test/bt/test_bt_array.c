@@ -15,62 +15,29 @@
  * @brief Array contendo os nós da árvore test.
  *
  */
-
 const bt_definition_node_t test_bt_array[TEST_BT_ARRAY_SIZE] =
 {
     [0] = BT_DEFINITION_CREATE_NODE_REACTIVE_FORCE_SUCCESS(2, BT_DEFINITION_TREE_UNRELATED, 1), \
     [1] = BT_DEFINITION_CREATE_NODE_REACTIVE_CONDITION(0, 0, &test_bt_subtree_condition21), \
-    [2] = BT_DEFINITION_CREATE_NODE_REACTIVE_FORCE_SUCCESS(10, BT_DEFINITION_TREE_UNRELATED, 3), \
-    [3] = BT_DEFINITION_CREATE_NODE_REACTIVE_FORCE_FAIL(2, 2, 4), \
-    [4] = BT_DEFINITION_CREATE_NODE_REACTIVE_FORCE_SUCCESS(3, 3, 5), \
-    [5] = BT_DEFINITION_CREATE_NODE_REACTIVE_INVERTER(4, 4, 6), \
+    [2] = BT_DEFINITION_CREATE_NODE_REACTIVE_INVERTER(5, BT_DEFINITION_TREE_UNRELATED, 3), \
+    [3] = BT_DEFINITION_CREATE_NODE_REACTIVE_DECORATOR_TIMEOUT(2, 2, 4, 500), \
+    [4] = BT_DEFINITION_CREATE_NODE_REACTIVE_ACTION(3, 3, &test_bt_subtree_action24), \
+    [5] = BT_DEFINITION_CREATE_NODE_REACTIVE_FORCE_SUCCESS(10, BT_DEFINITION_TREE_UNRELATED, 6), \
     [6] = BT_DEFINITION_CREATE_NODE_FORCE_FAIL(5, 8, 7), \
     [7] = BT_DEFINITION_CREATE_NODE_CONDITION(6, 6, &test_bt_subtree_condition21), \
     [8] = BT_DEFINITION_CREATE_NODE_FORCE_SUCCESS(5, 5, 9), \
     [9] = BT_DEFINITION_CREATE_NODE_ACTION(8, 8, &test_bt_subtree_action23), \
-    [10] = BT_DEFINITION_CREATE_NODE_REACTIVE_RETRY_UNTIL_SUCCESS(14, BT_DEFINITION_TREE_UNRELATED, 11, 5, &test_bt_common_attempts[0]), \
-    [11] = BT_DEFINITION_CREATE_NODE_REACTIVE_CONDITION(10, 12, &test_bt_subtree_condition20), \
-    [12] = BT_DEFINITION_CREATE_NODE_REACTIVE_REPEAT(10, 10, 13, 1, &test_bt_common_attempts[1]), \
+    [10] = BT_DEFINITION_CREATE_NODE_REACTIVE_RETRY_UNTIL_SUCCESS(14, BT_DEFINITION_TREE_UNRELATED, 11, 5, &test_bt_common_attempts[0], 13), \
+    [11] = BT_DEFINITION_CREATE_NODE_CONDITION(10, 12, &test_bt_subtree_condition20), \
+    [12] = BT_DEFINITION_CREATE_NODE_REPEAT(10, 10, 13, 1, &test_bt_common_attempts[1], 13), \
     [13] = BT_DEFINITION_CREATE_NODE_ACTION(12, 12, &test_bt_subtree_action21), \
     [14] = BT_DEFINITION_CREATE_NODE_KEEP_RUNNING_UNTIL_FAILURE(17, BT_DEFINITION_TREE_UNRELATED, 15, 16), \
     [15] = BT_DEFINITION_CREATE_NODE_DECORATOR_TIMEOUT(14, 14, 16, 500), \
-    [16] = BT_DEFINITION_CREATE_NODE_ACTION(15, 15, &test_bt_subtree_action24), \
-    [17] = BT_DEFINITION_CREATE_NODE_RETRY_UNTIL_SUCCESS(BT_DEFINITION_TREE_UNRELATED, BT_DEFINITION_TREE_UNRELATED, 18, 9, &test_bt_common_attempts[0]), \
+    [16] = BT_DEFINITION_CREATE_NODE_ACTION(15, 15, &test_bt_subtree_action25), \
+    [17] = BT_DEFINITION_CREATE_NODE_RETRY_UNTIL_SUCCESS(BT_DEFINITION_TREE_UNRELATED, BT_DEFINITION_TREE_UNRELATED, 18, 9, &test_bt_common_attempts[0], 19), \
     [18] = BT_DEFINITION_CREATE_NODE_REACTIVE_ACTION(19, 17, &test_bt_subtree_action25), \
     [19] = BT_DEFINITION_CREATE_NODE_REACTIVE_ACTION(17, 17, &test_bt_subtree_action25), \
 };
-
-//const bt_definition_node_t test_bt_array[TEST_BT_ARRAY_SIZE] =
-//{
-//         [0] = BT_DEFINITION_CREATE_NODE_REACTIVE_CONDITION(7, 1, &test_bt_example_condition1), \
-//         [1] = BT_DEFINITION_CREATE_NODE_REACTIVE_ACTION(2, BT_DEFINITION_TREE_UNRELATED, &test_bt_example_action1), \
-//         [2] = BT_DEFINITION_CREATE_NODE_CONDITION(5, 3, &test_bt_example_condition2), \
-//         [3] = BT_DEFINITION_CREATE_NODE_ACTION(5, 4, &test_bt_example_action2), \
-//         [4] = BT_DEFINITION_CREATE_NODE_ACTION(5, BT_DEFINITION_TREE_UNRELATED, &test_bt_example_action3), \
-//         [5] = BT_DEFINITION_CREATE_NODE_CONDITION(7, 6, &test_bt_example_condition4), \
-//         [6] = BT_DEFINITION_CREATE_NODE_ACTION(7, BT_DEFINITION_TREE_UNRELATED, &test_bt_example_action9), \
-//         [7] = BT_DEFINITION_CREATE_NODE_CONDITION(11, 8, &test_bt_example_condition5), \
-//         [8] = BT_DEFINITION_CREATE_NODE_CONDITION(11, 9, &test_bt_example_condition9), \
-//         [9] = BT_DEFINITION_CREATE_NODE_CONDITION(11, 10, &test_bt_example_condition10), \
-//         [10] = BT_DEFINITION_CREATE_NODE_ACTION(11, BT_DEFINITION_TREE_UNRELATED, &test_bt_example_action10), \
-//         [11] = BT_DEFINITION_CREATE_NODE_CONDITION(16, 12, &test_bt_example_condition6), \
-//         [12] = BT_DEFINITION_CREATE_NODE_CONDITION(16, 13, &test_bt_example_condition7), \
-//         [13] = BT_DEFINITION_CREATE_NODE_ACTION(16, 14, &test_bt_example_action11), \
-//         [14] = BT_DEFINITION_CREATE_NODE_CONDITION(16, 15, &test_bt_example_condition8), \
-//         [15] = BT_DEFINITION_CREATE_NODE_ACTION(16, BT_DEFINITION_TREE_UNRELATED, &test_bt_example_action12), \
-//         [16] = BT_DEFINITION_CREATE_NODE_REACTIVE_CONDITION(26, 17, &test_bt_example_condition9), \
-//         [17] = BT_DEFINITION_CREATE_NODE_ACTION(18, BT_DEFINITION_TREE_UNRELATED, &test_bt_example_action13), \
-//         [18] = BT_DEFINITION_CREATE_NODE_REACTIVE_CONDITION(21, 19, &test_bt_example_condition10), \
-//         [19] = BT_DEFINITION_CREATE_NODE_REACTIVE_ACTION(21, 20, &test_bt_example_action14), \
-//         [20] = BT_DEFINITION_CREATE_NODE_REACTIVE_ACTION(21, BT_DEFINITION_TREE_UNRELATED, &test_bt_example_action15), \
-//         [21] = BT_DEFINITION_CREATE_NODE_ACTION(22, BT_DEFINITION_TREE_UNRELATED, &test_bt_example_action9), \
-//         [22] = BT_DEFINITION_CREATE_NODE_REACTIVE_CONDITION(24, 23, &test_bt_example_condition11), \
-//         [23] = BT_DEFINITION_CREATE_NODE_REACTIVE_ACTION(24, BT_DEFINITION_TREE_UNRELATED, &test_bt_example_action16), \
-//         [24] = BT_DEFINITION_CREATE_NODE_REACTIVE_ACTION(25, BT_DEFINITION_TREE_UNRELATED, &test_bt_example_action9), \
-//         [25] = BT_DEFINITION_CREATE_NODE_REACTIVE_ACTION(26, BT_DEFINITION_TREE_UNRELATED, &test_bt_example_action13), \
-//         [26] = BT_DEFINITION_CREATE_NODE_CONDITION(BT_DEFINITION_TREE_UNRELATED, 27, &test_bt_example_condition7), \
-//         [27] = BT_DEFINITION_CREATE_NODE_ACTION(BT_DEFINITION_TREE_UNRELATED, BT_DEFINITION_TREE_UNRELATED, &test_bt_example_action12), \
-//};
 
 /**
  * @brief Estrutura de controle da árvore test.

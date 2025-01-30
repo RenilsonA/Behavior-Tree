@@ -20,21 +20,23 @@ int a8 = 0;
 
 bt_definition_status_t test_bt_subtree_action25(void)
 {
-  SEGGER_RTT_printf(0, "action25 ");
-  if(a8++ > 6)
+  SEGGER_RTT_printf(0, "a25 ");
+  if(a8++ > 10)
     return BT_DEFINITION_STATUS_SUCCESS;
   return BT_DEFINITION_STATUS_FAIL;
 }
 
 bt_definition_status_t test_bt_subtree_condition20(void)
 {
-  SEGGER_RTT_printf(0, "condition20 ");
+  SEGGER_RTT_printf(0, "c20 ");
+  if(a7++ > 3)
+    return BT_DEFINITION_STATUS_SUCCESS;
   return BT_DEFINITION_STATUS_FAIL;
 }
 
 bt_definition_status_t test_bt_subtree_action21(void)
 {
-  SEGGER_RTT_printf(0, "test_bt_subtree_action21 ");
+  SEGGER_RTT_printf(0, "a21 ");
   if(a1++ > 3)
     return BT_DEFINITION_STATUS_SUCCESS;
   return BT_DEFINITION_STATUS_FAIL;
@@ -42,7 +44,7 @@ bt_definition_status_t test_bt_subtree_action21(void)
 
 bt_definition_status_t test_bt_subtree_action22(void)
 {
-  SEGGER_RTT_printf(0, "action22 ");
+  SEGGER_RTT_printf(0, "a22 ");
   if(a2++ > 5) //inverte aqui
     return BT_DEFINITION_STATUS_SUCCESS;
   return BT_DEFINITION_STATUS_FAIL;
@@ -50,21 +52,23 @@ bt_definition_status_t test_bt_subtree_action22(void)
 
 bt_definition_status_t test_bt_subtree_condition21(void)
 {
-  SEGGER_RTT_printf(0, "condition21 ");
+  SEGGER_RTT_printf(0, "c21 ");
   return BT_DEFINITION_STATUS_SUCCESS;
 }
 
 bt_definition_status_t test_bt_subtree_action23(void)
 {
-  SEGGER_RTT_printf(0, "action23 ");
+  SEGGER_RTT_printf(0, "a23 ");
   return BT_DEFINITION_STATUS_SUCCESS;
 }
 
 bt_definition_status_t test_bt_subtree_action24(void)
 {
-  SEGGER_RTT_printf(0, "action24 ");
-  if(a3++ > 5) //inverte aqui
-    return BT_DEFINITION_STATUS_SUCCESS;
+  SEGGER_RTT_printf(0, "a24 ");
+  if(a6++ > 20){
+      a6 = 0;
+      return BT_DEFINITION_STATUS_SUCCESS;
+  }
   return BT_DEFINITION_STATUS_FAIL;
 }
 
