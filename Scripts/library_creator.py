@@ -234,11 +234,19 @@ class ARCHIVE_CREATOR:
         self.archive_header("common")
         self.archive_top("common")
         self.text += "/**\n"
-        self.text += " * @brief Número máximo de nós de tentativas em uma ramificação.\n"
+        self.text += " * @brief Size of array nodes status.\n"
+        self.text += " *\n */\n"
+        self.text += f"#define {self.project.upper()}BT_COMMON_STATUS_NODES_SIZE (bt_index_t)(({self.project.upper()}BT_ARRAY_SIZE / 16) + 1)\n\n"
+        self.text += "/**\n"
+        self.text += f" * @brief Number of fields needed in the worst case scenario of tree {self.project[:-1].lower()} attempted fields.\n"
         self.text += " *\n */\n"
         self.text += f"#define {self.project.upper()}BT_COMMON_ATTEMPTS_SIZE {max_ramification_attempts}\n\n"
         self.text += "/**\n"
-        self.text += " * @brief Referência o array de tentativas.\n"
+        self.text += f" * @brief Externalize array of tree {self.project[:-1].lower()} attemps.\n"
+        self.text += " *\n */\n"
+        self.text += f"extern uint32_t {self.project.lower()}bt_status_nodes[{self.project.upper()}BT_COMMON_STATUS_NODES_SIZE];\n\n"
+        self.text += "/**\n"
+        self.text += f" * @brief Externalize array of tree {self.project[:-1].lower()} attemps.\n"
         self.text += " *\n */\n"
         self.text += f"extern uint32_t {self.project.lower()}bt_common_attempts[{self.project.upper()}BT_COMMON_ATTEMPTS_SIZE];\n\n"
         self.archive_end("common")
@@ -247,9 +255,13 @@ class ARCHIVE_CREATOR:
         self.archive_header("common", src_file=True)
         self.archive_top("common", src_file=True)
         self.text += "/**\n"
-        self.text += " * @brief Guarda o número de tentativas dos nós decorators.\n"
+        self.text += " * @brief Nodes states. Each value, carry 16 nodes status. Each node status is 2 bits.\n"
         self.text += " *\n */\n"
-        self.text += f"uint32_t {self.project.lower()}bt_common_attempts[{self.project.upper()}BT_COMMON_ATTEMPTS_SIZE];\n\n"
+        self.text += f"uint32_t {self.project.lower()}bt_status_nodes[{self.project.upper()}BT_COMMON_STATUS_NODES_SIZE] = {{0}};\n\n"
+        self.text += "/**\n"
+        self.text += " * @brief Fields to input tries or attempts.\n"
+        self.text += " *\n */\n"
+        self.text += f"uint32_t {self.project.lower()}bt_common_attempts[{self.project.upper()}BT_COMMON_ATTEMPTS_SIZE] = {{0}};\n\n"
         self.archive_end("common", src=True)
 
     def generate_common(self, num_max_attempts):

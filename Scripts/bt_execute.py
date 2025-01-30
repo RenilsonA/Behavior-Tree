@@ -1,21 +1,25 @@
 #Behavior Tree like Tree.
-INDEX_NODE_TYPE = 1
-INDEX_NODE_CHILDREN = 2
-INDEX_NODE_TARGET = 4
-INDEX_NODE_DECORATOR_TARGET = -3
-INDEX_NODE_SIBLING = -2
-INDEX_NODE_PARENT = -1
-INDEX_NODE_FUNCTION = 2
-INDEX_NODE_DECORATOR_POINTER = 2
-INDEX_NODE_DECORATOR_NUM_ATTEMPTS = 3
-INDEX_NODE_DECORATOR_TIMEOUT_TIME = 2
-INDEX_NODE_DECORATOR_PARENT = 5
+POSITION_NODE_INDEX = 0
+POSITION_NODE_TYPE = 1
+POSITION_NODE_CHILDREN = 2
+POSITION_NODE_SIBLING = -3
+POSITION_NODE_PARENT = -2
+POSITION_NODE_REACTIVE = -1
+POSITION_NODE_FUNCTION = 2
+POSITION_NODE_TARGET = 4
+POSITION_NODE_DECORATOR_POINTER = 2
+POSITION_NODE_DECORATOR_TARGET = -3
+POSITION_NODE_DECORATOR_NUM_ATTEMPTS = 3
+POSITION_NODE_DECORATOR_TIMEOUT_TIME = 2
+POSITION_NODE_DECORATOR_RETRY_DEPTH = -4
 
 #Tree like DAG
 INDEX_OF_POSITION = 0
+INDEX_OF_MACRO = 1
 INDEX_SUCCESS_CASE = 2
 INDEX_FAIL_CASE = 3
 INDEX_POINTER_VERIFY = -1
+INDEX_CLEAN_UNTIL_NODE = -1
 
 #Node invalid
 NODE_UNRELATED = "BT_DEFINITION_TREE_UNRELATED"
@@ -67,9 +71,28 @@ class BT_EXECUTE:
         self.node_decorator_timeout = 'Timeout'
         self.next_node = 0
         self.nodes_path = []
+        self.decorator_retry_depth = []
 
     def is_decorator_node(self, node_type):
         return ((node_type == self.node_decorator_retry_until_successful) or
+                (node_type == self.node_decorator_repeat) or
+                (node_type == self.node_decorator_keep_running_until_failure) or
+                (node_type == self.node_decorator_force_failure) or 
+                (node_type == self.node_decorator_force_success) or 
+                (node_type == self.node_decorator_inverter) or
+                (node_type == self.node_decorator_timeout))
+    
+    def is_decorator_retry_node(self, node_type):
+        return ((node_type == self.node_decorator_retry_until_successful) or
+                (node_type == self.node_decorator_repeat) or
+                (node_type == self.node_decorator_keep_running_until_failure))
+
+    def is_valid_node(self, node_type):
+        return ((node_type == self.node_condition) or
+                (node_type == self.node_action) or
+                (node_type == self.node_delay) or
+                (node_type == self.node_decorator_retry_until_successful) or
+                (node_type == self.node_decorator_retry_until_successful) or
                 (node_type == self.node_decorator_repeat) or
                 (node_type == self.node_decorator_keep_running_until_failure) or
                 (node_type == self.node_decorator_force_failure) or 
@@ -85,6 +108,11 @@ class BT_EXECUTE:
                 (node_type == macro_node_force_success) or (node_type == macro_node_reactive_force_success) or
                 (node_type == macro_node_inverter) or (node_type == macro_node_reactive_inverter) or
                 (node_type == macro_node_decorator_timeout) or (node_type == macro_node_reactive_decorator_timeout))
+
+    def is_decorator_macro_retry_node(self, node_type):
+        return ((node_type == macro_node_retry_until_success) or (node_type == macro_node_reactive_retry_until_success) or
+                (node_type == macro_node_repeat) or (node_type == macro_node_reactive_repeat) or
+                (node_type == macro_node_keep_running_until_failure) or (node_type == macro_node_reactive_keep_running_until_failure))
 
     def get_nodes_name(self, node_root = None, node_fallback = None, node_reactive_fallback = None, 
                        node_sequence = None, node_reactive_sequence = None, 
@@ -111,109 +139,124 @@ class BT_EXECUTE:
         self.node_subtree = node_subtree
 
     def process_node(self, node, node_status):
-        if node[INDEX_NODE_TYPE] == self.node_root:
+        if node[POSITION_NODE_TYPE] == self.node_root:
             if((self.tree_status == status_success) or (self.tree_status == status_fail)):
                 return self.tree_status
-            self.next_node = node[INDEX_NODE_SIBLING]
-        elif ((node[INDEX_NODE_TYPE] == self.node_sequence) or (node[INDEX_NODE_TYPE] == self.node_fallback)):
+            self.next_node = node[POSITION_NODE_SIBLING]
+        elif ((node[POSITION_NODE_TYPE] == self.node_sequence) or (node[POSITION_NODE_TYPE] == self.node_fallback)):
             if self.tree_status == status_running:
-                self.next_node = node[INDEX_NODE_CHILDREN]
+                self.next_node = node[POSITION_NODE_CHILDREN]
                 return status_running
             node_status = self.tree_status
-        elif ((node[INDEX_NODE_TYPE] == self.node_reactive_sequence) or (node[INDEX_NODE_TYPE] == self.node_reactive_fallback)):
+        elif ((node[POSITION_NODE_TYPE] == self.node_reactive_sequence) or (node[POSITION_NODE_TYPE] == self.node_reactive_fallback)):
             if self.tree_status == status_running:
-                self.next_node = node[INDEX_NODE_CHILDREN]
+                self.next_node = node[POSITION_NODE_CHILDREN]
                 return status_running
             node_status = self.tree_status
-        if (((self.tree[node[INDEX_NODE_PARENT]][INDEX_NODE_TYPE] == self.node_fallback) and (node_status == status_success)) or 
-            ((self.tree[node[INDEX_NODE_PARENT]][INDEX_NODE_TYPE] == self.node_sequence) and (node_status == status_fail)) or 
-            ((self.tree[node[INDEX_NODE_PARENT]][INDEX_NODE_TYPE] == self.node_reactive_fallback) and (node_status == status_success)) or 
-            ((self.tree[node[INDEX_NODE_PARENT]][INDEX_NODE_TYPE] == self.node_reactive_sequence) and (node_status == status_fail)) or 
-            ((self.is_decorator_node(self.tree[node[INDEX_NODE_PARENT]][INDEX_NODE_TYPE]) and (node_status != status_running))) or
-            ((node[INDEX_NODE_SIBLING] == NODE_UNRELATED))):
-            self.next_node = node[INDEX_NODE_PARENT]
+        if (((self.tree[node[POSITION_NODE_PARENT]][POSITION_NODE_TYPE] == self.node_fallback) and (node_status == status_success)) or 
+            ((self.tree[node[POSITION_NODE_PARENT]][POSITION_NODE_TYPE] == self.node_sequence) and (node_status == status_fail)) or 
+            ((self.tree[node[POSITION_NODE_PARENT]][POSITION_NODE_TYPE] == self.node_reactive_fallback) and (node_status == status_success)) or 
+            ((self.tree[node[POSITION_NODE_PARENT]][POSITION_NODE_TYPE] == self.node_reactive_sequence) and (node_status == status_fail)) or 
+            ((self.is_decorator_node(self.tree[node[POSITION_NODE_PARENT]][POSITION_NODE_TYPE]) and (node_status != status_running))) or
+            ((node[POSITION_NODE_SIBLING] == NODE_UNRELATED))):
+            self.next_node = node[POSITION_NODE_PARENT]
             self.tree_status = node_status
-        elif ((self.is_decorator_node(self.tree[node[INDEX_NODE_PARENT]][INDEX_NODE_TYPE]) and (node_status == status_running))):
-            self.next_node = node[INDEX_NODE_DECORATOR_TARGET]
+        elif ((self.is_decorator_node(self.tree[node[POSITION_NODE_PARENT]][POSITION_NODE_TYPE]) and (node_status == status_running))):
+            self.next_node = node[POSITION_NODE_DECORATOR_TARGET]
             self.tree_status = node_status
+            print(node[POSITION_NODE_TYPE])
+            if self.is_decorator_retry_node(node[POSITION_NODE_TYPE]):
+                put = True
+                for i in self.decorator_retry_depth:
+                    if i[0] == node[POSITION_NODE_INDEX]:
+                        put = False 
+                if put:
+                    self.decorator_retry_depth.append([node[POSITION_NODE_INDEX], 0])
+                print(self.decorator_retry_depth)
         else:
             self.tree_status = status_running
-            self.next_node = node[INDEX_NODE_SIBLING]
+            self.next_node = node[POSITION_NODE_SIBLING]
+        if((len(self.decorator_retry_depth) > 0)):
+            for i in self.decorator_retry_depth:
+                if i[0] == node[POSITION_NODE_INDEX]:
+                    i[1] += 1
         return status_running        
         
     def init_process(self, tree):
         self.tree = tree
         index = 0
         for i in range(len(tree)):
-            if((tree[i][INDEX_NODE_TYPE] == self.node_condition) or
-               (tree[i][INDEX_NODE_TYPE] == self.node_action) or
-               (tree[i][INDEX_NODE_TYPE] == self.node_decorator_retry_until_successful) or
-               (tree[i][INDEX_NODE_TYPE] == self.node_decorator_repeat) or
-               (tree[i][INDEX_NODE_TYPE] == self.node_decorator_keep_running_until_failure) or
-               (tree[i][INDEX_NODE_TYPE] == self.node_decorator_force_failure) or
-               (tree[i][INDEX_NODE_TYPE] == self.node_decorator_force_success) or
-               (tree[i][INDEX_NODE_TYPE] == self.node_decorator_inverter) or
-               (tree[i][INDEX_NODE_TYPE] == self.node_decorator_timeout)):
+            if((tree[i][POSITION_NODE_TYPE] == self.node_condition) or
+               (tree[i][POSITION_NODE_TYPE] == self.node_action) or
+               (tree[i][POSITION_NODE_TYPE] == self.node_decorator_retry_until_successful) or
+               (tree[i][POSITION_NODE_TYPE] == self.node_decorator_repeat) or
+               (tree[i][POSITION_NODE_TYPE] == self.node_decorator_keep_running_until_failure) or
+               (tree[i][POSITION_NODE_TYPE] == self.node_decorator_force_failure) or
+               (tree[i][POSITION_NODE_TYPE] == self.node_decorator_force_success) or
+               (tree[i][POSITION_NODE_TYPE] == self.node_decorator_inverter) or
+               (tree[i][POSITION_NODE_TYPE] == self.node_decorator_timeout)):
                 value = []
                 for status in status_node:
                     status_tree = self.process_node(tree[i], status)
-                    while((tree[self.next_node][INDEX_NODE_TYPE] != self.node_root) and
-                          (tree[self.next_node][INDEX_NODE_TYPE] != self.node_condition) and
-                          (tree[self.next_node][INDEX_NODE_TYPE] != self.node_action) and
-                          (tree[self.next_node][INDEX_NODE_TYPE] != self.node_decorator_retry_until_successful) and
-                          (tree[self.next_node][INDEX_NODE_TYPE] != self.node_decorator_repeat) and
-                          (tree[self.next_node][INDEX_NODE_TYPE] != self.node_decorator_keep_running_until_failure) and
-                          (tree[self.next_node][INDEX_NODE_TYPE] != self.node_decorator_force_failure) and 
-                          (tree[self.next_node][INDEX_NODE_TYPE] != self.node_decorator_force_success) and 
-                          (tree[self.next_node][INDEX_NODE_TYPE] != self.node_decorator_inverter) and 
-                          (tree[self.next_node][INDEX_NODE_TYPE] != self.node_decorator_timeout) and 
+                    while((tree[self.next_node][POSITION_NODE_TYPE] != self.node_root) and
+                          (tree[self.next_node][POSITION_NODE_TYPE] != self.node_condition) and
+                          (tree[self.next_node][POSITION_NODE_TYPE] != self.node_action) and
+                          (tree[self.next_node][POSITION_NODE_TYPE] != self.node_decorator_retry_until_successful) and
+                          (tree[self.next_node][POSITION_NODE_TYPE] != self.node_decorator_repeat) and
+                          (tree[self.next_node][POSITION_NODE_TYPE] != self.node_decorator_keep_running_until_failure) and
+                          (tree[self.next_node][POSITION_NODE_TYPE] != self.node_decorator_force_failure) and 
+                          (tree[self.next_node][POSITION_NODE_TYPE] != self.node_decorator_force_success) and 
+                          (tree[self.next_node][POSITION_NODE_TYPE] != self.node_decorator_inverter) and 
+                          (tree[self.next_node][POSITION_NODE_TYPE] != self.node_decorator_timeout) and 
                           (status_tree == status_running)):
                         self.process_node(tree[self.next_node], self.tree_status)
                     value.append(tree[self.next_node])
-                    if (tree[self.next_node][INDEX_NODE_TYPE] == self.node_root):
+                    if (tree[self.next_node][POSITION_NODE_TYPE] == self.node_root):
                         value[-1] = NODE_UNRELATED
-                print(tree[tree[i][INDEX_NODE_PARENT]][INDEX_NODE_TYPE])
-                if ((tree[tree[i][INDEX_NODE_PARENT]][INDEX_NODE_TYPE] == self.node_reactive_sequence) or \
-                    (tree[tree[i][INDEX_NODE_PARENT]][INDEX_NODE_TYPE] == self.node_reactive_fallback)):
+                if (tree[tree[i][POSITION_NODE_PARENT]][POSITION_NODE_REACTIVE]):
                     is_reactive = True
                 else:
                     is_reactive = False
-                if tree[i][INDEX_NODE_TYPE] == self.node_condition:
+                if tree[i][POSITION_NODE_TYPE] == self.node_condition:
                     node_type = macro_node_reactive_condition if is_reactive else macro_node_condition
                     self.nodes_path.append([index, node_type, value[0], value[1], 
-                                            tree[i][INDEX_NODE_FUNCTION], tree[i]])
-                elif tree[i][INDEX_NODE_TYPE] == self.node_action:
+                                            tree[i][POSITION_NODE_FUNCTION], tree[i]])
+                elif tree[i][POSITION_NODE_TYPE] == self.node_action:
                     node_type = macro_node_reactive_action if is_reactive else macro_node_action
                     self.nodes_path.append([index, node_type, value[0], value[1], 
-                                            tree[i][INDEX_NODE_FUNCTION], tree[i]])
-                elif tree[i][INDEX_NODE_TYPE] == self.node_decorator_retry_until_successful:
+                                            tree[i][POSITION_NODE_FUNCTION], tree[i]])
+                elif tree[i][POSITION_NODE_TYPE] == self.node_decorator_retry_until_successful:
                     node_type = macro_node_reactive_retry_until_success if is_reactive else macro_node_retry_until_success
-                    self.nodes_path.append([index, node_type, value[0], value[1], 
-                                            index + 1, tree[i][INDEX_NODE_DECORATOR_NUM_ATTEMPTS], tree[i][INDEX_NODE_DECORATOR_POINTER], tree[i]])
-                elif tree[i][INDEX_NODE_TYPE] == self.node_decorator_repeat:
+                    self.nodes_path.append([index, node_type, value[0], value[1], index + 1, 
+                                            tree[i][POSITION_NODE_DECORATOR_NUM_ATTEMPTS], 
+                                            tree[i][POSITION_NODE_DECORATOR_POINTER],
+                                            tree[i][POSITION_NODE_DECORATOR_RETRY_DEPTH] + index, tree[i]])
+                elif tree[i][POSITION_NODE_TYPE] == self.node_decorator_repeat:
                     node_type = macro_node_reactive_repeat if is_reactive else macro_node_repeat
-                    self.nodes_path.append([index, node_type, value[0], value[1], 
-                                            index + 1, tree[i][INDEX_NODE_DECORATOR_NUM_ATTEMPTS], tree[i][INDEX_NODE_DECORATOR_POINTER], tree[i]])
-                elif tree[i][INDEX_NODE_TYPE] == self.node_decorator_keep_running_until_failure:
+                    self.nodes_path.append([index, node_type, value[0], value[1], index + 1, 
+                                            tree[i][POSITION_NODE_DECORATOR_NUM_ATTEMPTS], 
+                                            tree[i][POSITION_NODE_DECORATOR_POINTER], 
+                                            tree[i][POSITION_NODE_DECORATOR_RETRY_DEPTH] + index, tree[i]])
+                elif tree[i][POSITION_NODE_TYPE] == self.node_decorator_keep_running_until_failure:
                     node_type = macro_node_reactive_keep_running_until_failure if is_reactive else macro_node_keep_running_until_failure
                     self.nodes_path.append([index, node_type, value[0], value[1], 
-                                            index + 1, tree[i]])
-                elif tree[i][INDEX_NODE_TYPE] == self.node_decorator_force_failure:
+                                            index + 1, tree[i][POSITION_NODE_DECORATOR_RETRY_DEPTH] + index, tree[i]])
+                elif tree[i][POSITION_NODE_TYPE] == self.node_decorator_force_failure:
                     node_type = macro_node_reactive_force_failure if is_reactive else macro_node_force_failure
                     self.nodes_path.append([index, node_type, value[0], value[1], 
                                             index + 1, tree[i]])
-                elif tree[i][INDEX_NODE_TYPE] == self.node_decorator_force_success:
+                elif tree[i][POSITION_NODE_TYPE] == self.node_decorator_force_success:
                     node_type = macro_node_reactive_force_success if is_reactive else macro_node_force_success
                     self.nodes_path.append([index, node_type, value[0], value[1], 
                                             index + 1, tree[i]])
-                elif tree[i][INDEX_NODE_TYPE] == self.node_decorator_inverter:
+                elif tree[i][POSITION_NODE_TYPE] == self.node_decorator_inverter:
                     node_type = macro_node_reactive_inverter if is_reactive else macro_node_inverter
                     self.nodes_path.append([index, node_type, value[0], value[1], 
                                             index + 1, tree[i]])
-                elif tree[i][INDEX_NODE_TYPE] == self.node_decorator_timeout:
+                elif tree[i][POSITION_NODE_TYPE] == self.node_decorator_timeout:
                     node_type = macro_node_reactive_decorator_timeout if is_reactive else macro_node_decorator_timeout
                     self.nodes_path.append([index, node_type, value[0], value[1], 
-                                            index + 1, tree[i][INDEX_NODE_DECORATOR_TIMEOUT_TIME], tree[i]])
+                                            index + 1, tree[i][POSITION_NODE_DECORATOR_TIMEOUT_TIME], tree[i]])
                 index += 1
 
         for i in range(len(self.nodes_path)):
