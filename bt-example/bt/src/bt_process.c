@@ -53,13 +53,13 @@
 
 bt_definition_status_t bt_process_node(bt_definition_tree_data_t *struct_tree,
                                        bt_index_t index_status_key,
-                                       uint32_t index_status_position,
-                                       uint32_t value_status)
+                                       uint32_t index_status_position)
 {
     bt_index_t index = struct_tree->node_index;
-    bt_definition_status_t status = 0;
+    bt_definition_status_t status = BT_DEFINITION_STATUS_RUNNING;
     const bt_definition_node_t *node_struct = &(struct_tree->tree[index]);
     bt_definition_node_type_t node_type = node_struct->node_type;
+    uint32_t value_status = 0;
 
     if(struct_tree == NULL)
     {
@@ -97,9 +97,10 @@ bt_definition_status_t bt_process_node(bt_definition_tree_data_t *struct_tree,
 
                 struct_tree->node_index = node_struct->decorator_node.target_index;
 
-                struct_tree->nodes_status[index_status_position] = (value_status) | (0b00 << (index_status_key));
-                struct_tree->last_node_state = BT_DEFINITION_STATUS_RUNNING;
-                return BT_DEFINITION_STATUS_RUNNING;
+//                struct_tree->nodes_status[index_status_position] = (()) | (0b00 << (index_status_key));
+//                struct_tree->last_node_state = BT_DEFINITION_STATUS_RUNNING;
+//                return BT_DEFINITION_STATUS_RUNNING;
+                break;
             }
             else if((struct_tree->last_node_state == BT_DEFINITION_STATUS_FAIL) &&
                     (*node_struct->decorator_node.ties_node.local > BT_PROCESS_MIN_ATTEMPTS))
@@ -153,9 +154,10 @@ bt_definition_status_t bt_process_node(bt_definition_tree_data_t *struct_tree,
 
                 struct_tree->node_index = node_struct->decorator_node.target_index;
 
-                struct_tree->nodes_status[index_status_position] = (value_status) | (0b00 << (index_status_key));
-                struct_tree->last_node_state = BT_DEFINITION_STATUS_RUNNING;
-                return BT_DEFINITION_STATUS_RUNNING;
+//                struct_tree->nodes_status[index_status_position] = (value_status) | (0b00 << (index_status_key));
+//                struct_tree->last_node_state = BT_DEFINITION_STATUS_RUNNING;
+//                return BT_DEFINITION_STATUS_RUNNING;
+                break;
             }
             else if(*node_struct->decorator_node.ties_node.local > BT_PROCESS_MIN_ATTEMPTS)
             {
@@ -201,8 +203,8 @@ bt_definition_status_t bt_process_node(bt_definition_tree_data_t *struct_tree,
 
                 struct_tree->node_index = node_struct->decorator_node.target_index;
 
-                struct_tree->nodes_status[index_status_position] = (value_status) | (0b00 << (index_status_key));
-                struct_tree->last_node_state = BT_DEFINITION_STATUS_RUNNING;
+//                struct_tree->nodes_status[index_status_position] = (value_status) | (0b00 << (index_status_key));
+//                struct_tree->last_node_state = BT_DEFINITION_STATUS_RUNNING;
 
                 bt_index_t clear_index = struct_tree->node_index;
                 bt_index_t key = 0;
@@ -222,7 +224,8 @@ bt_definition_status_t bt_process_node(bt_definition_tree_data_t *struct_tree,
                     clear_index += 1;
                 } while(clear_index < node_struct->decorator_node.ties_node.node_limit);
 
-                return BT_DEFINITION_STATUS_RUNNING;
+//                return BT_DEFINITION_STATUS_RUNNING;
+                break;
             }
             else
             {
@@ -309,10 +312,11 @@ bt_definition_status_t bt_process_node(bt_definition_tree_data_t *struct_tree,
                 status = bt_common_action_timeout(node_struct->decorator_node.timeout_ms);
                 struct_tree->node_index = node_struct->decorator_node.target_index;
 
-                uint32_t x = (value_status) | (0b00 << (index_status_key));
-                struct_tree->nodes_status[index_status_position] = x;
-                struct_tree->last_node_state = BT_DEFINITION_STATUS_RUNNING;
-                return BT_DEFINITION_STATUS_RUNNING;
+//                uint32_t x = (value_status) | (0b00 << (index_status_key));
+//                struct_tree->nodes_status[index_status_position] = x;
+//                struct_tree->last_node_state = BT_DEFINITION_STATUS_RUNNING;
+//                return BT_DEFINITION_STATUS_RUNNING;
+                break;
             }
             else if (struct_tree->last_node_state == BT_DEFINITION_STATUS_RE_EXECUTE) {
                 struct_tree->node_index = node_struct->decorator_node.target_index;
@@ -338,6 +342,8 @@ bt_definition_status_t bt_process_node(bt_definition_tree_data_t *struct_tree,
       SEGGER_RTT_printf(0, "F ");
     if(status == BT_DEFINITION_STATUS_RUNNING)
       SEGGER_RTT_printf(0, "R ");
+
+    value_status = struct_tree->nodes_status[index_status_position] & (~mask);
 
     if((status == BT_DEFINITION_STATUS_SUCCESS))
     {

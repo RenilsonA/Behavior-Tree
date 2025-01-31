@@ -65,7 +65,6 @@ bt_definition_status_t bt_manager_tick_reactive_tree(bt_definition_tree_data_t *
     bt_index_t index_status_key = 0;
     uint32_t index_status_position = 0;
     uint32_t mask = 0;
-    uint32_t valor = 0;
     uint32_t value_status = struct_tree->nodes_status[BT_DEFINITON_NODE_FIRST_INDEX];
 
     if(struct_tree == NULL)
@@ -87,7 +86,6 @@ bt_definition_status_t bt_manager_tick_reactive_tree(bt_definition_tree_data_t *
         value_status = struct_tree->nodes_status[index_status_position];
         mask = (0b11 << (index_status_key));
         check_node = (value_status & mask) >> index_status_key;
-        valor = (value_status & (~mask));
 
         if(struct_tree->node_index == 11)
           SEGGER_RTT_printf(0, "");
@@ -100,7 +98,7 @@ bt_definition_status_t bt_manager_tick_reactive_tree(bt_definition_tree_data_t *
                 struct_tree->last_node_state = check_node;
             }
 
-            tree_status = bt_process_node(struct_tree, index_status_key, index_status_position, valor);
+            tree_status = bt_process_node(struct_tree, index_status_key, index_status_position);
 //            if((tree_status == BT_DEFINITION_STATUS_RUNNING) && (tree_status != BT_DEFINITION_STATUS_RE_EXECUTE))
 //            {
 //                return tree_status;
@@ -114,7 +112,6 @@ bt_definition_status_t bt_manager_tick_reactive_tree(bt_definition_tree_data_t *
         value_status = struct_tree->nodes_status[index_status_position];
         mask = (0b11 << (index_status_key));
         check_node = (value_status & mask) >> index_status_key;
-        valor = (value_status & (~mask));
 
         if((struct_tree->node_index < node_index) && (check_node != BT_DEFINITION_STATUS_RE_EXECUTE))
         {
@@ -156,7 +153,6 @@ bt_definition_status_t bt_manager_tick_reactive_tree(bt_definition_tree_data_t *
     value_status = struct_tree->nodes_status[index_status_position];
     mask = (0b11 << (index_status_key));
     check_node = (value_status & mask) >> index_status_key;
-    valor = (value_status & (~mask));
 
     if(((node_type >= BT_DEFINITION_NODE_REACTIVE_DECORATOR_TIMEOUT) && (node_type <= BT_DEFINITION_NODE_REACTIVE_FORCE_FAIL))
         || ((node_type >= BT_DEFINITION_NODE_DECORATOR_TIMEOUT) && (node_type <= BT_DEFINITION_NODE_FORCE_FAIL)))
@@ -164,7 +160,7 @@ bt_definition_status_t bt_manager_tick_reactive_tree(bt_definition_tree_data_t *
         struct_tree->last_node_state = check_node;
     }
 
-    tree_status = bt_process_node(struct_tree, index_status_key, index_status_position, valor);
+    tree_status = bt_process_node(struct_tree, index_status_key, index_status_position);
 
     SEGGER_RTT_printf(0, "\n");
 
