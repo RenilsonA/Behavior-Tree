@@ -83,8 +83,6 @@ bt_definition_status_t bt_process_node(bt_definition_tree_data_t *struct_tree,
         return BT_DEFINITION_STATUS_ERROR;
     }
 
-    SEGGER_RTT_printf(0, "[%d]", index);
-
     switch (node_type)
     {
     case BT_DEFINITION_NODE_ACTION:
@@ -348,13 +346,6 @@ bt_definition_status_t bt_process_node(bt_definition_tree_data_t *struct_tree,
         return BT_DEFINITION_STATUS_ERROR;
     }
     }
-
-    if (status == BT_DEFINITION_STATUS_SUCCESS)
-        SEGGER_RTT_printf(0, "S ");
-    if (status == BT_DEFINITION_STATUS_FAIL)
-        SEGGER_RTT_printf(0, "F ");
-    if (status == BT_DEFINITION_STATUS_RUNNING)
-        SEGGER_RTT_printf(0, "R ");
 
     mask = (0b11 << (index_status_key));
     value_status = struct_tree->nodes_status[index_status_position] & (~mask);

@@ -37,18 +37,11 @@ bt_definition_status_t bt_manager_tick_tree(bt_definition_tree_data_t *struct_tr
         return BT_DEFINITION_STATUS_ERROR;
     }
 
-    bt_index_t node_index = struct_tree->node_index;
-    bt_index_t index = struct_tree->node_index;
     bt_index_t index_status_key = 0;
     uint32_t index_status_position = 0;
-    uint32_t mask = 0;
-    uint32_t value_status = struct_tree->nodes_status[BT_DEFINITON_NODE_FIRST_INDEX];
 
-    index = struct_tree->node_index;
     index_status_key = (struct_tree->node_index % 16) * 2;
     index_status_position = struct_tree->node_index / 16;
-    value_status = struct_tree->nodes_status[index_status_position];
-    mask = (0b11 << (index_status_key));
 
     return bt_process_node(struct_tree, index_status_key, index_status_position);
 }
@@ -93,7 +86,6 @@ bt_definition_status_t bt_manager_tick_reactive_tree(bt_definition_tree_data_t *
             tree_status = bt_process_node(struct_tree, index_status_key, index_status_position);
             if (tree_status == BT_DEFINITION_STATUS_STAND_BY)
             {
-                SEGGER_RTT_printf(0, "\n");
                 return BT_DEFINITION_STATUS_STAND_BY;
             }
             continue;
@@ -153,8 +145,6 @@ bt_definition_status_t bt_manager_tick_reactive_tree(bt_definition_tree_data_t *
     }
 
     tree_status = bt_process_node(struct_tree, index_status_key, index_status_position);
-
-    SEGGER_RTT_printf(0, "\n");
 
     return tree_status;
 }
