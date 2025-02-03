@@ -23,13 +23,14 @@ bt_definition_status_t test_bt_subtree_action25(void)
   SEGGER_RTT_printf(0, "a25 ");
   if(a8++ > 10)
     return BT_DEFINITION_STATUS_SUCCESS;
+//  return BT_DEFINITION_STATUS_RUNNING;
   return BT_DEFINITION_STATUS_FAIL;
 }
 
 bt_definition_status_t test_bt_subtree_condition20(void)
 {
   SEGGER_RTT_printf(0, "c20 ");
-  if(a7++ > 3)
+  if(a7++ > 30)
     return BT_DEFINITION_STATUS_SUCCESS;
   return BT_DEFINITION_STATUS_FAIL;
 }
@@ -65,10 +66,10 @@ bt_definition_status_t test_bt_subtree_action23(void)
 bt_definition_status_t test_bt_subtree_action24(void)
 {
   SEGGER_RTT_printf(0, "a24 ");
-  if(a6++ > 20){
-      a6 = 0;
-      return BT_DEFINITION_STATUS_SUCCESS;
-  }
+//  if(a6++ > 20){
+//      a6 = 0;
+//      return BT_DEFINITION_STATUS_RUNNING;
+//  }
   return BT_DEFINITION_STATUS_FAIL;
 }
 

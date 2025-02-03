@@ -28,35 +28,317 @@
 
 #include "bt_process.h"
 
-bt_definition_status_t bt_process_node(bt_definition_tree_data_t *struct_tree)
+/**
+ * @brief Minimum quantity of attempts.
+ *
+ */
+#define BT_PROCESS_MIN_ATTEMPTS 0
+
+/**
+ * @brief Check if node is running.
+ *
+ */
+#define BT_PROCESS_CHECK_RUNNING(_tree_ptr)                               \
+    do                                                                    \
+    {                                                                     \
+        if ((_tree_ptr)->last_node_state != BT_DEFINITION_STATUS_RUNNING) \
+        {                                                                 \
+            (_tree_ptr)->node_index = 0;                                  \
+            return BT_DEFINITION_STATUS_ERROR;                            \
+        }                                                                 \
+    } while (0)
+
+/**
+ * @brief Check is target node is valid.
+ *
+ */
+#define BT_PROCESS_CHECK_TARGET(_tree_ptr, _index)                                                \
+    do                                                                                            \
+    {                                                                                             \
+        if ((_tree_ptr)->tree[index].decorator_node.target_index == BT_DEFINITION_TREE_UNRELATED) \
+        {                                                                                         \
+            (_tree_ptr)->node_index = BT_DEFINITON_NODE_FIRST_INDEX;                              \
+            return BT_DEFINITION_STATUS_ERROR;                                                    \
+        }                                                                                         \
+    } while (0)
+
+bt_definition_status_t bt_process_node(bt_definition_tree_data_t *struct_tree,
+                                       bt_index_t index_status_key,
+                                       uint32_t index_status_position)
 {
     bt_index_t index = struct_tree->node_index;
-    bt_definition_status_t status = 0;
+    bt_definition_status_t status = BT_DEFINITION_STATUS_RUNNING;
     const bt_definition_node_t *node_struct = &(struct_tree->tree[index]);
     bt_definition_node_type_t node_type = node_struct->node_type;
+    uint32_t value_status = 0;
+    uint32_t mask = 0;
+    bt_index_t key = 0;
+    bt_index_t position = 0;
+    uint32_t nodes_status = 0;
+    uint32_t new_value = 0;
+    bt_index_t clear_index = 0;
 
     if (struct_tree == NULL)
     {
         return BT_DEFINITION_STATUS_ERROR;
     }
 
+    SEGGER_RTT_printf(0, "[%d]", index);
+
     switch (node_type)
     {
-    case BT_DEFINITION_NODE_CONDITION:
     case BT_DEFINITION_NODE_ACTION:
+    case BT_DEFINITION_NODE_CONDITION:
+    case BT_DEFINITION_NODE_REACTIVE_ACTION:
+    case BT_DEFINITION_NODE_REACTIVE_CONDITION:
     {
-        if (struct_tree->last_node_state != BT_DEFINITION_STATUS_RUNNING)
+        status = node_struct->interaction_node.function();
+        if ((status == BT_DEFINITION_STATUS_RUNNING) || (status == BT_DEFINITION_STATUS_STAND_BY))
         {
-            struct_tree->node_index = 0;
-            return BT_DEFINITION_STATUS_ERROR;
+            return BT_DEFINITION_STATUS_STAND_BY;
+        }
+        break;
+    }
+
+    case BT_DEFINITION_NODE_RETRY_UNTIL_SUCCESS:
+    case BT_DEFINITION_NODE_REACTIVE_RETRY_UNTIL_SUCCESS:
+    {
+        BT_PROCESS_CHECK_TARGET(struct_tree, index);
+
+        if ((struct_tree->last_node_state == BT_DEFINITION_STATUS_RUNNING) ||
+            (struct_tree->last_node_state == BT_DEFINITION_STATUS_RE_EXECUTE))
+        {
+            if (node_struct->decorator_node.ties_node.times <= 0)
+            {
+                status = BT_DEFINITION_STATUS_FAIL;
+                break;
+            }
+
+            *node_struct->decorator_node.ties_node.local = node_struct->decorator_node.ties_node.times - 1;
+
+            struct_tree->node_index = node_struct->decorator_node.target_index;
+
+            struct_tree->last_node_state = BT_DEFINITION_STATUS_RUNNING;
+            mask = (0b11 << (index_status_key));
+            value_status = struct_tree->nodes_status[index_status_position] & (~mask);
+            struct_tree->nodes_status[index_status_position] = (value_status) | (0b00 << (index_status_key));
+
+            return BT_DEFINITION_STATUS_RUNNING;
+        }
+        else if ((struct_tree->last_node_state == BT_DEFINITION_STATUS_FAIL) &&
+                 (*node_struct->decorator_node.ties_node.local > BT_PROCESS_MIN_ATTEMPTS))
+        {
+            *node_struct->decorator_node.ties_node.local -= 1;
+            struct_tree->node_index = node_struct->decorator_node.target_index;
+            status = BT_DEFINITION_STATUS_RUNNING;
+
+            clear_index = struct_tree->node_index;
+
+            do
+            {
+                key = (clear_index % 16) * 2;
+                position = clear_index / 16;
+                nodes_status = struct_tree->nodes_status[position];
+                mask = (0b11 << (key));
+                new_value = (nodes_status & (~mask));
+                struct_tree->nodes_status[position] = (new_value) | (0b11 << (key));
+                clear_index += 1;
+            } while (clear_index <= node_struct->decorator_node.ties_node.node_limit);
+        }
+        else
+        {
+            status = struct_tree->last_node_state;
+            *node_struct->decorator_node.ties_node.local = BT_PROCESS_MIN_ATTEMPTS;
         }
 
-        status = node_struct->interaction_node.function();
+        break;
+    }
+
+    case BT_DEFINITION_NODE_REPEAT:
+    case BT_DEFINITION_NODE_REACTIVE_REPEAT:
+    {
+        BT_PROCESS_CHECK_TARGET(struct_tree, index);
+        if ((struct_tree->last_node_state == BT_DEFINITION_STATUS_RUNNING) ||
+            (struct_tree->last_node_state == BT_DEFINITION_STATUS_RE_EXECUTE))
+        {
+            if (node_struct->decorator_node.ties_node.times <= 0)
+            {
+                status = BT_DEFINITION_STATUS_FAIL;
+                break;
+            }
+
+            *node_struct->decorator_node.ties_node.local = node_struct->decorator_node.ties_node.times - 1;
+
+            struct_tree->node_index = node_struct->decorator_node.target_index;
+
+            mask = (0b11 << (index_status_key));
+            value_status = struct_tree->nodes_status[index_status_position] & (~mask);
+            struct_tree->nodes_status[index_status_position] = (value_status) | (0b00 << (index_status_key));
+            struct_tree->last_node_state = BT_DEFINITION_STATUS_RUNNING;
+
+            return BT_DEFINITION_STATUS_RUNNING;
+        }
+        else if (*node_struct->decorator_node.ties_node.local > BT_PROCESS_MIN_ATTEMPTS)
+        {
+            *node_struct->decorator_node.ties_node.local -= 1;
+            struct_tree->node_index = node_struct->decorator_node.target_index;
+            status = BT_DEFINITION_STATUS_RUNNING;
+
+            clear_index = struct_tree->node_index;
+
+            do
+            {
+                key = (clear_index % 16) * 2;
+                position = clear_index / 16;
+                nodes_status = struct_tree->nodes_status[position];
+                mask = (0b11 << (key));
+                new_value = (nodes_status & (~mask));
+                struct_tree->nodes_status[position] = (new_value) | (0b11 << (key));
+                clear_index += 1;
+            } while (clear_index <= node_struct->decorator_node.ties_node.node_limit);
+        }
+        else
+        {
+            status = struct_tree->last_node_state;
+            *node_struct->decorator_node.ties_node.local = BT_PROCESS_MIN_ATTEMPTS;
+        }
+
+        break;
+    }
+
+    case BT_DEFINITION_NODE_KEEP_RUNNING_UNTIL_FAILURE:
+    case BT_DEFINITION_NODE_REACTIVE_KEEP_RUNNING_UNTIL_FAILURE:
+    {
+        BT_PROCESS_CHECK_TARGET(struct_tree, index);
+        if ((struct_tree->last_node_state == BT_DEFINITION_STATUS_RUNNING) ||
+            (struct_tree->last_node_state == BT_DEFINITION_STATUS_FAIL))
+        {
+
+            struct_tree->node_index = node_struct->decorator_node.target_index;
+
+            mask = (0b11 << (index_status_key));
+            value_status = struct_tree->nodes_status[index_status_position] & (~mask);
+            struct_tree->nodes_status[index_status_position] = (value_status) | (0b00 << (index_status_key));
+            clear_index = struct_tree->node_index;
+
+            do
+            {
+                key = (clear_index % 16) * 2;
+                position = clear_index / 16;
+                nodes_status = struct_tree->nodes_status[position];
+                mask = (0b11 << (key));
+                new_value = (nodes_status & (~mask));
+                struct_tree->nodes_status[position] = (new_value) | (0b11 << (key));
+                clear_index += 1;
+            } while (clear_index < node_struct->decorator_node.ties_node.node_limit);
+
+            return BT_DEFINITION_STATUS_RUNNING;
+        }
+        else
+        {
+            status = struct_tree->last_node_state;
+        }
+
+        break;
+    }
+
+    case BT_DEFINITION_NODE_INVERTER:
+    case BT_DEFINITION_NODE_REACTIVE_INVERTER:
+    {
+        BT_PROCESS_CHECK_TARGET(struct_tree, index);
+
+        if (struct_tree->last_node_state == BT_DEFINITION_STATUS_SUCCESS)
+        {
+            status = BT_DEFINITION_STATUS_FAIL;
+        }
+        else if (struct_tree->last_node_state == BT_DEFINITION_STATUS_FAIL)
+        {
+            status = BT_DEFINITION_STATUS_SUCCESS;
+        }
+        else
+        {
+            struct_tree->node_index = node_struct->decorator_node.target_index;
+            status = BT_DEFINITION_STATUS_RUNNING;
+        }
+        break;
+    }
+
+    case BT_DEFINITION_NODE_FORCE_SUCCESS:
+    case BT_DEFINITION_NODE_REACTIVE_FORCE_SUCCESS:
+    {
+        BT_PROCESS_CHECK_TARGET(struct_tree, index);
+        if (struct_tree->last_node_state == BT_DEFINITION_STATUS_RUNNING)
+        {
+            struct_tree->node_index = node_struct->decorator_node.target_index;
+            status = BT_DEFINITION_STATUS_RUNNING;
+        }
+        else if (struct_tree->last_node_state == BT_DEFINITION_STATUS_RE_EXECUTE)
+        {
+            struct_tree->node_index = node_struct->decorator_node.target_index;
+            status = BT_DEFINITION_STATUS_RUNNING;
+        }
+        else
+        {
+            status = BT_DEFINITION_STATUS_SUCCESS;
+        }
+        break;
+    }
+
+    case BT_DEFINITION_NODE_FORCE_FAIL:
+    case BT_DEFINITION_NODE_REACTIVE_FORCE_FAIL:
+    {
+        BT_PROCESS_CHECK_TARGET(struct_tree, index);
+        status = BT_DEFINITION_STATUS_RUNNING;
+        if (struct_tree->last_node_state == BT_DEFINITION_STATUS_RUNNING)
+        {
+            struct_tree->node_index = node_struct->decorator_node.target_index;
+            status = BT_DEFINITION_STATUS_RUNNING;
+        }
+        else if (struct_tree->last_node_state == BT_DEFINITION_STATUS_RE_EXECUTE)
+        {
+            struct_tree->node_index = node_struct->decorator_node.target_index;
+            status = BT_DEFINITION_STATUS_RUNNING;
+        }
+        else
+        {
+            status = BT_DEFINITION_STATUS_FAIL;
+        }
         break;
     }
 
     case BT_DEFINITION_NODE_ACTION_TIMEOUT:
+    case BT_DEFINITION_NODE_REACTIVE_ACTION_TIMEOUT:
     {
+        status = bt_common_action_timeout(node_struct->decorator_node.timeout_ms);
+        break;
+    }
+
+    case BT_DEFINITION_NODE_DECORATOR_TIMEOUT:
+    case BT_DEFINITION_NODE_REACTIVE_DECORATOR_TIMEOUT:
+    {
+        BT_PROCESS_CHECK_TARGET(struct_tree, index);
+        if ((struct_tree->last_node_state == BT_DEFINITION_STATUS_RUNNING) ||
+            (struct_tree->last_node_state == BT_DEFINITION_STATUS_RE_EXECUTE))
+        {
+            status = bt_common_action_timeout(node_struct->decorator_node.timeout_ms);
+            struct_tree->node_index = node_struct->decorator_node.target_index;
+
+            mask = (0b11 << (index_status_key));
+            value_status = struct_tree->nodes_status[index_status_position] & (~mask);
+            struct_tree->nodes_status[index_status_position] = (value_status) | (0b00 << (index_status_key));
+            struct_tree->last_node_state = BT_DEFINITION_STATUS_RUNNING;
+
+            return BT_DEFINITION_STATUS_RUNNING;
+        }
+        else if (struct_tree->last_node_state == BT_DEFINITION_STATUS_RE_EXECUTE)
+        {
+            struct_tree->node_index = node_struct->decorator_node.target_index;
+            status = BT_DEFINITION_STATUS_RUNNING;
+        }
+        else
+        {
+            status = struct_tree->last_node_state;
+        }
 
         break;
     }
@@ -68,13 +350,62 @@ bt_definition_status_t bt_process_node(bt_definition_tree_data_t *struct_tree)
     }
 
     if (status == BT_DEFINITION_STATUS_SUCCESS)
+        SEGGER_RTT_printf(0, "S ");
+    if (status == BT_DEFINITION_STATUS_FAIL)
+        SEGGER_RTT_printf(0, "F ");
+    if (status == BT_DEFINITION_STATUS_RUNNING)
+        SEGGER_RTT_printf(0, "R ");
+
+    mask = (0b11 << (index_status_key));
+    value_status = struct_tree->nodes_status[index_status_position] & (~mask);
+
+    if ((status == BT_DEFINITION_STATUS_SUCCESS))
     {
         struct_tree->node_index = node_struct->st_index;
+        if ((node_type >= BT_DEFINITION_NODE_REACTIVE_DECORATOR_TIMEOUT) && (node_type <= BT_DEFINITION_NODE_REACTIVE_FORCE_FAIL))
+        {
+            struct_tree->nodes_status[index_status_position] = (value_status) | (0b11 << (index_status_key));
+        }
+        else
+        {
+            struct_tree->nodes_status[index_status_position] = (value_status) | (0b01 << (index_status_key));
+        }
     }
-    else if (status == BT_DEFINITION_STATUS_FAIL)
+    else if ((status == BT_DEFINITION_STATUS_FAIL))
     {
         struct_tree->node_index = node_struct->ft_index;
+        if ((node_type >= BT_DEFINITION_NODE_REACTIVE_DECORATOR_TIMEOUT) && (node_type <= BT_DEFINITION_NODE_REACTIVE_FORCE_FAIL))
+        {
+            struct_tree->nodes_status[index_status_position] = (value_status) | (0b11 << (index_status_key));
+        }
+        else
+        {
+            struct_tree->nodes_status[index_status_position] = (value_status) | (0b10 << (index_status_key));
+        }
+    }
+    else
+    {
+        struct_tree->nodes_status[index_status_position] = (value_status) | (0b00 << (index_status_key));
     }
 
-    return BT_DEFINITION_STATUS_RUNNING;
+    struct_tree->last_node_state = BT_DEFINITION_STATUS_RUNNING;
+    if (index > struct_tree->node_index)
+    {
+        struct_tree->last_node_state = status;
+        key = (struct_tree->node_index % 16) * 2;
+        position = struct_tree->node_index / 16;
+        nodes_status = struct_tree->nodes_status[position];
+        mask = (0b11 << (key));
+        new_value = (nodes_status & (~mask));
+        if (status == BT_DEFINITION_STATUS_SUCCESS)
+        {
+            struct_tree->nodes_status[position] = (new_value) | (0b01 << (key));
+        }
+        else if (status == BT_DEFINITION_STATUS_FAIL)
+        {
+            struct_tree->nodes_status[position] = (new_value) | (0b10 << (key));
+        }
+    }
+
+    return status;
 }

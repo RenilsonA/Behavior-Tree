@@ -35,10 +35,11 @@
  * @brief Function that manages and performs a step in the tree.
  *
  * @param data_tree[in] Pointer to tree struct.
- * @retval BT_DEFINITION_STATUS_SUCCESS if successfully executed tree;
- * @retval BT_DEFINITION_STATUS_FAIL if failed tree;
- * @retval BT_DEFINITION_STATUS_RUNNING if running tree;
- * @retval BT_DEFINITION_STATUS_ERROR if irregular tree;
+ * @retval BT_DEFINITION_STATUS_RUNNING if running tree.
+ * @retval BT_DEFINITION_STATUS_SUCCESS if successfully executed tree.
+ * @retval BT_DEFINITION_STATUS_FAIL if failed tree.
+ * @retval BT_DEFINITION_STATUS_STAND_BY if successfully executed tree.
+ * @retval BT_DEFINITION_STATUS_ERROR if irregular tree.
  */
 bt_definition_status_t bt_manager_tick_tree(bt_definition_tree_data_t *struct_tree);
 
@@ -46,10 +47,11 @@ bt_definition_status_t bt_manager_tick_tree(bt_definition_tree_data_t *struct_tr
  * @brief Function to execute tree with reactivity.
  *
  * @param data_tree[in] Pointer to tree struct.
- * @retval BT_DEFINITION_STATUS_SUCCESS if successfully executed tree;
- * @retval BT_DEFINITION_STATUS_FAIL if failed tree;
- * @retval BT_DEFINITION_STATUS_RUNNING if running tree;
- * @retval BT_DEFINITION_STATUS_ERROR if irregular tree;
+ * @retval BT_DEFINITION_STATUS_RUNNING if running tree.
+ * @retval BT_DEFINITION_STATUS_SUCCESS if successfully executed tree.
+ * @retval BT_DEFINITION_STATUS_FAIL if failed tree.
+ * @retval BT_DEFINITION_STATUS_STAND_BY if successfully executed tree.
+ * @retval BT_DEFINITION_STATUS_ERROR if irregular tree.
  */
 bt_definition_status_t bt_manager_reactivity_tick_tree(bt_definition_tree_data_t *struct_tree);
 
@@ -57,8 +59,8 @@ bt_definition_status_t bt_manager_reactivity_tick_tree(bt_definition_tree_data_t
  * @brief Function to reset behavior tree.
  *
  * @param data_tree[in] Pointer to tree struct.
- * @retval BT_DEFINITION_STATUS_SUCCESS if successfully executed tree;
- * @retval BT_DEFINITION_STATUS_ERROR if irregular tree;
+ * @retval BT_DEFINITION_STATUS_SUCCESS if successfully executed tree.
+ * @retval BT_DEFINITION_STATUS_ERROR if irregular tree.
  */
 bt_definition_status_t bt_manager_reset_tree(bt_definition_tree_data_t *struct_tree);
 

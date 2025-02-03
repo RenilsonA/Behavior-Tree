@@ -84,9 +84,11 @@ typedef uint8_t bt_index_t;
  */
 typedef enum
 {
-    BT_DEFINITION_STATUS_SUCCESS = 0, /**< Status success in node or tree. */
+    BT_DEFINITION_STATUS_RUNNING = 0, /**< Status running in node or tree. */
+    BT_DEFINITION_STATUS_SUCCESS,     /**< Status success in node or tree. */
     BT_DEFINITION_STATUS_FAIL,        /**< Status failed in node or tree. */
-    BT_DEFINITION_STATUS_RUNNING,     /**< Status running in node or tree. */
+    BT_DEFINITION_STATUS_RE_EXECUTE,  /**< Status of new re-execution in node or tree. */
+    BT_DEFINITION_STATUS_STAND_BY,    /**< Status stand by in actions nodes. */
     BT_DEFINITION_STATUS_ERROR,       /**< Status error in node or tree. */
     __BT_DEFINITION_STATUS_AMOUNT,    /**< Status amount in lib. */
 } bt_definition_status_t;
@@ -97,11 +99,48 @@ typedef enum
  */
 typedef enum
 {
-    BT_DEFINITION_NODE_CONDITION = 0,  /**< Type of interaction condition node. */
-    BT_DEFINITION_NODE_ACTION,         /**< Type of interaction action node. */
-    BT_DEFINITION_NODE_ACTION_TIMEOUT, /**< Type of interaction action timeout node. */
-    __BT_DEFINITION_NODE_AMOUNT,       /**< Amount of nodes. */
+    BT_DEFINITION_NODE_CONDITION = 0,                       /**< Type of interaction condition node. */
+    BT_DEFINITION_NODE_ACTION,                              /**< Type of interaction action node. */
+    BT_DEFINITION_NODE_ACTION_TIMEOUT,                      /**< Type of interaction action timeout node. */
+    BT_DEFINITION_NODE_DECORATOR_TIMEOUT,                   /**< Type of decorator type timeout. */
+    BT_DEFINITION_NODE_RETRY_UNTIL_SUCCESS,                 /**< Type of decorator type retry until success. */
+    BT_DEFINITION_NODE_REPEAT,                              /**< Type of decorator type repeat. */
+    BT_DEFINITION_NODE_KEEP_RUNNING_UNTIL_FAILURE,          /**< Type of decorator type keep running until failure. */
+    BT_DEFINITION_NODE_INVERTER,                            /**< Type of decorator type inverter. */
+    BT_DEFINITION_NODE_FORCE_SUCCESS,                       /**< Type of decorator type force success. */
+    BT_DEFINITION_NODE_FORCE_FAIL,                          /**< Type of decorator type force fail. */
+    BT_DEFINITION_NODE_REACTIVE_NODES = 0x10,               /**< Type of decorator type timeout. */
+    BT_DEFINITION_NODE_REACTIVE_CONDITION,                  /**< Type of reactive interaction condition node. */
+    BT_DEFINITION_NODE_REACTIVE_ACTION,                     /**< Type of reactive interaction action node. */
+    BT_DEFINITION_NODE_REACTIVE_ACTION_TIMEOUT,             /**< Type of reactive interaction action timeout node. */
+    BT_DEFINITION_NODE_REACTIVE_DECORATOR_TIMEOUT,          /**< Type of reactive decorator type timeout. */
+    BT_DEFINITION_NODE_REACTIVE_RETRY_UNTIL_SUCCESS,        /**< Type of reactive decorator type retry until success. */
+    BT_DEFINITION_NODE_REACTIVE_REPEAT,                     /**< Type of reactive decorator type repeat. */
+    BT_DEFINITION_NODE_REACTIVE_KEEP_RUNNING_UNTIL_FAILURE, /**< Type of reactive decorator type keep running until failure. */
+    BT_DEFINITION_NODE_REACTIVE_INVERTER,                   /**< Type of reactive decorator type inverter. */
+    BT_DEFINITION_NODE_REACTIVE_FORCE_SUCCESS,              /**< Type of reactive decorator type force success. */
+    BT_DEFINITION_NODE_REACTIVE_FORCE_FAIL,                 /**< Type of reactive decorator type force fail. */
+    __BT_DEFINITION_NODE_AMOUNT,                            /**< Amount of nodes. */
 } bt_definition_node_type_t;
+
+/**
+ * @brief Data loaded into decorator type node.
+ *
+ */
+typedef struct bt_definition_node_decorator
+{
+    bt_index_t target_index; /**< Target index. */
+    union
+    {
+        struct
+        {
+            bt_index_t node_limit; /**< Last node limit with retry decorators. */
+            uint32_t times;        /**< Times of retry ramification. */
+            uint32_t *local;       /**< Local of memory to save retry number. */
+        } ties_node;               /**< Structure of nodes Retry, Repeat and Keep Running. */
+        uint32_t timeout_ms;       /**< Timeout in milliseconds. */
+    };
+} bt_definition_node_decorator_t;
 
 /**
  * @brief Data loaded into interaction node.
@@ -111,16 +150,8 @@ typedef struct bt_definition_node_interaction
 {
     union
     {
-        struct
-        {
-            int (*function)(void); /**< Pointer to interaction function. */
-            union
-            {
-                bt_index_t first_condition_ramification;   /**< Indicates first index in ramification who check condition for reactivity in condition interaction. */
-                bt_index_t next_condition_in_ramification; /**< Indicates next index in ramification who check condition for reactivity in action interaction. */
-            };
-        };
-        bt_index_t timeout_ms; /**< Delay timeout value for interaction action node delay. */
+        bt_definition_status_t (*function)(void); /**< Pointer to interaction function. */
+        bt_index_t timeout_ms;                    /**< Delay timeout value for interaction action node delay. */
     };
 } bt_definition_node_interaction_t;
 
@@ -136,6 +167,7 @@ typedef struct bt_definition_node
     union
     {
         bt_definition_node_interaction_t interaction_node; /**< interaction type node. */
+        bt_definition_node_decorator_t decorator_node;     /**< Decorator type node. */
     };
 } bt_definition_node_t;
 
@@ -147,8 +179,9 @@ typedef struct bt_definition_tree_data
 {
     bt_definition_status_t last_node_state; /**< State of tree execution. */
     bt_index_t node_index;                  /**< Node to be executed. */
-    bt_index_t first_condition_index;       /**< First condition index for reactivity of ramification. */
     bt_index_t tree_size;                   /**< Size of tree. */
+    bt_index_t ignored_node_index;          /**< Ignored node index. */
+    uint32_t *nodes_status;                 /**< Pointer to status of nodes. */
     const bt_definition_node_t *tree;       /**< Pointer to tree. */
 } bt_definition_tree_data_t;
 
@@ -156,38 +189,232 @@ typedef struct bt_definition_tree_data
  * @brief Macro that creates condition node condition.
  *
  */
-#define BT_DEFINITION_CREATE_NODE_CONDITION(_function, _success_target, _fail_target, _first_condition) \
-    {                                                                                                   \
-        .node_type = BT_DEFINITION_NODE_CONDITION,                                                      \
-        .st_index = _success_target,                                                                    \
-        .ft_index = _fail_target,                                                                       \
-        .interaction_node.function = _function,                                                         \
-        .interaction_node.first_condition_ramification = _first_condition,                              \
+#define BT_DEFINITION_CREATE_NODE_CONDITION(_success_target, _fail_target, _function) \
+    {                                                                                 \
+        .node_type = BT_DEFINITION_NODE_CONDITION,                                    \
+        .st_index = _success_target,                                                  \
+        .ft_index = _fail_target,                                                     \
+        .interaction_node.function = _function,                                       \
     }
 
 /**
  * @brief Macro that creates action node common.
  *
  */
-#define BT_DEFINITION_CREATE_NODE_ACTION(_function, _success_target, _fail_target, _next_condition) \
-    {                                                                                               \
-        .st_index = _success_target,                                                                \
-        .ft_index = _fail_target,                                                                   \
-        .node_type = BT_DEFINITION_NODE_ACTION,                                                     \
-        .interaction_node.function = _function,                                                     \
-        .interaction_node.next_condition_in_ramification = _next_condition,                         \
+#define BT_DEFINITION_CREATE_NODE_ACTION(_success_target, _fail_target, _function) \
+    {                                                                              \
+        .node_type = BT_DEFINITION_NODE_ACTION,                                    \
+        .st_index = _success_target,                                               \
+        .ft_index = _fail_target,                                                  \
+        .interaction_node.function = _function,                                    \
     }
 
 /**
- * @brief Macro that creates delay action node with delay.
+ * @brief Macro that creates retry until success node.
  *
  */
-#define BT_DEFINITION_CREATE_NODE_ACTION_DELAY(_timeout_ms, _sibling, _parent) \
-    {                                                                          \
-        .node_type = BT_DEFINITION_NODE_ACTION,                                \
-        .interaction_node.interaction.timeout_ms = _timeout_ms,                \
-        .interaction_node.st_index = _sibling,                                 \
-        .interaction_node.ft_index = _parent,                                  \
+#define BT_DEFINITION_CREATE_NODE_RETRY_UNTIL_SUCCESS(_success_target, _fail_target, _target, _attempts, _local, _node_limit) \
+    {                                                                                                                         \
+        .node_type = BT_DEFINITION_NODE_RETRY_UNTIL_SUCCESS,                                                                  \
+        .st_index = _success_target,                                                                                          \
+        .ft_index = _fail_target,                                                                                             \
+        .decorator_node.target_index = _target,                                                                               \
+        .decorator_node.ties_node.node_limit = _node_limit,                                                                   \
+        .decorator_node.ties_node.times = _attempts,                                                                          \
+        .decorator_node.ties_node.local = _local,                                                                             \
+    }
+
+/**
+ * @brief Macro that creates repeat node.
+ *
+ */
+#define BT_DEFINITION_CREATE_NODE_REPEAT(_success_target, _fail_target, _target, _times, _local, _node_limit) \
+    {                                                                                                         \
+        .node_type = BT_DEFINITION_NODE_REPEAT,                                                               \
+        .st_index = _success_target,                                                                          \
+        .ft_index = _fail_target,                                                                             \
+        .decorator_node.target_index = _target,                                                               \
+        .decorator_node.ties_node.node_limit = _node_limit,                                                   \
+        .decorator_node.ties_node.times = _times,                                                             \
+        .decorator_node.ties_node.local = _local,                                                             \
+    }
+
+/**
+ * @brief Macro that creates keep running until failure node.
+ *
+ */
+#define BT_DEFINITION_CREATE_NODE_KEEP_RUNNING_UNTIL_FAILURE(_success_target, _fail_target, _target, _node_limit) \
+    {                                                                                                             \
+        .node_type = BT_DEFINITION_NODE_KEEP_RUNNING_UNTIL_FAILURE,                                               \
+        .st_index = _success_target,                                                                              \
+        .ft_index = _fail_target,                                                                                 \
+        .decorator_node.target_index = _target,                                                                   \
+        .decorator_node.ties_node.node_limit = _node_limit,                                                       \
+    }
+
+/**
+ * @brief Macro that creates inverter node.
+ *
+ */
+#define BT_DEFINITION_CREATE_NODE_INVERTER(_success_target, _fail_target, _target) \
+    {                                                                              \
+        .node_type = BT_DEFINITION_NODE_INVERTER,                                  \
+        .st_index = _success_target,                                               \
+        .ft_index = _fail_target,                                                  \
+        .decorator_node.target_index = _target,                                    \
+    }
+
+/**
+ * @brief Macro that creates force success node.
+ *
+ */
+#define BT_DEFINITION_CREATE_NODE_FORCE_SUCCESS(_success_target, _fail_target, _target) \
+    {                                                                                   \
+        .node_type = BT_DEFINITION_NODE_FORCE_SUCCESS,                                  \
+        .st_index = _success_target,                                                    \
+        .ft_index = _fail_target,                                                       \
+        .decorator_node.target_index = _target,                                         \
+    }
+
+/**
+ * @brief Macro that creates force fail node.
+ *
+ */
+#define BT_DEFINITION_CREATE_NODE_FORCE_FAIL(_success_target, _fail_target, _target) \
+    {                                                                                \
+        .node_type = BT_DEFINITION_NODE_FORCE_FAIL,                                  \
+        .st_index = _success_target,                                                 \
+        .ft_index = _fail_target,                                                    \
+        .decorator_node.target_index = _target,                                      \
+    }
+
+/**
+ * @brief Macro that creates decorator timeout node.
+ *
+ */
+#define BT_DEFINITION_CREATE_NODE_DECORATOR_TIMEOUT(_success_target, _fail_target, _target, _timeout_ms) \
+    {                                                                                                    \
+        .node_type = BT_DEFINITION_NODE_DECORATOR_TIMEOUT,                                               \
+        .st_index = _success_target,                                                                     \
+        .ft_index = _fail_target,                                                                        \
+        .decorator_node.target_index = _target,                                                          \
+        .decorator_node.timeout_ms = _timeout_ms,                                                        \
+    }
+
+/**
+ * @brief Macro that creates condition reactive node.
+ *
+ */
+#define BT_DEFINITION_CREATE_NODE_REACTIVE_CONDITION(_success_target, _fail_target, _function) \
+    {                                                                                          \
+        .node_type = BT_DEFINITION_NODE_REACTIVE_CONDITION,                                    \
+        .st_index = _success_target,                                                           \
+        .ft_index = _fail_target,                                                              \
+        .interaction_node.function = _function,                                                \
+    }
+
+/**
+ * @brief Macro that creates action reactive node.
+ *
+ */
+#define BT_DEFINITION_CREATE_NODE_REACTIVE_ACTION(_success_target, _fail_target, _function) \
+    {                                                                                       \
+        .node_type = BT_DEFINITION_NODE_REACTIVE_ACTION,                                    \
+        .st_index = _success_target,                                                        \
+        .ft_index = _fail_target,                                                           \
+        .interaction_node.function = _function,                                             \
+    }
+
+/**
+ * @brief Macro that creates retry until success reactive node.
+ *
+ */
+#define BT_DEFINITION_CREATE_NODE_REACTIVE_RETRY_UNTIL_SUCCESS(_success_target, _fail_target, _target, _attempts, _local, _node_limit) \
+    {                                                                                                                                  \
+        .node_type = BT_DEFINITION_NODE_REACTIVE_RETRY_UNTIL_SUCCESS,                                                                  \
+        .st_index = _success_target,                                                                                                   \
+        .ft_index = _fail_target,                                                                                                      \
+        .decorator_node.target_index = _target,                                                                                        \
+        .decorator_node.ties_node.node_limit = _node_limit,                                                                            \
+        .decorator_node.ties_node.times = _attempts,                                                                                   \
+        .decorator_node.ties_node.local = _local,                                                                                      \
+    }
+
+/**
+ * @brief Macro that creates repeat reactive node.
+ *
+ */
+#define BT_DEFINITION_CREATE_NODE_REACTIVE_REPEAT(_success_target, _fail_target, _target, _times, _local, _node_limit) \
+    {                                                                                                                  \
+        .node_type = BT_DEFINITION_NODE_REACTIVE_REPEAT,                                                               \
+        .st_index = _success_target,                                                                                   \
+        .ft_index = _fail_target,                                                                                      \
+        .decorator_node.target_index = _target,                                                                        \
+        .decorator_node.ties_node.node_limit = _node_limit,                                                            \
+        .decorator_node.ties_node.times = _times,                                                                      \
+        .decorator_node.ties_node.local = _local,                                                                      \
+    }
+
+/**
+ * @brief Macro that creates keep running until failure reactive node.
+ *
+ */
+#define BT_DEFINITION_CREATE_NODE_REACTIVE_KEEP_RUNNING_UNTIL_FAILURE(_success_target, _fail_target, _target, _node_limit) \
+    {                                                                                                                      \
+        .node_type = BT_DEFINITION_NODE_REACTIVE_KEEP_RUNNING_UNTIL_FAILURE,                                               \
+        .st_index = _success_target,                                                                                       \
+        .ft_index = _fail_target,                                                                                          \
+        .decorator_node.target_index = _target,                                                                            \
+        .decorator_node.ties_node.node_limit = _node_limit,                                                                \
+    }
+
+/**
+ * @brief Macro that creates decorator timeout reactive node.
+ *
+ */
+#define BT_DEFINITION_CREATE_NODE_REACTIVE_DECORATOR_TIMEOUT(_success_target, _fail_target, _target, _timeout_ms) \
+    {                                                                                                             \
+        .node_type = BT_DEFINITION_NODE_REACTIVE_DECORATOR_TIMEOUT,                                               \
+        .st_index = _success_target,                                                                              \
+        .ft_index = _fail_target,                                                                                 \
+        .decorator_node.target_index = _target,                                                                   \
+        .decorator_node.timeout_ms = _timeout_ms,                                                                 \
+    }
+
+/**
+ * @brief Macro that creates inverter reactive node.
+ *
+ */
+#define BT_DEFINITION_CREATE_NODE_REACTIVE_INVERTER(_success_target, _fail_target, _target) \
+    {                                                                                       \
+        .node_type = BT_DEFINITION_NODE_REACTIVE_INVERTER,                                  \
+        .st_index = _success_target,                                                        \
+        .ft_index = _fail_target,                                                           \
+        .decorator_node.target_index = _target,                                             \
+    }
+
+/**
+ * @brief Macro that creates force success reactive node.
+ *
+ */
+#define BT_DEFINITION_CREATE_NODE_REACTIVE_FORCE_SUCCESS(_success_target, _fail_target, _target) \
+    {                                                                                            \
+        .node_type = BT_DEFINITION_NODE_REACTIVE_FORCE_SUCCESS,                                  \
+        .st_index = _success_target,                                                             \
+        .ft_index = _fail_target,                                                                \
+        .decorator_node.target_index = _target,                                                  \
+    }
+
+/**
+ * @brief Macro that creates force fail reactive node.
+ *
+ */
+#define BT_DEFINITION_CREATE_NODE_REACTIVE_FORCE_FAIL(_success_target, _fail_target, _target) \
+    {                                                                                         \
+        .node_type = BT_DEFINITION_NODE_REACTIVE_FORCE_FAIL,                                  \
+        .st_index = _success_target,                                                          \
+        .ft_index = _fail_target,                                                             \
+        .decorator_node.target_index = _target,                                               \
     }
 
 #endif /* BT_DEFINITION_H_ */

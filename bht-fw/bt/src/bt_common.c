@@ -30,10 +30,10 @@
 
 bt_definition_status_t bt_common_action_timeout(uint32_t timeout_ms)
 {
-    uint8_t hours;
-    uint8_t minutes;
-    uint8_t seconds;
-    uint16_t milliseconds;
+    uint8_t hours = 0;
+    uint8_t minutes = 0;
+    uint8_t seconds = 0;
+    uint16_t milliseconds = timeout_ms;
 
     hours = timeout_ms / (BT_COMMON_MILLISECONDS_DIVISOR * BT_COMMON_SECONDS_DIVISOR * BT_COMMON_MINUTES_DIVISOR);
     milliseconds %= (BT_COMMON_MILLISECONDS_DIVISOR * BT_COMMON_SECONDS_DIVISOR * BT_COMMON_MINUTES_DIVISOR);
@@ -44,6 +44,7 @@ bt_definition_status_t bt_common_action_timeout(uint32_t timeout_ms)
     seconds = milliseconds / (BT_COMMON_MILLISECONDS_DIVISOR);
     milliseconds %= (BT_COMMON_MILLISECONDS_DIVISOR);
 
+    SEGGER_RTT_printf(0, "%d ", timeout_ms);
     // Input here delay funcion
 
     return BT_DEFINITION_STATUS_SUCCESS;
