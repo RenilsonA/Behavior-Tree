@@ -32,7 +32,6 @@
 #include "stddef.h"
 #include "stdint.h"
 
-
 /**
  * @brief Define bits size of tree indexes.
  *
@@ -106,10 +105,8 @@ typedef enum {
   BTREE_DEFINITION_NODE_CONDITION =
       0,                        /**< Type of interaction condition node. */
   BTREE_DEFINITION_NODE_ACTION, /**< Type of interaction action node. */
-  BTREE_DEFINITION_NODE_ACTION_TIMEOUT, /**< Type of interaction action timeout
+  BTREE_DEFINITION_NODE_ACTION_SLEEP, /**< Type of interaction action timeout
                                            node. */
-  BTREE_DEFINITION_NODE_DECORATOR_TIMEOUT, /**< Type of decorator type timeout.
-                                            */
   BTREE_DEFINITION_NODE_RETRY_UNTIL_SUCCESS, /**< Type of decorator type retry
                                                 until success. */
   BTREE_DEFINITION_NODE_REPEAT, /**< Type of decorator type repeat. */
@@ -122,16 +119,13 @@ typedef enum {
   BTREE_DEFINITION_NODE_FORCE_FAIL, /**< Type of decorator type force fail. */
   BTREE_DEFINITION_NODE_REACTIVE_NODES =
       0x10, /**< Type of decorator type timeout. */
-  BTREE_DEFINITION_NODE_REACTIVE_CONDITION, /**< Type of reactive interaction
-                                               condition node. */
-  BTREE_DEFINITION_NODE_REACTIVE_ACTION,    /**< Type of reactive interaction
-                                               action node. */
-  BTREE_DEFINITION_NODE_REACTIVE_ACTION_TIMEOUT,      /**< Type of reactive
-                                                         interaction action timeout
-                                                         node. */
-  BTREE_DEFINITION_NODE_REACTIVE_DECORATOR_TIMEOUT,   /**< Type of reactive
-                                                         decorator type timeout.
-                                                       */
+  BTREE_DEFINITION_NODE_REACTIVE_CONDITION,    /**< Type of reactive interaction
+                                                  condition node. */
+  BTREE_DEFINITION_NODE_REACTIVE_ACTION,       /**< Type of reactive interaction
+                                                  action node. */
+  BTREE_DEFINITION_NODE_REACTIVE_ACTION_SLEEP, /**< Type of reactive
+                                                    interaction action timeout
+                                                    node. */
   BTREE_DEFINITION_NODE_REACTIVE_RETRY_UNTIL_SUCCESS, /**< Type of reactive
                                                          decorator type retry
                                                          until success. */
