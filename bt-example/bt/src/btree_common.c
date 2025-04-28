@@ -1,9 +1,9 @@
 /**
- * @file btree_process.h
+ * @file btree_common.c
  * @author Renilson Almeida (renilson.123@hotmail.com)
- * @brief Header of behavior tree process.
+ * @brief Behavior tree common.
  * @version 1.0
- * @date 26/06/24
+ * @date 30/06/24
  *
  * @copyright Copyright (c) 2024 Renilson Almeida
  *
@@ -26,25 +26,26 @@
  * SOFTWARE.
  */
 
-#ifndef BTREE_PROCESS_H_
-#define BTREE_PROCESS_H_
-
 #include "btree_common.h"
-#include "stddef.h"
 
-/**
- * @brief Executes nodes. Each function call is a tick.
- *
- * @param data_tree[in] Data struct of tree.
- * @retval BTREE_DEFINITION_STATUS_RUNNING if running tree.
- * @retval BTREE_DEFINITION_STATUS_SUCCESS if successfully executed tree.
- * @retval BTREE_DEFINITION_STATUS_FAIL if failed tree.
- * @retval BTREE_DEFINITION_STATUS_RE_EXECUTE if successfully executed tree.
- * @retval BTREE_DEFINITION_STATUS_STAND_BY if successfully executed tree.
- * @retval BTREE_DEFINITION_STATUS_ERROR if irregular tree.
- */
-btree_definition_status_t btree_process_node(btree_definition_tree_data_t *struct_tree,
-                                       btree_index_t index_status_key,
-                                       uint32_t index_status_position);
+btree_definition_status_t btree_common_action_timeout(uint32_t timeout_ms)
+{
+    uint8_t hours = 0;
+    uint8_t minutes = 0;
+    uint8_t seconds = 0;
+    uint16_t milliseconds = timeout_ms;
 
-#endif /* BTREE_PROCESS_H_ */
+    hours = timeout_ms / (BTREE_COMMON_MILLISECONDS_DIVISOR * BTREE_COMMON_SECONDS_DIVISOR * BTREE_COMMON_MINUTES_DIVISOR);
+    milliseconds %= (BTREE_COMMON_MILLISECONDS_DIVISOR * BTREE_COMMON_SECONDS_DIVISOR * BTREE_COMMON_MINUTES_DIVISOR);
+
+    minutes = milliseconds / (BTREE_COMMON_MILLISECONDS_DIVISOR * BTREE_COMMON_SECONDS_DIVISOR);
+    milliseconds %= (BTREE_COMMON_MILLISECONDS_DIVISOR * BTREE_COMMON_SECONDS_DIVISOR);
+
+    seconds = milliseconds / (BTREE_COMMON_MILLISECONDS_DIVISOR);
+    milliseconds %= (BTREE_COMMON_MILLISECONDS_DIVISOR);
+
+    SEGGER_RTT_printf(0, "%d ", timeout_ms);
+    // Input here delay funcion
+
+    return BTREE_DEFINITION_STATUS_SUCCESS;
+}

@@ -18,13 +18,10 @@
         </ReactiveSequence>
       </ReactiveFallback>
       <Fallback>
-        <ScriptCondition code="condition5"/>
+        <ScriptCondition code="condition9"/>
         <Fallback>
-          <ScriptCondition code="condition9"/>
-          <Fallback>
-            <ScriptCondition code="condition10"/>
-            <Script code="action10"/>
-          </Fallback>
+          <ScriptCondition code="condition10"/>
+          <Script code="action10"/>
         </Fallback>
       </Fallback>
       <Fallback>
@@ -73,20 +70,14 @@
           <ScriptCondition code="condition21"/>
         </ForceSuccess>
         <Inverter>
-          <Timeout msec="500">
-            <Script code="action24"/>
-          </Timeout>
+          <Script code="action24"/>
         </Inverter>
-        <ForceSuccess>
-          <Fallback>
-            <ForceFailure>
-              <ScriptCondition code="condition21"/>
-            </ForceFailure>
-            <ForceSuccess>
-              <Script code="action23"/>
-            </ForceSuccess>
-          </Fallback>
-        </ForceSuccess>
+        <Fallback>
+          <ForceFailure>
+            <ScriptCondition code="condition21"/>
+          </ForceFailure>
+          <Script code="action23"/>
+        </Fallback>
         <RetryUntilSuccessful num_attempts="5">
           <ReactiveFallback>
             <ScriptCondition code="condition20"/>
@@ -97,9 +88,7 @@
         </RetryUntilSuccessful>
       </ReactiveSequence>
       <KeepRunningUntilFailure>
-        <Timeout msec="500">
-          <Script code="action25"/>
-        </Timeout>
+        <Script code="action25"/>
       </KeepRunningUntilFailure>
       <RetryUntilSuccessful num_attempts="9">
         <ReactiveSequence>
@@ -108,6 +97,56 @@
         </ReactiveSequence>
       </RetryUntilSuccessful>
     </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="teste">
+    <Fallback>
+      <Sequence name="Defesa">
+        <ScriptCondition code="InimigoProximo?"/>
+        <Script code="BuscarCobertura"/>
+        <Script code="Atirar"/>
+      </Sequence>
+      <Sequence name="Patrulha">
+        <Script code="MoverParaA"/>
+        <Script code="MoverParaB"/>
+        <Sleep msec="5000"/>
+      </Sequence>
+    </Fallback>
+  </BehaviorTree>
+
+  <BehaviorTree ID="tree">
+    <Fallback>
+      <Sequence name="Defesa">
+        <ScriptCondition code="InimigoProximo?"/>
+        <Script code="BuscarCobertura"/>
+        <Script code="Atirar"/>
+      </Sequence>
+      <Sequence name="Patrulha">
+        <Script code="MoverParaA"/>
+        <Script code="MoverParaB"/>
+        <Sleep msec="5000"/>
+      </Sequence>
+      <RetryUntilSuccessful num_attempts="3">
+        <Sequence name="Pegar">
+          <Script code="MoverParaObjeto"/>
+          <Script code="Guardar"/>
+        </Sequence>
+      </RetryUntilSuccessful>
+      <Fallback>
+        <Sequence name="Pegar">
+          <Script code="MoverParaObjeto"/>
+          <Script code="Guardar"/>
+        </Sequence>
+        <Sequence name="Pegar">
+          <Script code="MoverParaObjeto"/>
+          <Script code="Guardar"/>
+        </Sequence>
+        <Sequence name="Pegar">
+          <Script code="MoverParaObjeto"/>
+          <Script code="Guardar"/>
+        </Sequence>
+      </Fallback>
+    </Fallback>
   </BehaviorTree>
 
   <!-- Description of Node Models (used by Groot) -->

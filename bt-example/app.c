@@ -18,13 +18,13 @@
 /***************************************************************************//**
  * Initialize application.
  ******************************************************************************/
-#include "test_bt_array.h"
-#include "bt_manager.h"
+#include "btree_test_array.h"
+#include "btree_manager.h"
 
 void app_init(void)
 {
   while(1){
-      bt_manager_tick_reactive_tree(&test_bt_control);
+      btree_manager_tick_reactive_tree(&btree_test_control);
       sl_sleeptimer_delay_millisecond(100);
   }
 }

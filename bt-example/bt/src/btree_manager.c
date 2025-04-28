@@ -27,7 +27,7 @@
  */
 
 #include "btree_manager.h"
-#include "test_btree_common.h"
+#include "btree_test_common.h"
 #include "SEGGER_RTT.h"
 
 btree_definition_status_t btree_manager_tick_tree(btree_definition_tree_data_t *struct_tree)
@@ -37,11 +37,18 @@ btree_definition_status_t btree_manager_tick_tree(btree_definition_tree_data_t *
         return BTREE_DEFINITION_STATUS_ERROR;
     }
 
+    btree_index_t node_index = struct_tree->node_index;
+    btree_index_t index = struct_tree->node_index;
     btree_index_t index_status_key = 0;
     uint32_t index_status_position = 0;
+    uint32_t mask = 0;
+    uint32_t value_status = struct_tree->nodes_status[BTREE_DEFINITON_NODE_FIRST_INDEX];
 
+    index = struct_tree->node_index;
     index_status_key = (struct_tree->node_index % 16) * 2;
     index_status_position = struct_tree->node_index / 16;
+    value_status = struct_tree->nodes_status[index_status_position];
+    mask = (0b11 << (index_status_key));
 
     return btree_process_node(struct_tree, index_status_key, index_status_position);
 }
@@ -86,6 +93,7 @@ btree_definition_status_t btree_manager_tick_reactive_tree(btree_definition_tree
             tree_status = btree_process_node(struct_tree, index_status_key, index_status_position);
             if (tree_status == BTREE_DEFINITION_STATUS_STAND_BY)
             {
+                SEGGER_RTT_printf(0, "\n");
                 return BTREE_DEFINITION_STATUS_STAND_BY;
             }
             continue;
@@ -146,6 +154,8 @@ btree_definition_status_t btree_manager_tick_reactive_tree(btree_definition_tree
 
     tree_status = btree_process_node(struct_tree, index_status_key, index_status_position);
 
+    SEGGER_RTT_printf(0, "\n");
+
     return tree_status;
 }
 
@@ -158,6 +168,18 @@ btree_definition_status_t btree_manager_reset_tree(btree_definition_tree_data_t 
 
     struct_tree->last_node_state = BTREE_DEFINITION_STATUS_RUNNING;
     struct_tree->node_index = BTREE_DEFINITON_NODE_FIRST_INDEX;
+
+    return BTREE_DEFINITION_STATUS_SUCCESS;
+}
+
+btree_definition_status_t btree_manager_clear_nodes(btree_definition_tree_data_t *struct_tree)
+{
+    if (struct_tree == NULL)
+    {
+        return BTREE_DEFINITION_STATUS_ERROR;
+    }
+
+    memset(struct_tree->nodes_status, 0, struct_tree->tree_size);
 
     return BTREE_DEFINITION_STATUS_SUCCESS;
 }

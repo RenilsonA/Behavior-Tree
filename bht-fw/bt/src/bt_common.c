@@ -1,5 +1,5 @@
 /**
- * @file bt_common.c
+ * @file btree_common.c
  * @author Renilson Almeida (renilson.123@hotmail.com)
  * @brief Behavior tree common.
  * @version 1.0
@@ -26,25 +26,25 @@
  * SOFTWARE.
  */
 
-#include "bt_common.h"
+#include "btree_common.h"
 
-bt_definition_status_t bt_common_action_timeout(uint32_t timeout_ms)
+btree_definition_status_t btree_common_action_timeout(uint32_t timeout_ms)
 {
     uint8_t hours = 0;
     uint8_t minutes = 0;
     uint8_t seconds = 0;
     uint16_t milliseconds = timeout_ms;
 
-    hours = timeout_ms / (BT_COMMON_MILLISECONDS_DIVISOR * BT_COMMON_SECONDS_DIVISOR * BT_COMMON_MINUTES_DIVISOR);
-    milliseconds %= (BT_COMMON_MILLISECONDS_DIVISOR * BT_COMMON_SECONDS_DIVISOR * BT_COMMON_MINUTES_DIVISOR);
+    hours = timeout_ms / (BTREE_COMMON_MILLISECONDS_DIVISOR * BTREE_COMMON_SECONDS_DIVISOR * BTREE_COMMON_MINUTES_DIVISOR);
+    milliseconds %= (BTREE_COMMON_MILLISECONDS_DIVISOR * BTREE_COMMON_SECONDS_DIVISOR * BTREE_COMMON_MINUTES_DIVISOR);
 
-    minutes = milliseconds / (BT_COMMON_MILLISECONDS_DIVISOR * BT_COMMON_SECONDS_DIVISOR);
-    milliseconds %= (BT_COMMON_MILLISECONDS_DIVISOR * BT_COMMON_SECONDS_DIVISOR);
+    minutes = milliseconds / (BTREE_COMMON_MILLISECONDS_DIVISOR * BTREE_COMMON_SECONDS_DIVISOR);
+    milliseconds %= (BTREE_COMMON_MILLISECONDS_DIVISOR * BTREE_COMMON_SECONDS_DIVISOR);
 
-    seconds = milliseconds / (BT_COMMON_MILLISECONDS_DIVISOR);
-    milliseconds %= (BT_COMMON_MILLISECONDS_DIVISOR);
+    seconds = milliseconds / (BTREE_COMMON_MILLISECONDS_DIVISOR);
+    milliseconds %= (BTREE_COMMON_MILLISECONDS_DIVISOR);
 
     // Input here delay funcion
 
-    return BT_DEFINITION_STATUS_SUCCESS;
+    return BTREE_DEFINITION_STATUS_SUCCESS;
 }

@@ -2,7 +2,7 @@
  * @file btree_process.c
  * @author Renilson Almeida (renilson.123@hotmail.com)
  * @brief Behavior tree process.
- * @version 1.0
+ * @version 1.1
  * @date 26/06/24
  *
  * @copyright Copyright (c) 2024 Renilson Almeida
@@ -82,6 +82,8 @@ btree_definition_status_t btree_process_node(btree_definition_tree_data_t *struc
     {
         return BTREE_DEFINITION_STATUS_ERROR;
     }
+
+    SEGGER_RTT_printf(0, "[%d]", index);
 
     switch (node_type)
     {
@@ -346,6 +348,13 @@ btree_definition_status_t btree_process_node(btree_definition_tree_data_t *struc
         return BTREE_DEFINITION_STATUS_ERROR;
     }
     }
+
+    if (status == BTREE_DEFINITION_STATUS_SUCCESS)
+        SEGGER_RTT_printf(0, "S ");
+    if (status == BTREE_DEFINITION_STATUS_FAIL)
+        SEGGER_RTT_printf(0, "F ");
+    if (status == BTREE_DEFINITION_STATUS_RUNNING)
+        SEGGER_RTT_printf(0, "R ");
 
     mask = (0b11 << (index_status_key));
     value_status = struct_tree->nodes_status[index_status_position] & (~mask);
