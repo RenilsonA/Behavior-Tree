@@ -91,24 +91,24 @@ btree_process_node_without_memory(btree_definition_tree_data_t *struct_tree) {
 
     if ((struct_tree->last_node_state == BTREE_DEFINITION_STATUS_RUNNING) ||
         (struct_tree->last_node_state == BTREE_DEFINITION_STATUS_RE_EXECUTE)) {
-      if (node_struct->decorator_node.ties_node.times <= 0) {
+      if (node_struct->decorator_node.times <= 0) {
         status = BTREE_DEFINITION_STATUS_FAIL;
         break;
       }
-      *node_struct->decorator_node.ties_node.local =
-          node_struct->decorator_node.ties_node.times - 1;
+      *node_struct->decorator_node.local =
+          node_struct->decorator_node.times - 1;
       struct_tree->node_index = node_struct->decorator_node.target_index;
       struct_tree->last_node_state = BTREE_DEFINITION_STATUS_RUNNING;
       return BTREE_DEFINITION_STATUS_RUNNING;
     } else if ((struct_tree->last_node_state == BTREE_DEFINITION_STATUS_FAIL) &&
-               (*node_struct->decorator_node.ties_node.local >
+               (*node_struct->decorator_node.local >
                 BTREE_PROCESS_MIN_ATTEMPTS)) {
-      *node_struct->decorator_node.ties_node.local -= 1;
+      *node_struct->decorator_node.local -= 1;
       struct_tree->node_index = node_struct->decorator_node.target_index;
       status = BTREE_DEFINITION_STATUS_RUNNING;
     } else {
       status = struct_tree->last_node_state;
-      *node_struct->decorator_node.ties_node.local = BTREE_PROCESS_MIN_ATTEMPTS;
+      *node_struct->decorator_node.local = BTREE_PROCESS_MIN_ATTEMPTS;
     }
 
     break;
@@ -119,24 +119,24 @@ btree_process_node_without_memory(btree_definition_tree_data_t *struct_tree) {
     BTREE_PROCESS_CHECK_TARGET(struct_tree, index);
     if ((struct_tree->last_node_state == BTREE_DEFINITION_STATUS_RUNNING) ||
         (struct_tree->last_node_state == BTREE_DEFINITION_STATUS_RE_EXECUTE)) {
-      if (node_struct->decorator_node.ties_node.times <= 0) {
+      if (node_struct->decorator_node.times <= 0) {
         status = BTREE_DEFINITION_STATUS_FAIL;
         break;
       }
-      *node_struct->decorator_node.ties_node.local =
-          node_struct->decorator_node.ties_node.times - 1;
+      *node_struct->decorator_node.local =
+          node_struct->decorator_node.times - 1;
       struct_tree->node_index = node_struct->decorator_node.target_index;
       struct_tree->last_node_state = BTREE_DEFINITION_STATUS_RUNNING;
 
       return BTREE_DEFINITION_STATUS_RUNNING;
-    } else if (*node_struct->decorator_node.ties_node.local >
+    } else if (*node_struct->decorator_node.local >
                BTREE_PROCESS_MIN_ATTEMPTS) {
-      *node_struct->decorator_node.ties_node.local -= 1;
+      *node_struct->decorator_node.local -= 1;
       struct_tree->node_index = node_struct->decorator_node.target_index;
       status = BTREE_DEFINITION_STATUS_RUNNING;
     } else {
       status = struct_tree->last_node_state;
-      *node_struct->decorator_node.ties_node.local = BTREE_PROCESS_MIN_ATTEMPTS;
+      *node_struct->decorator_node.local = BTREE_PROCESS_MIN_ATTEMPTS;
     }
 
     break;
@@ -207,7 +207,7 @@ btree_process_node_without_memory(btree_definition_tree_data_t *struct_tree) {
   case BTREE_DEFINITION_NODE_ACTION_SLEEP:
   case BTREE_DEFINITION_NODE_REACTIVE_ACTION_SLEEP: {
     status =
-        btree_common_action_timeout(node_struct->decorator_node.timeout_ms);
+        btree_common_action_timeout(node_struct->interaction_node.timeout_ms);
     break;
   }
 
@@ -273,13 +273,13 @@ btree_process_node_with_memory(btree_definition_tree_data_t *struct_tree,
 
     if ((struct_tree->last_node_state == BTREE_DEFINITION_STATUS_RUNNING) ||
         (struct_tree->last_node_state == BTREE_DEFINITION_STATUS_RE_EXECUTE)) {
-      if (node_struct->decorator_node.ties_node.times <= 0) {
+      if (node_struct->decorator_node.times <= 0) {
         status = BTREE_DEFINITION_STATUS_FAIL;
         break;
       }
 
-      *node_struct->decorator_node.ties_node.local =
-          node_struct->decorator_node.ties_node.times - 1;
+      *node_struct->decorator_node.local =
+          node_struct->decorator_node.times - 1;
 
       struct_tree->node_index = node_struct->decorator_node.target_index;
 
@@ -291,9 +291,9 @@ btree_process_node_with_memory(btree_definition_tree_data_t *struct_tree,
 
       return BTREE_DEFINITION_STATUS_RUNNING;
     } else if ((struct_tree->last_node_state == BTREE_DEFINITION_STATUS_FAIL) &&
-               (*node_struct->decorator_node.ties_node.local >
+               (*node_struct->decorator_node.local >
                 BTREE_PROCESS_MIN_ATTEMPTS)) {
-      *node_struct->decorator_node.ties_node.local -= 1;
+      *node_struct->decorator_node.local -= 1;
       struct_tree->node_index = node_struct->decorator_node.target_index;
       status = BTREE_DEFINITION_STATUS_RUNNING;
 
@@ -307,10 +307,10 @@ btree_process_node_with_memory(btree_definition_tree_data_t *struct_tree,
         new_value = (nodes_status & (~mask));
         struct_tree->nodes_status[position] = (new_value) | (0b11 << (key));
         clear_index += 1;
-      } while (clear_index <= node_struct->decorator_node.ties_node.node_limit);
+      } while (clear_index <= node_struct->decorator_node.node_limit);
     } else {
       status = struct_tree->last_node_state;
-      *node_struct->decorator_node.ties_node.local = BTREE_PROCESS_MIN_ATTEMPTS;
+      *node_struct->decorator_node.local = BTREE_PROCESS_MIN_ATTEMPTS;
     }
 
     break;
@@ -321,13 +321,13 @@ btree_process_node_with_memory(btree_definition_tree_data_t *struct_tree,
     BTREE_PROCESS_CHECK_TARGET(struct_tree, index);
     if ((struct_tree->last_node_state == BTREE_DEFINITION_STATUS_RUNNING) ||
         (struct_tree->last_node_state == BTREE_DEFINITION_STATUS_RE_EXECUTE)) {
-      if (node_struct->decorator_node.ties_node.times <= 0) {
+      if (node_struct->decorator_node.times <= 0) {
         status = BTREE_DEFINITION_STATUS_FAIL;
         break;
       }
 
-      *node_struct->decorator_node.ties_node.local =
-          node_struct->decorator_node.ties_node.times - 1;
+      *node_struct->decorator_node.local =
+          node_struct->decorator_node.times - 1;
 
       struct_tree->node_index = node_struct->decorator_node.target_index;
 
@@ -338,9 +338,9 @@ btree_process_node_with_memory(btree_definition_tree_data_t *struct_tree,
       struct_tree->last_node_state = BTREE_DEFINITION_STATUS_RUNNING;
 
       return BTREE_DEFINITION_STATUS_RUNNING;
-    } else if (*node_struct->decorator_node.ties_node.local >
+    } else if (*node_struct->decorator_node.local >
                BTREE_PROCESS_MIN_ATTEMPTS) {
-      *node_struct->decorator_node.ties_node.local -= 1;
+      *node_struct->decorator_node.local -= 1;
       struct_tree->node_index = node_struct->decorator_node.target_index;
       status = BTREE_DEFINITION_STATUS_RUNNING;
 
@@ -354,10 +354,10 @@ btree_process_node_with_memory(btree_definition_tree_data_t *struct_tree,
         new_value = (nodes_status & (~mask));
         struct_tree->nodes_status[position] = (new_value) | (0b11 << (key));
         clear_index += 1;
-      } while (clear_index <= node_struct->decorator_node.ties_node.node_limit);
+      } while (clear_index <= node_struct->decorator_node.node_limit);
     } else {
       status = struct_tree->last_node_state;
-      *node_struct->decorator_node.ties_node.local = BTREE_PROCESS_MIN_ATTEMPTS;
+      *node_struct->decorator_node.local = BTREE_PROCESS_MIN_ATTEMPTS;
     }
 
     break;
@@ -385,7 +385,7 @@ btree_process_node_with_memory(btree_definition_tree_data_t *struct_tree,
         new_value = (nodes_status & (~mask));
         struct_tree->nodes_status[position] = (new_value) | (0b11 << (key));
         clear_index += 1;
-      } while (clear_index < node_struct->decorator_node.ties_node.node_limit);
+      } while (clear_index < node_struct->decorator_node.node_limit);
 
       return BTREE_DEFINITION_STATUS_RUNNING;
     } else {
@@ -446,7 +446,7 @@ btree_process_node_with_memory(btree_definition_tree_data_t *struct_tree,
   case BTREE_DEFINITION_NODE_ACTION_SLEEP:
   case BTREE_DEFINITION_NODE_REACTIVE_ACTION_SLEEP: {
     status =
-        btree_common_action_timeout(node_struct->decorator_node.timeout_ms);
+        btree_common_action_timeout(node_struct->interaction_node.timeout_ms);
     break;
   }
 

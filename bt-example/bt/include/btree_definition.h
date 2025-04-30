@@ -152,14 +152,9 @@ typedef enum {
  */
 typedef struct btree_definition_node_decorator {
   btree_index_t target_index; /**< Target index. */
-  union {
-    struct {
-      btree_index_t node_limit; /**< Last node limit with retry decorators. */
-      uint32_t times;           /**< Times of retry ramification. */
-      uint32_t *local;          /**< Local of memory to save retry number. */
-    } ties_node; /**< Structure of nodes Retry, Repeat and Keep Running. */
-    uint32_t timeout_ms; /**< Timeout in milliseconds. */
-  };
+  btree_index_t node_limit; /**< Last node limit with retry decorators. */
+  uint32_t times;           /**< Times of retry ramification. */
+  uint32_t *local;          /**< Local of memory to save retry number. */
 } btree_definition_node_decorator_t;
 
 /**
@@ -236,9 +231,9 @@ typedef struct btree_definition_tree_data {
     .node_type = BTREE_DEFINITION_NODE_RETRY_UNTIL_SUCCESS,                    \
     .st_index = _success_target, .ft_index = _fail_target,                     \
     .decorator_node.target_index = _target,                                    \
-    .decorator_node.ties_node.node_limit = _node_limit,                        \
-    .decorator_node.ties_node.times = _attempts,                               \
-    .decorator_node.ties_node.local = _local,                                  \
+    .decorator_node.node_limit = _node_limit,                        \
+    .decorator_node.times = _attempts,                               \
+    .decorator_node.local = _local,                                  \
   }
 
 /**
@@ -265,7 +260,7 @@ typedef struct btree_definition_tree_data {
     .node_type = BTREE_DEFINITION_NODE_KEEP_RUNNING_UNTIL_FAILURE,             \
     .st_index = _success_target, .ft_index = _fail_target,                     \
     .decorator_node.target_index = _target,                                    \
-    .decorator_node.ties_node.node_limit = _node_limit,                        \
+    .decorator_node.node_limit = _node_limit,                        \
   }
 
 /**
@@ -350,9 +345,9 @@ typedef struct btree_definition_tree_data {
     .node_type = BTREE_DEFINITION_NODE_REACTIVE_RETRY_UNTIL_SUCCESS,           \
     .st_index = _success_target, .ft_index = _fail_target,                     \
     .decorator_node.target_index = _target,                                    \
-    .decorator_node.ties_node.node_limit = _node_limit,                        \
-    .decorator_node.ties_node.times = _attempts,                               \
-    .decorator_node.ties_node.local = _local,                                  \
+    .decorator_node.node_limit = _node_limit,                        \
+    .decorator_node.times = _attempts,                               \
+    .decorator_node.local = _local,                                  \
   }
 
 /**
@@ -365,9 +360,9 @@ typedef struct btree_definition_tree_data {
     .node_type = BTREE_DEFINITION_NODE_REACTIVE_REPEAT,                        \
     .st_index = _success_target, .ft_index = _fail_target,                     \
     .decorator_node.target_index = _target,                                    \
-    .decorator_node.ties_node.node_limit = _node_limit,                        \
-    .decorator_node.ties_node.times = _times,                                  \
-    .decorator_node.ties_node.local = _local,                                  \
+    .decorator_node.node_limit = _node_limit,                        \
+    .decorator_node.times = _times,                                  \
+    .decorator_node.local = _local,                                  \
   }
 
 /**

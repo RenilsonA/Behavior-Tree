@@ -70,6 +70,7 @@ btree_definition_tree_data_t btree_test_control = {
     .last_node_state = BTREE_DEFINITION_STATUS_RUNNING,
     .node_index      = BTREE_DEFINITON_NODE_FIRST_INDEX,
     .tree_size       = BTREE_TEST_ARRAY_SIZE,
+    .nodes_status    = btree_test_status_nodes,
     .tree            = btree_test_array,
 };
 

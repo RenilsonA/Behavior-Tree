@@ -88,7 +88,8 @@ btree_definition_status_t btree_manager_tick_reactive_tree(btree_definition_tree
 
         if ((node_type & BTREE_DEFINITION_NODE_REACTIVE_NODES) && (check_node != BTREE_DEFINITION_STATUS_RUNNING))
         {
-            if (((node_type >= BTREE_DEFINITION_NODE_REACTIVE_RETRY_UNTIL_SUCCESS) && (node_type <= BTREE_DEFINITION_NODE_REACTIVE_FORCE_FAIL)) || ((node_type >= BTREE_DEFINITION_NODE_REACTIVE_RETRY_UNTIL_SUCCESS) && (node_type <= BTREE_DEFINITION_NODE_FORCE_FAIL)))
+            if (((node_type >= BTREE_DEFINITION_NODE_REACTIVE_RETRY_UNTIL_SUCCESS) && (node_type <= BTREE_DEFINITION_NODE_REACTIVE_FORCE_FAIL)) ||
+                ((node_type >= BTREE_DEFINITION_NODE_RETRY_UNTIL_SUCCESS) && (node_type <= BTREE_DEFINITION_NODE_FORCE_FAIL)))
             {
                 struct_tree->last_node_state = check_node;
             }
@@ -150,7 +151,8 @@ btree_definition_status_t btree_manager_tick_reactive_tree(btree_definition_tree
     mask = (0b11 << (index_status_key));
     check_node = (value_status & mask) >> index_status_key;
 
-    if (((node_type >= BTREE_DEFINITION_NODE_REACTIVE_RETRY_UNTIL_SUCCESS) && (node_type <= BTREE_DEFINITION_NODE_REACTIVE_FORCE_FAIL)) || ((node_type >= BTREE_DEFINITION_NODE_REACTIVE_RETRY_UNTIL_SUCCESS) && (node_type <= BTREE_DEFINITION_NODE_FORCE_FAIL)))
+    if (((node_type >= BTREE_DEFINITION_NODE_REACTIVE_RETRY_UNTIL_SUCCESS) && (node_type <= BTREE_DEFINITION_NODE_REACTIVE_FORCE_FAIL)) ||
+        ((node_type >= BTREE_DEFINITION_NODE_RETRY_UNTIL_SUCCESS) && (node_type <= BTREE_DEFINITION_NODE_FORCE_FAIL)))
     {
         struct_tree->last_node_state = check_node;
     }
