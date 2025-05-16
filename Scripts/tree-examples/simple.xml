@@ -13,53 +13,30 @@
           </Fallback>
           <Fallback>
             <ScriptCondition code="condition4"/>
-            <Script code="action9"/>
+            <Script code="action4"/>
           </Fallback>
         </ReactiveSequence>
       </ReactiveFallback>
-      <Fallback>
-        <ScriptCondition code="condition9"/>
-        <Fallback>
-          <ScriptCondition code="condition10"/>
-          <Script code="action10"/>
-        </Fallback>
-      </Fallback>
-      <Fallback>
-        <ScriptCondition code="condition6"/>
-        <Fallback>
-          <ScriptCondition code="condition7"/>
-          <Script code="action11"/>
-        </Fallback>
-        <Fallback>
-          <ScriptCondition code="condition8"/>
-          <Script code="action12"/>
-        </Fallback>
-      </Fallback>
       <ReactiveFallback>
-        <ScriptCondition code="condition9"/>
+        <ScriptCondition code="condition5"/>
         <Sequence>
-          <Script code="action13"/>
+          <Script code="action5"/>
           <ReactiveFallback>
-            <ScriptCondition code="condition10"/>
-            <Script code="action14"/>
-            <Script code="action15"/>
+            <ScriptCondition code="condition6"/>
+            <Script code="action6"/>
+            <Script code="action7"/>
           </ReactiveFallback>
-          <Script code="action9"/>
+          <Script code="actio8"/>
           <ReactiveFallback>
-            <ScriptCondition code="condition11"/>
-            <Script code="action16"/>
+            <ScriptCondition code="condition7"/>
+            <Script code="action9"/>
           </ReactiveFallback>
           <ReactiveSequence>
-            <Script code="action9"/>
-            <Script code="action13"/>
+            <Script code="action10"/>
+            <Script code="action11"/>
           </ReactiveSequence>
         </Sequence>
       </ReactiveFallback>
-      <Fallback>
-        <ScriptCondition code="condition7"/>
-        <Script code="action12"/>
-      </Fallback>
-      <SubTree ID="subtree"/>
     </Sequence>
   </BehaviorTree>
 
@@ -67,33 +44,33 @@
     <Sequence>
       <ReactiveSequence>
         <ForceSuccess>
-          <ScriptCondition code="condition21"/>
+          <ScriptCondition code="condition1"/>
         </ForceSuccess>
         <Inverter>
-          <Script code="action24"/>
+          <Script code="action1"/>
         </Inverter>
         <Fallback>
           <ForceFailure>
-            <ScriptCondition code="condition21"/>
+            <ScriptCondition code="condition2"/>
           </ForceFailure>
-          <Script code="action23"/>
+          <Script code="action2"/>
         </Fallback>
         <RetryUntilSuccessful num_attempts="5">
           <ReactiveFallback>
-            <ScriptCondition code="condition20"/>
-            <Repeat num_cycles="1">
-              <Script code="action21"/>
+            <ScriptCondition code="condition3"/>
+            <Repeat num_cycles="5">
+              <Script code="action3"/>
             </Repeat>
           </ReactiveFallback>
         </RetryUntilSuccessful>
       </ReactiveSequence>
       <KeepRunningUntilFailure>
-        <Script code="action25"/>
+        <Script code="action4"/>
       </KeepRunningUntilFailure>
       <RetryUntilSuccessful num_attempts="9">
         <ReactiveSequence>
-          <Script code="action25"/>
-          <Script code="action25"/>
+          <Script code="action5"/>
+          <Script code="action6"/>
         </ReactiveSequence>
       </RetryUntilSuccessful>
     </Sequence>

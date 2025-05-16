@@ -1,20 +1,10 @@
-## Simplicity Studio files - Start
-
-# Object and dependency files of Makefile
-*trucks-control-bait-v2-fw.slps
 *.o
 *.d
-# Simplicity Studio binary(???) output
 *.axf
 *.bin
 *.hex
 *.map
 *.s37
-
-## Simplicity Studio files - End
-
-## Eclipse related files - Start
-
 *.metadata
 *bin/
 *tmp/
@@ -27,40 +17,15 @@
 *.loadpath
 *.recommenders
 *.trash/
-
-# External tool builders
 .externalToolBuilders/
-
-# Locally stored "Eclipse launch configurations"
 *.launch
-
-# CDT-specific (C/C++ Development Tooling)
-# .cproject
-
-# CDT- autotools
 *.autotools
-
-# sbteclipse plugin
 *.target
-
-# Tern plugin
 *.tern-project
-
-# TeXlipse plugin
 *.texlipse
-
-# Code Recommenders
 *.recommenders/
-
-# Annotation Processing
 *.apt_generated/
 *.apt_generated_test/
-
-# Uncomment this line if you wish to ignore the project description file.
-# Typically, this file would be tracked if it contains build/dependency configurations:
-#.project
-
-## Eclipse related files - End
 */GNU\ ARM\ v10.2.1\ -\ Default/*
 */GNU\ ARM\ v10.2.1\ -\ Debug/*
 */GNU\ ARM\ v10.3.1\ -\ Default/*
@@ -71,26 +36,17 @@
 *.png
 ble_app/data.csv
 */autogen/*
-
-# Git temporary patches
 *.patch
-
-# VSCode 
 .vscode
-
 *.DAT
-
 */gecko_sdk_4.1.1/*
 */gecko_sdk_4.1.2/*
 */gecko_sdk_4.3.2/*
 */.uceditor/*
-
 */__pycache__/*
 /.idea/*
-
-# Clion
 codeStyles
 .clang-format
 /cmake-build-debug
-
 docs/build/*
+epaper-btree/build/*

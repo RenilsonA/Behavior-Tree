@@ -96,10 +96,9 @@ class BTREE_ARRAY:
                 count += self.check_decorator_retry_depth(child)
         return count
 
-    def mount_nodes(self, element, node_parent_number, is_reactive = False):
+    def mount_nodes(self, element, node_parent_number, tree_id, is_reactive = False):
         global attempts_max
         self.node_number += 1
-
         is_decoration_attempts = False
 
         if self.node_fallback == element.tag:
@@ -128,22 +127,22 @@ class BTREE_ARRAY:
 
         elif self.node_action == element.tag:
             self.tree.append([self.node_number, self.node_action, 
-                              f"&btree_{self.library.project.lower()}{self.archives[self.tree_function_index].lower()}_" + element.get('code'),
+                              f"&btree_{self.library.project.lower()}{tree_id}_" + element.get('code'),
                               "BTREE_DEFINITION_TREE_UNRELATED", node_parent_number, is_reactive])
             node_parent_number -= 1
             if not element.get('code') in self.functions:
-                self.functions[self.tree_function_index].append((element.get('code'), "action"))
+                self.functions[self.tree_function_index].append((element.get('code'), "action", tree_id))
 
         elif self.node_condition == element.tag:
-            self.tree.append([self.node_number, self.node_condition, f"&btree_{self.library.project.lower()}{self.archives[self.tree_function_index].lower()}_" + element.get('code'), 
+            self.tree.append([self.node_number, self.node_condition, f"&btree_{self.library.project.lower()}{tree_id}_" + element.get('code'), 
                               "BTREE_DEFINITION_TREE_UNRELATED", node_parent_number, is_reactive])
             node_parent_number -= 1
             if not element.get('code') in self.functions:
-                self.functions[self.tree_function_index].append((element.get('code'), "condition"))
+                self.functions[self.tree_function_index].append((element.get('code'), "condition", tree_id))
 
         elif self.node_retry_until_successful == element.tag:
-            self.tree.append([self.node_number, self.node_retry_until_successful, f'&btree_{self.library.project.lower()}common_attempts[{self.attempts}]', 
-                              element.get('num_attempts'), self.node_number + 1, self.check_decorator_retry_depth(element), 
+            self.tree.append([self.node_number, self.node_retry_until_successful, self.attempts, 
+                              element.get('num_attempts'), self.check_decorator_retry_depth(element), 
                               "BTREE_DEFINITION_TREE_UNRELATED", node_parent_number, is_reactive])
             node_parent_number = self.node_number
             self.attempts += 1
@@ -152,8 +151,8 @@ class BTREE_ARRAY:
                 self.attempts_max = self.attempts
 
         elif self.node_decorator_repeat == element.tag:
-            self.tree.append([self.node_number, self.node_decorator_repeat, f'&btree_{self.library.project.lower()}common_attempts[{self.attempts}]', 
-                              element.get('num_cycles'), self.node_number + 1, self.check_decorator_retry_depth(element), 
+            self.tree.append([self.node_number, self.node_decorator_repeat, self.attempts, 
+                              element.get('num_cycles'), self.check_decorator_retry_depth(element), 
                               "BTREE_DEFINITION_TREE_UNRELATED", node_parent_number, is_reactive])
             node_parent_number = self.node_number
             self.attempts += 1
@@ -163,28 +162,28 @@ class BTREE_ARRAY:
 
         elif self.node_decorator_keep_running_until_failure == element.tag:
             self.tree.append([self.node_number, self.node_decorator_keep_running_until_failure,
-                              self.node_number + 1, self.check_decorator_retry_depth(element), 
+                              self.check_decorator_retry_depth(element), 
                               "BTREE_DEFINITION_TREE_UNRELATED", node_parent_number, is_reactive])
             node_parent_number = self.node_number
 
         elif self.node_decorator_force_failure == element.tag:
             self.tree.append([self.node_number, self.node_decorator_force_failure,
-                              self.node_number + 1, "BTREE_DEFINITION_TREE_UNRELATED", node_parent_number, is_reactive])
+                              "BTREE_DEFINITION_TREE_UNRELATED", node_parent_number, is_reactive])
             node_parent_number = self.node_number
 
         elif self.node_decorator_force_success == element.tag:
             self.tree.append([self.node_number, self.node_decorator_force_success,
-                              self.node_number + 1, "BTREE_DEFINITION_TREE_UNRELATED", node_parent_number, is_reactive])
+                              "BTREE_DEFINITION_TREE_UNRELATED", node_parent_number, is_reactive])
             node_parent_number = self.node_number
 
         elif self.node_decorator_inverter == element.tag:
             self.tree.append([self.node_number, self.node_decorator_inverter,
-                              self.node_number + 1, "BTREE_DEFINITION_TREE_UNRELATED", node_parent_number, is_reactive])
+                              "BTREE_DEFINITION_TREE_UNRELATED", node_parent_number, is_reactive])
             node_parent_number = self.node_number
 
         elif self.node_decorator_timeout == element.tag:
             self.tree.append([self.node_number, self.node_decorator_timeout, element.get('msec'), 
-                              self.node_number + 1, "BTREE_DEFINITION_TREE_UNRELATED", node_parent_number, is_reactive])
+                              "BTREE_DEFINITION_TREE_UNRELATED", node_parent_number, is_reactive])
             node_parent_number = self.node_number
 
         elif self.node_delay == element.tag:
@@ -201,7 +200,7 @@ class BTREE_ARRAY:
                     self.tree_function_index += 1
                     self.archives.append(tree_id)
                     self.functions.append([])
-                    self.mount_nodes(behavior_tree, node_parent_number, is_reactive)
+                    self.mount_nodes(behavior_tree, node_parent_number, tree_id, is_reactive)
                     self.tree_function_index -= 1
         
         elif self.is_node_root_main == False:
@@ -213,7 +212,7 @@ class BTREE_ARRAY:
             self.node_number -= 1
 
         for child in element:
-            self.mount_nodes(child, node_parent_number, is_reactive)
+            self.mount_nodes(child, node_parent_number, tree_id, is_reactive)
 
         if is_decoration_attempts:
             self.attempts -= 1
@@ -233,10 +232,13 @@ class BTREE_ARRAY:
                 else:
                     self.archives.append(self.tree_id)
                 self.functions.append([])
-                self.mount_nodes(behavior_tree, 0)
+                self.mount_nodes(behavior_tree, 0, self.tree_id)
+                print(self.functions)
                 self.set_sibling()
                 x = bree_execute.BTREE_EXECUTE()
                 tree_remodeled = x.init_process(self.tree)
+                for i in tree_remodeled:
+                    print(i)
                 text = self.library.tree_vector(self.tree_id, tree_remodeled)
                 self.tree_remodeled_size = len(tree_remodeled)
                 self.tree.clear()
@@ -245,6 +247,9 @@ class BTREE_ARRAY:
     def load_archives(self):
         trees = os.listdir(self.folder)
         for archive in trees:
+            print(archive)
+            if not archive.endswith('.xml'):
+                continue
             self.open_xml(f"{self.folder}/{archive}")
 
     def process_tree(self, folder, id, parent_tree, local_parent_tree):

@@ -2,12 +2,12 @@ from btree_array_creator import BTREE_ARRAY
 
 folder = 'tree-examples'
 output = 'Output'
-main_tree = 'example'
+main_tree = 'main'
 name = "Renilson Almeida"
 email = "joserenilson.silva@edge.ufal.br"
 version = "1.0"
 copyrights = ""
-project = "test"
+project = "main"
 
 x = BTREE_ARRAY()
 x.set_archive_data(name, email, version, copyrights, project)

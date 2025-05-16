@@ -27,18 +27,7 @@
  */
 
 #include "btree_manager.h"
-#include "btree_test_common.h"
-#include "SEGGER_RTT.h"
-
-btree_definition_status_t btree_manager_tick_simple_tree(btree_definition_tree_data_t *struct_tree)
-{
-    if (struct_tree == NULL)
-    {
-        return BTREE_DEFINITION_STATUS_ERROR;
-    }
-
-    return btree_process_node_without_memory(struct_tree);
-}
+#include "string.h"
 
 btree_definition_status_t btree_manager_tick_tree(btree_definition_tree_data_t *struct_tree)
 {
@@ -47,16 +36,23 @@ btree_definition_status_t btree_manager_tick_tree(btree_definition_tree_data_t *
         return BTREE_DEFINITION_STATUS_ERROR;
     }
 
+    btree_definition_status_t tree_status = BTREE_DEFINITION_STATUS_SUCCESS;
     btree_index_t index_status_key = 0;
     uint32_t index_status_position = 0;
 
-    index_status_key = (struct_tree->node_index % 16) * 2;
-    index_status_position = struct_tree->node_index / 16;
+    index_status_key = (struct_tree->node_index & 0x0F) << 1;
+    index_status_position = struct_tree->node_index >> 4;
+    tree_status = btree_process_node(struct_tree, index_status_key, index_status_position);
 
-    return btree_process_node_with_memory(struct_tree, index_status_key, index_status_position);
+    if(struct_tree->node_index != BTREE_DEFINITION_TREE_UNRELATED)
+    {
+        tree_status = BTREE_DEFINITION_STATUS_RUNNING;
+    }
+
+    return tree_status;
 }
 
-btree_definition_status_t btree_manager_tick_reactive_tree(btree_definition_tree_data_t *struct_tree)
+btree_definition_status_t btree_manager_reactivity_tick_tree(btree_definition_tree_data_t *struct_tree)
 {
     uint8_t check_node = 0;
     btree_definition_status_t tree_status = BTREE_DEFINITION_STATUS_SUCCESS;
@@ -80,11 +76,10 @@ btree_definition_status_t btree_manager_tick_reactive_tree(btree_definition_tree
     {
         node_type = struct_tree->tree[struct_tree->node_index].node_type;
         index = struct_tree->node_index;
-        index_status_key = (struct_tree->node_index % 16) * 2;
-        index_status_position = struct_tree->node_index / 16;
+        index_status_key = (struct_tree->node_index & 0x0F) << 1;
+        index_status_position = struct_tree->node_index >> 4;
         value_status = struct_tree->nodes_status[index_status_position];
-        mask = (0b11 << (index_status_key));
-        check_node = (value_status & mask) >> index_status_key;
+        check_node = (value_status >> index_status_key) & 0b11;
 
         if ((node_type & BTREE_DEFINITION_NODE_REACTIVE_NODES) && (check_node != BTREE_DEFINITION_STATUS_RUNNING))
         {
@@ -94,20 +89,18 @@ btree_definition_status_t btree_manager_tick_reactive_tree(btree_definition_tree
                 struct_tree->last_node_state = check_node;
             }
 
-            tree_status = btree_process_node_with_memory(struct_tree, index_status_key, index_status_position);
+            tree_status = btree_process_node(struct_tree, index_status_key, index_status_position);
             if (tree_status == BTREE_DEFINITION_STATUS_STAND_BY)
             {
-                SEGGER_RTT_printf(0, "\n");
                 return BTREE_DEFINITION_STATUS_STAND_BY;
             }
             continue;
         }
 
-        index_status_key = (struct_tree->node_index % 16) * 2;
-        index_status_position = struct_tree->node_index / 16;
+        index_status_key = (struct_tree->node_index & 0x0F) << 1;
+        index_status_position = struct_tree->node_index >> 4;
         value_status = struct_tree->nodes_status[index_status_position];
-        mask = (0b11 << (index_status_key));
-        check_node = (value_status & mask) >> index_status_key;
+        check_node = (value_status >> index_status_key) & 0b11;
 
         if ((struct_tree->node_index < node_index) && (check_node != BTREE_DEFINITION_STATUS_RE_EXECUTE))
         {
@@ -117,7 +110,7 @@ btree_definition_status_t btree_manager_tick_reactive_tree(btree_definition_tree
             }
             else if ((check_node == BTREE_DEFINITION_STATUS_RUNNING) || (check_node == BTREE_DEFINITION_STATUS_RE_EXECUTE))
             {
-                struct_tree->node_index = struct_tree->tree[struct_tree->node_index].decorator_node.target_index;
+                struct_tree->node_index = struct_tree->node_index + 1;//struct_tree->tree[struct_tree->node_index].decorator_node.target_index;
             }
             else if (check_node == BTREE_DEFINITION_STATUS_FAIL)
             {
@@ -127,8 +120,8 @@ btree_definition_status_t btree_manager_tick_reactive_tree(btree_definition_tree
             if (index > struct_tree->node_index)
             {
                 struct_tree->last_node_state = check_node;
-                index_status_key = (struct_tree->node_index % 16) * 2;
-                index_status_position = struct_tree->node_index / 16;
+                index_status_key = (struct_tree->node_index & 0x0F) << 1;
+                index_status_position = struct_tree->node_index >> 4;
                 value_status = struct_tree->nodes_status[index_status_position];
                 mask = (0b11 << (index_status_key));
                 value_updated = (value_status & (~mask));
@@ -145,11 +138,10 @@ btree_definition_status_t btree_manager_tick_reactive_tree(btree_definition_tree
     }
 
     node_type = struct_tree->tree[struct_tree->node_index].node_type;
-    index_status_key = (struct_tree->node_index % 16) * 2;
-    index_status_position = struct_tree->node_index / 16;
+    index_status_key = (struct_tree->node_index & 0x0F) << 1;
+    index_status_position = struct_tree->node_index >> 4;
     value_status = struct_tree->nodes_status[index_status_position];
-    mask = (0b11 << (index_status_key));
-    check_node = (value_status & mask) >> index_status_key;
+    check_node = (value_status >> index_status_key) & 0b11;
 
     if (((node_type >= BTREE_DEFINITION_NODE_REACTIVE_RETRY_UNTIL_SUCCESS) && (node_type <= BTREE_DEFINITION_NODE_REACTIVE_FORCE_FAIL)) ||
         ((node_type >= BTREE_DEFINITION_NODE_RETRY_UNTIL_SUCCESS) && (node_type <= BTREE_DEFINITION_NODE_FORCE_FAIL)))
@@ -157,9 +149,11 @@ btree_definition_status_t btree_manager_tick_reactive_tree(btree_definition_tree
         struct_tree->last_node_state = check_node;
     }
 
-    tree_status = btree_process_node_with_memory(struct_tree, index_status_key, index_status_position);
-
-    SEGGER_RTT_printf(0, "\n");
+    tree_status = btree_process_node(struct_tree, index_status_key, index_status_position);
+    if(struct_tree->node_index != BTREE_DEFINITION_TREE_UNRELATED)
+    {
+        tree_status = BTREE_DEFINITION_STATUS_RUNNING;
+    }
 
     return tree_status;
 }
@@ -184,7 +178,46 @@ btree_definition_status_t btree_manager_clear_nodes(btree_definition_tree_data_t
         return BTREE_DEFINITION_STATUS_ERROR;
     }
 
-    memset(struct_tree->nodes_status, 0, struct_tree->tree_size);
+    memset(struct_tree->nodes_status, 0, ((struct_tree->tree_size >> 4) + 1) * sizeof(struct_tree->nodes_status[0]));
+
 
     return BTREE_DEFINITION_STATUS_SUCCESS;
+}
+
+btree_definition_status_t btree_manager_tick(btree_definition_tree_data_t *struct_tree, btree_definition_config_functions_t *functions_case)
+{
+    if ((struct_tree == NULL) || (functions_case == NULL) ||
+        (functions_case->function_tick == NULL) || (functions_case->success_case == NULL) ||
+        (functions_case->fail_case == NULL) || (functions_case->running_case == NULL))
+    {
+        return BTREE_DEFINITION_STATUS_ERROR;
+    }
+
+    btree_definition_status_t tree_status = BTREE_DEFINITION_STATUS_RUNNING;
+    tree_status = functions_case->function_tick(struct_tree);
+
+    switch (tree_status)
+    {
+    case BTREE_DEFINITION_STATUS_RUNNING:{
+        tree_status = functions_case->running_case(struct_tree);
+        break;
+    }
+    case BTREE_DEFINITION_STATUS_SUCCESS: {
+        tree_status = functions_case->success_case(struct_tree);
+        break;
+    }
+    case BTREE_DEFINITION_STATUS_FAIL: {
+        tree_status = functions_case->fail_case(struct_tree);
+        break;
+    }
+    case BTREE_DEFINITION_STATUS_STAND_BY: {
+        tree_status = functions_case->standby_case(struct_tree);
+        break;
+    }
+    default:
+        tree_status = BTREE_DEFINITION_STATUS_ERROR;
+        break;
+    }
+
+    return tree_status;
 }

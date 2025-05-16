@@ -64,4 +64,26 @@ btree_definition_status_t btree_manager_reactivity_tick_tree(btree_definition_tr
  */
 btree_definition_status_t btree_manager_reset_tree(btree_definition_tree_data_t *struct_tree);
 
+/**
+ * @brief Function to clear all nodes memory of behavior tree.
+ *
+ * @param data_tree[in] Pointer to tree struct.
+ * @retval BTREE_DEFINITION_STATUS_SUCCESS if successfully executed tree.
+ * @retval BTREE_DEFINITION_STATUS_ERROR if irregular tree.
+ */
+btree_definition_status_t btree_manager_clear_nodes(btree_definition_tree_data_t *struct_tree);
+
+/**
+ * @brief Help function to tick tree.
+ *
+ * @param struct_tree[in] Pointer to tree struct.
+ * @param functions_case[in] Pointer to functions case struct.
+ * @retval BTREE_DEFINITION_STATUS_RUNNING if running tree.
+ * @retval BTREE_DEFINITION_STATUS_SUCCESS if successfully executed tree.
+ * @retval BTREE_DEFINITION_STATUS_FAIL if failed tree.
+ * @retval BTREE_DEFINITION_STATUS_STAND_BY if successfully executed tree.
+ * @retval BTREE_DEFINITION_STATUS_ERROR if irregular tree.
+ */
+btree_definition_status_t btree_manager_tick(btree_definition_tree_data_t *struct_tree, btree_definition_config_functions_t *functions_case);
+
 #endif /* BTREE_MANAGER_H_ */

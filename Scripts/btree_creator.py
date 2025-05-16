@@ -13,6 +13,8 @@ class ARCHIVE_CREATOR:
         self.copyrights = ""
         self.project = ""
         self.output = ""
+        self.func_commented = []
+        self.func_empty = []
 
     def set_text(self, name = None, email = None, version = None, copyrights = None, project = None):
         self.name = name if name != None else input("Put your name:")
@@ -66,10 +68,10 @@ class ARCHIVE_CREATOR:
         return text
 
     def create_declaration_commented(self, archive, functions):
-        func = []
         for function in functions:
-            if function[0] not in func:
-                func.append(function[0])
+            print(function[0])
+            if function[0] not in self.func_commented:
+                self.func_commented.append(function[0])
                 self.text += '/**\n'
                 self.text += '* @brief \n'
                 self.text += '*\n'
@@ -81,10 +83,9 @@ class ARCHIVE_CREATOR:
                 self.text += f"btree_definition_status_t btree_{self.project.lower()}{archive.lower()}_{function[0]}(void);\n\n"
 
     def create_declaration_empty(self, archive, functions):
-        func = []
         for function in functions:
-            if function[0] not in func:
-                func.append(function[0])
+            if function[0] not in self.func_empty:
+                self.func_empty.append(function[0])
                 self.text += f"btree_definition_status_t btree_{self.project.lower()}{archive.lower()}_{function[0]}(void)\n"
                 self.text += "{\n"
                 self.text += "  return BTREE_DEFINITION_STATUS_SUCCESS;\n}\n\n"
@@ -149,6 +150,8 @@ class ARCHIVE_CREATOR:
         self.text         += "    .last_node_state = BTREE_DEFINITION_STATUS_RUNNING,\n"
         self.text         += "    .node_index      = BTREE_DEFINITON_NODE_FIRST_INDEX,\n"
         self.text         += f"    .tree_size       = BTREE_{self.project.upper()}ARRAY_SIZE,\n"
+        self.text         += f"    .nodes_status    = btree_{self.project.lower()}status_nodes,\n"
+        self.text         += f"    .array_attempts  = btree_{self.project.lower()}common_attempts,\n"
         self.text         += f"    .tree            = btree_{self.project.lower()}array,\n"
         self.text         += "};\n\n"
 
@@ -278,7 +281,7 @@ class ARCHIVE_CREATOR:
         self.text += f" btree_{self.project.lower()}data = "
         self.text += "{\n    \n"
         self.text += "};\n\n"
-        self.text += f'btree_definition_status_t btree_{self.project.lower()}set_blackboard_value(btree_{self.project.lower()}blackboard_value_id_t id, void *value)\n'
+        self.text += f'btree_definition_status_t btree_{self.project.lower()}blackboard_set_value(btree_{self.project.lower()}blackboard_value_id_t id, void *value)\n'
         self.text += '{\n'
         self.text += '    if(value == NULL)\n'
         self.text += '    {\n'
@@ -293,7 +296,7 @@ class ARCHIVE_CREATOR:
         self.text += '    \n'
         self.text += '    return BTREE_DEFINITION_STATUS_SUCCESS;\n'
         self.text += '}\n\n'
-        self.text += f'btree_definition_status_t btree_{self.project.lower()}get_blackboard_value(btree_{self.project.lower()}blackboard_value_id_t id, void *target)\n'
+        self.text += f'btree_definition_status_t btree_{self.project.lower()}blackboard_get_value(btree_{self.project.lower()}blackboard_value_id_t id, void *target)\n'
         self.text += '{\n'
         self.text += '    if(target == NULL)\n'
         self.text += '    {\n'
@@ -308,8 +311,9 @@ class ARCHIVE_CREATOR:
         self.text += '    \n'
         self.text += '    return BTREE_DEFINITION_STATUS_SUCCESS;\n'
         self.text += '}\n\n'
-        self.text += f'btree_definition_status_t btree_{self.project.lower()}set_blackboard_buffer(btree_{self.project.lower()}blackboard_buffer_id_t id, uint8_t *buffer, size_t buffer_size)\n'
+        self.text += f'btree_definition_status_t btree_{self.project.lower()}blackboard_set_buffer(btree_{self.project.lower()}blackboard_buffer_id_t id, uint8_t *buffer, size_t buffer_size)\n'
         self.text += '{\n'
+        self.text += '    size_t buffer_len = buffer_size;\n\n'
         self.text += '    if((buffer == NULL) || (buffer_size == 0))\n'
         self.text += '    {\n'
         self.text += '        return BTREE_DEFINITION_STATUS_FAIL;\n'
@@ -323,7 +327,7 @@ class ARCHIVE_CREATOR:
         self.text += '    \n'
         self.text += '    return BTREE_DEFINITION_STATUS_SUCCESS;\n'
         self.text += '}\n\n'
-        self.text += f'btree_definition_status_t btree_{self.project.lower()}get_blackboard_buffer(btree_{self.project.lower()}blackboard_buffer_id_t id, uint8_t *buffer, size_t *buffer_len)\n'
+        self.text += f'btree_definition_status_t btree_{self.project.lower()}blackboard_get_buffer(btree_{self.project.lower()}blackboard_buffer_id_t id, uint8_t *buffer, size_t *buffer_len)\n'
         self.text += '{\n'
         self.text += '    if((buffer == NULL) || (buffer_len == NULL))\n'
         self.text += '    {\n'
@@ -348,6 +352,7 @@ class ARCHIVE_CREATOR:
         self.archive_end('blackboard', endif = False, editable=True)
         self.generate_blackboard_src()
         output_src = os.path.join(f'{self.output}/src/btree_{self.project[:-1].lower()}', f'btree_{self.project.lower()}blackboard.c')
+        os.makedirs(os.path.dirname(output_src), exist_ok=True)
         with open(output_src, 'w', encoding='utf-8') as file:
             file.write(self.text)
         self.text = ""

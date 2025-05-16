@@ -17,18 +17,19 @@ source:
 - {path: app.c}
 - {path: main.c}
 include:
-- path: ''
+- path: .
   file_list:
   - {path: app.h}
 sdk: {id: gecko_sdk, version: 4.3.2}
 toolchain_settings: []
 component:
-- {id: brd2601b}
-- {id: sl_system}
-- {id: device_init}
 - {id: EFR32MG24B310F1536IM48}
-- {id: sleeptimer}
+- {id: brd2601b}
+- {id: device_init}
+- {id: micriumos_kernel}
 - {id: segger_rtt_printf}
+- {id: sl_system}
+- {id: sleeptimer}
 define:
 - {name: DEBUG_EFM}
 ui_hints: {}

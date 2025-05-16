@@ -151,10 +151,9 @@ typedef enum {
  *
  */
 typedef struct btree_definition_node_decorator {
-  btree_index_t target_index; /**< Target index. */
-  btree_index_t node_limit; /**< Last node limit with retry decorators. */
-  uint32_t times;           /**< Times of retry ramification. */
-  uint32_t *local;          /**< Local of memory to save retry number. */
+  btree_index_t node_limit;   /**< Last node limit with retry decorators. */
+  uint16_t times;             /**< Times of retry ramification. */
+  uint8_t index;              /**< Local of memory buffer to save retry number. */
 } btree_definition_node_decorator_t;
 
 /**
@@ -165,8 +164,8 @@ typedef struct btree_definition_node_interaction {
   union {
     btree_definition_status_t (*function)(
         void);                /**< Pointer to interaction function. */
-    btree_index_t timeout_ms; /**< Delay timeout value for interaction action
-                                 node delay. */
+    uint32_t timeout_ms;      /**< Delay timeout value for interaction action
+                                   node delay. */
   };
 } btree_definition_node_interaction_t;
 
@@ -187,17 +186,29 @@ typedef struct btree_definition_node {
 } btree_definition_node_t;
 
 /**
- * @brief Estrutura de itens pertinentes de uma árvore.
+ * @brief Structure of relevant items of a tree.
  *
  */
 typedef struct btree_definition_tree_data {
   btree_definition_status_t last_node_state; /**< State of tree execution. */
   btree_index_t node_index;                  /**< Node to be executed. */
   btree_index_t tree_size;                   /**< Size of tree. */
-  btree_index_t ignored_node_index;          /**< Ignored node index. */
   uint32_t *nodes_status;                    /**< Pointer to status of nodes. */
+  uint32_t *array_attempts;                  /**< Pointer to attempts array. */
   const btree_definition_node_t *tree;       /**< Pointer to tree. */
 } btree_definition_tree_data_t;
+
+/**
+ * @brief Struct of functions to ticks.
+ *
+ */
+typedef struct btree_definition_config_functions {
+    btree_definition_status_t (*function_tick)(btree_definition_tree_data_t *); /**< Pointer to function tick tipe. */
+    btree_definition_status_t (*running_case)(btree_definition_tree_data_t *); /**< Pointer to function of running case. */
+    btree_definition_status_t (*success_case)(btree_definition_tree_data_t *); /**< Pointer to function of success case. */
+    btree_definition_status_t (*fail_case)(btree_definition_tree_data_t *); /**< Pointer to function of fail case. */
+    btree_definition_status_t (*standby_case)(btree_definition_tree_data_t *); /**< Pointer to function of standby case. */
+} btree_definition_config_functions_t;
 
 /**
  * @brief Macro that creates condition node condition.
@@ -222,18 +233,29 @@ typedef struct btree_definition_tree_data {
   }
 
 /**
+ * @brief Macro that creates action sleep node.
+ *
+ */
+#define BTREE_DEFINITION_CREATE_NODE_ACTION_SLEEP(_success_target, _fail_target,     \
+                                            _time_ms)                         \
+  {                                                                            \
+    .node_type = BTREE_DEFINITION_NODE_ACTION_SLEEP, .st_index = _success_target, \
+    .ft_index = _fail_target, .interaction_node.timeout_ms = _time_ms,          \
+  }
+
+
+/**
  * @brief Macro that creates retry until success node.
  *
  */
 #define BTREE_DEFINITION_CREATE_NODE_RETRY_UNTIL_SUCCESS(                      \
-    _success_target, _fail_target, _target, _attempts, _local, _node_limit)    \
+    _success_target, _fail_target, _attempts, _index, _node_limit)    \
   {                                                                            \
     .node_type = BTREE_DEFINITION_NODE_RETRY_UNTIL_SUCCESS,                    \
     .st_index = _success_target, .ft_index = _fail_target,                     \
-    .decorator_node.target_index = _target,                                    \
     .decorator_node.node_limit = _node_limit,                        \
     .decorator_node.times = _attempts,                               \
-    .decorator_node.local = _local,                                  \
+    .decorator_node.index = _index,                                  \
   }
 
 /**
@@ -241,10 +263,9 @@ typedef struct btree_definition_tree_data {
  *
  */
 #define BTREE_DEFINITION_CREATE_NODE_REPEAT(                                   \
-    _success_target, _fail_target, _target, _times, _local, _node_limit)       \
+    _success_target, _fail_target, _times, _local, _node_limit)       \
   {                                                                            \
     .node_type = BTREE_DEFINITION_NODE_REPEAT, .st_index = _success_target,    \
-    .ft_index = _fail_target, .decorator_node.target_index = _target,          \
     .decorator_node.ties_node.node_limit = _node_limit,                        \
     .decorator_node.ties_node.times = _times,                                  \
     .decorator_node.ties_node.local = _local,                                  \
@@ -255,11 +276,10 @@ typedef struct btree_definition_tree_data {
  *
  */
 #define BTREE_DEFINITION_CREATE_NODE_KEEP_RUNNING_UNTIL_FAILURE(               \
-    _success_target, _fail_target, _target, _node_limit)                       \
+    _success_target, _fail_target, _node_limit)                       \
   {                                                                            \
     .node_type = BTREE_DEFINITION_NODE_KEEP_RUNNING_UNTIL_FAILURE,             \
     .st_index = _success_target, .ft_index = _fail_target,                     \
-    .decorator_node.target_index = _target,                                    \
     .decorator_node.node_limit = _node_limit,                        \
   }
 
@@ -267,11 +287,10 @@ typedef struct btree_definition_tree_data {
  * @brief Macro that creates inverter node.
  *
  */
-#define BTREE_DEFINITION_CREATE_NODE_INVERTER(_success_target, _fail_target,   \
-                                              _target)                         \
+#define BTREE_DEFINITION_CREATE_NODE_INVERTER(_success_target, _fail_target)   \
   {                                                                            \
     .node_type = BTREE_DEFINITION_NODE_INVERTER, .st_index = _success_target,  \
-    .ft_index = _fail_target, .decorator_node.target_index = _target,          \
+    .ft_index = _fail_target,          \
   }
 
 /**
@@ -290,25 +309,10 @@ typedef struct btree_definition_tree_data {
  * @brief Macro that creates force fail node.
  *
  */
-#define BTREE_DEFINITION_CREATE_NODE_FORCE_FAIL(_success_target, _fail_target, \
-                                                _target)                       \
+#define BTREE_DEFINITION_CREATE_NODE_FORCE_FAIL(_success_target, _fail_target) \
   {                                                                            \
     .node_type = BTREE_DEFINITION_NODE_FORCE_FAIL,                             \
     .st_index = _success_target, .ft_index = _fail_target,                     \
-    .decorator_node.target_index = _target,                                    \
-  }
-
-/**
- * @brief Macro that creates decorator timeout node.
- *
- */
-#define BTREE_DEFINITION_CREATE_NODE_DECORATOR_TIMEOUT(                        \
-    _success_target, _fail_target, _target, _timeout_ms)                       \
-  {                                                                            \
-    .node_type = BTREE_DEFINITION_NODE_DECORATOR_TIMEOUT,                      \
-    .st_index = _success_target, .ft_index = _fail_target,                     \
-    .decorator_node.target_index = _target,                                    \
-    .decorator_node.timeout_ms = _timeout_ms,                                  \
   }
 
 /**
@@ -336,18 +340,28 @@ typedef struct btree_definition_tree_data {
   }
 
 /**
+ * @brief Macro that creates reactive action sleep node.
+ *
+ */
+#define BTREE_DEFINITION_CREATE_NODE_REACTIVE_ACTION_SLEEP(_success_target, _fail_target,     \
+                                            _time_ms)                         \
+  {                                                                            \
+    .node_type = BTREE_DEFINITION_NODE_REACTIVE_ACTION_SLEEP, .st_index = _success_target, \
+    .ft_index = _fail_target, .interaction_node.timeout_ms = _time_ms,          \
+  }
+
+/**
  * @brief Macro that creates retry until success reactive node.
  *
  */
 #define BTREE_DEFINITION_CREATE_NODE_REACTIVE_RETRY_UNTIL_SUCCESS(             \
-    _success_target, _fail_target, _target, _attempts, _local, _node_limit)    \
+    _success_target, _fail_target, _attempts, _index, _node_limit)    \
   {                                                                            \
     .node_type = BTREE_DEFINITION_NODE_REACTIVE_RETRY_UNTIL_SUCCESS,           \
     .st_index = _success_target, .ft_index = _fail_target,                     \
-    .decorator_node.target_index = _target,                                    \
     .decorator_node.node_limit = _node_limit,                        \
     .decorator_node.times = _attempts,                               \
-    .decorator_node.local = _local,                                  \
+    .decorator_node.index = _index,                                  \
   }
 
 /**
@@ -355,14 +369,13 @@ typedef struct btree_definition_tree_data {
  *
  */
 #define BTREE_DEFINITION_CREATE_NODE_REACTIVE_REPEAT(                          \
-    _success_target, _fail_target, _target, _times, _local, _node_limit)       \
+    _success_target, _fail_target, _times, _index, _node_limit)       \
   {                                                                            \
     .node_type = BTREE_DEFINITION_NODE_REACTIVE_REPEAT,                        \
     .st_index = _success_target, .ft_index = _fail_target,                     \
-    .decorator_node.target_index = _target,                                    \
     .decorator_node.node_limit = _node_limit,                        \
     .decorator_node.times = _times,                                  \
-    .decorator_node.local = _local,                                  \
+    .decorator_node.index = _index,                                  \
   }
 
 /**
@@ -370,25 +383,11 @@ typedef struct btree_definition_tree_data {
  *
  */
 #define BTREE_DEFINITION_CREATE_NODE_REACTIVE_KEEP_RUNNING_UNTIL_FAILURE(      \
-    _success_target, _fail_target, _target, _node_limit)                       \
+    _success_target, _fail_target, _node_limit)                       \
   {                                                                            \
     .node_type = BTREE_DEFINITION_NODE_REACTIVE_KEEP_RUNNING_UNTIL_FAILURE,    \
     .st_index = _success_target, .ft_index = _fail_target,                     \
-    .decorator_node.target_index = _target,                                    \
     .decorator_node.ties_node.node_limit = _node_limit,                        \
-  }
-
-/**
- * @brief Macro that creates decorator timeout reactive node.
- *
- */
-#define BTREE_DEFINITION_CREATE_NODE_REACTIVE_DECORATOR_TIMEOUT(               \
-    _success_target, _fail_target, _target, _timeout_ms)                       \
-  {                                                                            \
-    .node_type = BTREE_DEFINITION_NODE_REACTIVE_DECORATOR_TIMEOUT,             \
-    .st_index = _success_target, .ft_index = _fail_target,                     \
-    .decorator_node.target_index = _target,                                    \
-    .decorator_node.timeout_ms = _timeout_ms,                                  \
   }
 
 /**
@@ -396,11 +395,10 @@ typedef struct btree_definition_tree_data {
  *
  */
 #define BTREE_DEFINITION_CREATE_NODE_REACTIVE_INVERTER(_success_target,        \
-                                                       _fail_target, _target)  \
+                                                       _fail_target)  \
   {                                                                            \
     .node_type = BTREE_DEFINITION_NODE_REACTIVE_INVERTER,                      \
     .st_index = _success_target, .ft_index = _fail_target,                     \
-    .decorator_node.target_index = _target,                                    \
   }
 
 /**
@@ -408,11 +406,10 @@ typedef struct btree_definition_tree_data {
  *
  */
 #define BTREE_DEFINITION_CREATE_NODE_REACTIVE_FORCE_SUCCESS(                   \
-    _success_target, _fail_target, _target)                                    \
+    _success_target, _fail_target)                                    \
   {                                                                            \
     .node_type = BTREE_DEFINITION_NODE_REACTIVE_FORCE_SUCCESS,                 \
     .st_index = _success_target, .ft_index = _fail_target,                     \
-    .decorator_node.target_index = _target,                                    \
   }
 
 /**
@@ -420,11 +417,10 @@ typedef struct btree_definition_tree_data {
  *
  */
 #define BTREE_DEFINITION_CREATE_NODE_REACTIVE_FORCE_FAIL(                      \
-    _success_target, _fail_target, _target)                                    \
+    _success_target, _fail_target)                                    \
   {                                                                            \
     .node_type = BTREE_DEFINITION_NODE_REACTIVE_FORCE_FAIL,                    \
     .st_index = _success_target, .ft_index = _fail_target,                     \
-    .decorator_node.target_index = _target,                                    \
   }
 
 #endif /* BTREE_DEFINITION_H_ */

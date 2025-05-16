@@ -18,15 +18,15 @@
 /***************************************************************************//**
  * Initialize application.
  ******************************************************************************/
-#include "btree_test_array.h"
 #include "btree_manager.h"
+#include "example_task.h"
+#include "subtree_task.h"
 
 void app_init(void)
 {
-  while(1){
-      btree_manager_tick_reactive_tree(&btree_test_control);
-      sl_sleeptimer_delay_millisecond(100);
-  }
+  SEGGER_RTT_printf(0, "valor %d\n", sizeof(btree_definition_node_t));
+//  example_task_init();
+//  subtree_task_init();
 }
 
 /***************************************************************************//**

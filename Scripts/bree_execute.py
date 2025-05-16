@@ -7,10 +7,10 @@ POSITION_NODE_PARENT = -2
 POSITION_NODE_REACTIVE = -1
 POSITION_NODE_FUNCTION = 2
 POSITION_NODE_TARGET = 4
+POSITION_NODE_SLEEP = 2
 POSITION_NODE_DECORATOR_POINTER = 2
 POSITION_NODE_DECORATOR_TARGET = -3
 POSITION_NODE_DECORATOR_NUM_ATTEMPTS = 3
-POSITION_NODE_DECORATOR_TIMEOUT_TIME = 2
 POSITION_NODE_DECORATOR_RETRY_DEPTH = -4
 
 #Tree like DAG
@@ -27,23 +27,23 @@ NODE_UNRELATED = "BTREE_DEFINITION_TREE_UNRELATED"
 #Macros of nodes
 macro_node_condition = "BTREE_DEFINITION_CREATE_NODE_CONDITION"
 macro_node_action = "BTREE_DEFINITION_CREATE_NODE_ACTION"
+macro_node_sleep = "BTREE_DEFINITION_CREATE_NODE_ACTION_SLEEP"
 macro_node_retry_until_success = "BTREE_DEFINITION_CREATE_NODE_RETRY_UNTIL_SUCCESS"
 macro_node_repeat = "BTREE_DEFINITION_CREATE_NODE_REPEAT"
 macro_node_keep_running_until_failure = "BTREE_DEFINITION_CREATE_NODE_KEEP_RUNNING_UNTIL_FAILURE"
 macro_node_force_failure = "BTREE_DEFINITION_CREATE_NODE_FORCE_FAIL"
 macro_node_force_success = "BTREE_DEFINITION_CREATE_NODE_FORCE_SUCCESS"
 macro_node_inverter = "BTREE_DEFINITION_CREATE_NODE_INVERTER"
-macro_node_decorator_timeout = "BTREE_DEFINITION_CREATE_NODE_DECORATOR_TIMEOUT"
 
 macro_node_reactive_condition = "BTREE_DEFINITION_CREATE_NODE_REACTIVE_CONDITION"
 macro_node_reactive_action = "BTREE_DEFINITION_CREATE_NODE_REACTIVE_ACTION"
+macro_node_reactive_sleep = "BTREE_DEFINITION_CREATE_NODE_REACTIVE_ACTION_SLEEP"
 macro_node_reactive_retry_until_success = "BTREE_DEFINITION_CREATE_NODE_REACTIVE_RETRY_UNTIL_SUCCESS"
 macro_node_reactive_repeat = "BTREE_DEFINITION_CREATE_NODE_REACTIVE_REPEAT"
 macro_node_reactive_keep_running_until_failure = "BTREE_DEFINITION_CREATE_NODE_REACTIVE_KEEP_RUNNING_UNTIL_FAILURE"
 macro_node_reactive_force_failure = "BTREE_DEFINITION_CREATE_NODE_REACTIVE_FORCE_FAIL"
 macro_node_reactive_force_success = "BTREE_DEFINITION_CREATE_NODE_REACTIVE_FORCE_SUCCESS"
 macro_node_reactive_inverter = "BTREE_DEFINITION_CREATE_NODE_REACTIVE_INVERTER"
-macro_node_reactive_decorator_timeout = "BTREE_DEFINITION_CREATE_NODE_REACTIVE_DECORATOR_TIMEOUT"
 
 #Status of nodes
 status_node = [ 'success', 'fail']
@@ -68,7 +68,7 @@ class BTREE_EXECUTE:
         self.node_decorator_force_failure = 'ForceFailure'
         self.node_decorator_force_success = 'ForceSuccess'
         self.node_decorator_inverter = 'Inverter'
-        self.node_decorator_timeout = 'Timeout'
+        self.node_action_sleep = 'Sleep'
         self.next_node = 0
         self.nodes_path = []
         self.decorator_retry_depth = []
@@ -80,7 +80,7 @@ class BTREE_EXECUTE:
                 (node_type == self.node_decorator_force_failure) or 
                 (node_type == self.node_decorator_force_success) or 
                 (node_type == self.node_decorator_inverter) or
-                (node_type == self.node_decorator_timeout))
+                (node_type == self.node_action_sleep))
     
     def is_decorator_retry_node(self, node_type):
         return ((node_type == self.node_decorator_retry_until_successful) or
@@ -98,7 +98,7 @@ class BTREE_EXECUTE:
                 (node_type == self.node_decorator_force_failure) or 
                 (node_type == self.node_decorator_force_success) or 
                 (node_type == self.node_decorator_inverter) or
-                (node_type == self.node_decorator_timeout))
+                (node_type == self.node_action_sleep))
 
     def is_decorator_macro_node(self, node_type):
         return ((node_type == macro_node_retry_until_success) or (node_type == macro_node_reactive_retry_until_success) or
@@ -107,7 +107,7 @@ class BTREE_EXECUTE:
                 (node_type == macro_node_force_failure) or (node_type == macro_node_reactive_force_failure) or
                 (node_type == macro_node_force_success) or (node_type == macro_node_reactive_force_success) or
                 (node_type == macro_node_inverter) or (node_type == macro_node_reactive_inverter) or
-                (node_type == macro_node_decorator_timeout) or (node_type == macro_node_reactive_decorator_timeout))
+                (node_type == macro_node_sleep) or (node_type == macro_node_sleep))
 
     def is_decorator_macro_retry_node(self, node_type):
         return ((node_type == macro_node_retry_until_success) or (node_type == macro_node_reactive_retry_until_success) or
@@ -119,7 +119,7 @@ class BTREE_EXECUTE:
                        node_action = None, node_condition = None, node_retry_until_successful = None, 
                        node_decorator_repeat = None, node_keep_running_until_failure = None, 
                        node_decorator_force_failure = None, node_decorator_force_success = None, 
-                       node_decorator_inverter = None, node_decorator_timeout = None, 
+                       node_decorator_inverter = None, node_action_sleep = None, 
                        node_delay = None, node_subtree = None):
         self.node_root = node_root
         self.node_fallback = node_fallback
@@ -134,7 +134,7 @@ class BTREE_EXECUTE:
         self.node_decorator_force_failure = node_decorator_force_failure
         self.node_decorator_force_success = node_decorator_force_success
         self.node_decorator_inverter = node_decorator_inverter
-        self.node_decorator_timeout = node_decorator_timeout
+        self.node_action_sleep = node_action_sleep
         self.node_delay = node_delay
         self.node_subtree = node_subtree
 
@@ -194,7 +194,7 @@ class BTREE_EXECUTE:
                (tree[i][POSITION_NODE_TYPE] == self.node_decorator_force_failure) or
                (tree[i][POSITION_NODE_TYPE] == self.node_decorator_force_success) or
                (tree[i][POSITION_NODE_TYPE] == self.node_decorator_inverter) or
-               (tree[i][POSITION_NODE_TYPE] == self.node_decorator_timeout)):
+               (tree[i][POSITION_NODE_TYPE] == self.node_action_sleep)):
                 value = []
                 for status in status_node:
                     status_tree = self.process_node(tree[i], status)
@@ -207,7 +207,7 @@ class BTREE_EXECUTE:
                           (tree[self.next_node][POSITION_NODE_TYPE] != self.node_decorator_force_failure) and 
                           (tree[self.next_node][POSITION_NODE_TYPE] != self.node_decorator_force_success) and 
                           (tree[self.next_node][POSITION_NODE_TYPE] != self.node_decorator_inverter) and 
-                          (tree[self.next_node][POSITION_NODE_TYPE] != self.node_decorator_timeout) and 
+                          (tree[self.next_node][POSITION_NODE_TYPE] != self.node_action_sleep) and 
                           (status_tree == status_running)):
                         self.process_node(tree[self.next_node], self.tree_status)
                     value.append(tree[self.next_node])
@@ -225,38 +225,33 @@ class BTREE_EXECUTE:
                     node_type = macro_node_reactive_action if is_reactive else macro_node_action
                     self.nodes_path.append([index, node_type, value[0], value[1], 
                                             tree[i][POSITION_NODE_FUNCTION], tree[i]])
+                elif tree[i][POSITION_NODE_TYPE] == self.node_action_sleep:
+                    node_type = macro_node_reactive_sleep if is_reactive else macro_node_sleep
+                    self.nodes_path.append([index, node_type, value[0], value[1], tree[i][POSITION_NODE_SLEEP], tree[i]])
                 elif tree[i][POSITION_NODE_TYPE] == self.node_decorator_retry_until_successful:
                     node_type = macro_node_reactive_retry_until_success if is_reactive else macro_node_retry_until_success
-                    self.nodes_path.append([index, node_type, value[0], value[1], index + 1, 
+                    self.nodes_path.append([index, node_type, value[0], value[1], 
                                             tree[i][POSITION_NODE_DECORATOR_NUM_ATTEMPTS], 
                                             tree[i][POSITION_NODE_DECORATOR_POINTER],
                                             tree[i][POSITION_NODE_DECORATOR_RETRY_DEPTH] + index, tree[i]])
                 elif tree[i][POSITION_NODE_TYPE] == self.node_decorator_repeat:
                     node_type = macro_node_reactive_repeat if is_reactive else macro_node_repeat
-                    self.nodes_path.append([index, node_type, value[0], value[1], index + 1, 
+                    self.nodes_path.append([index, node_type, value[0], value[1], 
                                             tree[i][POSITION_NODE_DECORATOR_NUM_ATTEMPTS], 
                                             tree[i][POSITION_NODE_DECORATOR_POINTER], 
                                             tree[i][POSITION_NODE_DECORATOR_RETRY_DEPTH] + index, tree[i]])
                 elif tree[i][POSITION_NODE_TYPE] == self.node_decorator_keep_running_until_failure:
                     node_type = macro_node_reactive_keep_running_until_failure if is_reactive else macro_node_keep_running_until_failure
-                    self.nodes_path.append([index, node_type, value[0], value[1], 
-                                            index + 1, tree[i][POSITION_NODE_DECORATOR_RETRY_DEPTH] + index, tree[i]])
+                    self.nodes_path.append([index, node_type, value[0], value[1],  tree[i][POSITION_NODE_DECORATOR_RETRY_DEPTH] + index, tree[i]])
                 elif tree[i][POSITION_NODE_TYPE] == self.node_decorator_force_failure:
                     node_type = macro_node_reactive_force_failure if is_reactive else macro_node_force_failure
-                    self.nodes_path.append([index, node_type, value[0], value[1], 
-                                            index + 1, tree[i]])
+                    self.nodes_path.append([index, node_type, value[0], value[1], tree[i]])
                 elif tree[i][POSITION_NODE_TYPE] == self.node_decorator_force_success:
                     node_type = macro_node_reactive_force_success if is_reactive else macro_node_force_success
-                    self.nodes_path.append([index, node_type, value[0], value[1], 
-                                            index + 1, tree[i]])
+                    self.nodes_path.append([index, node_type, value[0], value[1], tree[i]])
                 elif tree[i][POSITION_NODE_TYPE] == self.node_decorator_inverter:
                     node_type = macro_node_reactive_inverter if is_reactive else macro_node_inverter
-                    self.nodes_path.append([index, node_type, value[0], value[1], 
-                                            index + 1, tree[i]])
-                elif tree[i][POSITION_NODE_TYPE] == self.node_decorator_timeout:
-                    node_type = macro_node_reactive_decorator_timeout if is_reactive else macro_node_decorator_timeout
-                    self.nodes_path.append([index, node_type, value[0], value[1], 
-                                            index + 1, tree[i][POSITION_NODE_DECORATOR_TIMEOUT_TIME], tree[i]])
+                    self.nodes_path.append([index, node_type, value[0], value[1], tree[i]])
                 index += 1
 
         for i in range(len(self.nodes_path)):

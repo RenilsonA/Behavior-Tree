@@ -44,7 +44,6 @@ btree_definition_status_t btree_common_action_timeout(uint32_t timeout_ms)
     seconds = milliseconds / (BTREE_COMMON_MILLISECONDS_DIVISOR);
     milliseconds %= (BTREE_COMMON_MILLISECONDS_DIVISOR);
 
-    SEGGER_RTT_printf(0, "%d ", timeout_ms);
     // Input here delay funcion
 
     return BTREE_DEFINITION_STATUS_SUCCESS;
