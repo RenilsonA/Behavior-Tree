@@ -1,7 +1,7 @@
 /**
- * @file btree_manager.h
+ * @file btree_process.h
  * @author Renilson Almeida (renilson.123@hotmail.com)
- * @brief Header of behavior tree manager.
+ * @brief Header of behavior tree process.
  * @version 1.0
  * @date 26/06/24
  *
@@ -14,8 +14,8 @@
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -26,42 +26,29 @@
  * SOFTWARE.
  */
 
-#ifndef BTREE_MANAGER_H_
-#define BTREE_MANAGER_H_
+#ifndef BTREE_PROCESS_H_
+#define BTREE_PROCESS_H_
 
-#include "../../bt/include/btree_process.h"
+#include "btree_common.h"
+#include "stddef.h"
 
 /**
- * @brief Function that manages and performs a step in the tree.
+ * @brief Executes nodes. Each function call is a tick.
  *
- * @param data_tree[in] Pointer to tree struct.
+ * @param data_tree[in] Data struct of tree.
+ * @param index_status_key index in array of status.
+ * @param index_status_position position to shift.
+ *
  * @retval BTREE_DEFINITION_STATUS_RUNNING if running tree.
  * @retval BTREE_DEFINITION_STATUS_SUCCESS if successfully executed tree.
  * @retval BTREE_DEFINITION_STATUS_FAIL if failed tree.
+ * @retval BTREE_DEFINITION_STATUS_RE_EXECUTE if successfully executed tree.
  * @retval BTREE_DEFINITION_STATUS_STAND_BY if successfully executed tree.
  * @retval BTREE_DEFINITION_STATUS_ERROR if irregular tree.
  */
-btree_definition_status_t btree_manager_tick_tree(btree_definition_tree_data_t *struct_tree);
+btree_definition_status_t
+btree_process_node(btree_definition_tree_data_t *struct_tree,
+                   btree_index_t index_status_key,
+                   uint32_t index_status_position);
 
-/**
- * @brief Function to execute tree with reactivity.
- *
- * @param data_tree[in] Pointer to tree struct.
- * @retval BTREE_DEFINITION_STATUS_RUNNING if running tree.
- * @retval BTREE_DEFINITION_STATUS_SUCCESS if successfully executed tree.
- * @retval BTREE_DEFINITION_STATUS_FAIL if failed tree.
- * @retval BTREE_DEFINITION_STATUS_STAND_BY if successfully executed tree.
- * @retval BTREE_DEFINITION_STATUS_ERROR if irregular tree.
- */
-btree_definition_status_t btree_manager_reactivity_tick_tree(btree_definition_tree_data_t *struct_tree);
-
-/**
- * @brief Function to reset behavior tree.
- *
- * @param data_tree[in] Pointer to tree struct.
- * @retval BTREE_DEFINITION_STATUS_SUCCESS if successfully executed tree.
- * @retval BTREE_DEFINITION_STATUS_ERROR if irregular tree.
- */
-btree_definition_status_t btree_manager_reset_tree(btree_definition_tree_data_t *struct_tree);
-
-#endif /* BTREE_MANAGER_H_ */
+#endif /* BTREE_PROCESS_H_ */

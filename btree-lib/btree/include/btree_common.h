@@ -1,7 +1,7 @@
 /**
- * @file btree_common.c
+ * @file btree_process.c
  * @author Renilson Almeida (renilson.123@hotmail.com)
- * @brief Behavior tree common.
+ * @brief Header of behavior tree common.
  * @version 1.0
  * @date 30/06/24
  *
@@ -14,8 +14,8 @@
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -26,25 +26,38 @@
  * SOFTWARE.
  */
 
-#include "btree_common.h"
+#ifndef BTREE_COMMON_H_
+#define BTREE_COMMON_H_
 
-btree_definition_status_t btree_common_action_timeout(uint32_t timeout_ms)
-{
-    uint8_t hours = 0;
-    uint8_t minutes = 0;
-    uint8_t seconds = 0;
-    uint16_t milliseconds = timeout_ms;
+#include "../../bt/include/btree_definition.h"
+#include "stdbool.h"
 
-    hours = timeout_ms / (BTREE_COMMON_MILLISECONDS_DIVISOR * BTREE_COMMON_SECONDS_DIVISOR * BTREE_COMMON_MINUTES_DIVISOR);
-    milliseconds %= (BTREE_COMMON_MILLISECONDS_DIVISOR * BTREE_COMMON_SECONDS_DIVISOR * BTREE_COMMON_MINUTES_DIVISOR);
+/**
+ * @brief Divisor value for milliseconds.
+ *
+ */
+#define BTREE_COMMON_MILLISECONDS_DIVISOR 1000
 
-    minutes = milliseconds / (BTREE_COMMON_MILLISECONDS_DIVISOR * BTREE_COMMON_SECONDS_DIVISOR);
-    milliseconds %= (BTREE_COMMON_MILLISECONDS_DIVISOR * BTREE_COMMON_SECONDS_DIVISOR);
+/**
+ * @brief Divisor value for seconds.
+ *
+ */
+#define BTREE_COMMON_SECONDS_DIVISOR 60
 
-    seconds = milliseconds / (BTREE_COMMON_MILLISECONDS_DIVISOR);
-    milliseconds %= (BTREE_COMMON_MILLISECONDS_DIVISOR);
+/**
+ * @brief Divisor value for minutes.
+ *
+ */
+#define BTREE_COMMON_MINUTES_DIVISOR 60
 
-    // Input here delay funcion
+/**
+ * @brief Function for delay within the behavior tree.
+ *
+ * @param timeout_ms Wait timeout value in milliseconds.
+ * @retval BTREE_DEFINITION_STATUS_SUCCESS if successful
+ * @retval BTREE_DEFINITION_STATUS_RUNNING if delay initiated.
+ * @retval BTREE_DEFINITION_STATUS_FAIL if fail something.
+ */
+btree_definition_status_t btree_common_action_timeout(uint32_t timeout_ms);
 
-    return BTREE_DEFINITION_STATUS_SUCCESS;
-}
+#endif /* BTREE_COMMON_H_ */
