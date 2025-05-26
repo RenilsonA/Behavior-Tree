@@ -35,10 +35,6 @@
     </Sequence>
   </BehaviorTree>
 
-  <BehaviorTree ID="mqtt">
-    <AlwaysSuccess/>
-  </BehaviorTree>
-
   <BehaviorTree ID="wifi">
     <Fallback>
       <ScriptCondition code="is_connected"/>

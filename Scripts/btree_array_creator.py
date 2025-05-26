@@ -32,12 +32,12 @@ class BTREE_ARRAY:
         self.texts = []
         self.tree = []
         self.functions = []
-        self.tree_function_index = 0
         self.node_index_invalid = 'TC_BHT_DEFINITION_TREE_UNRELATED'
         self.attempts = 0
         self.attempts_max = 0
+        self.attempts_blocks = 0
         self.tree_remodeled_size = 0
-        self.folder = ""        
+        self.archive = ""        
         self.library = ARCHIVE_CREATOR()
 
     def get_max_attempts(self):
@@ -97,7 +97,6 @@ class BTREE_ARRAY:
         return count
 
     def mount_nodes(self, element, node_parent_number, tree_id, is_reactive = False):
-        global attempts_max
         self.node_number += 1
         is_decoration_attempts = False
 
@@ -131,31 +130,33 @@ class BTREE_ARRAY:
                               "BTREE_DEFINITION_TREE_UNRELATED", node_parent_number, is_reactive])
             node_parent_number -= 1
             if not element.get('code') in self.functions:
-                self.functions[self.tree_function_index].append((element.get('code'), "action", tree_id))
+                self.functions[self.archives.index(tree_id)].append((element.get('code'), "action", tree_id))
 
         elif self.node_condition == element.tag:
             self.tree.append([self.node_number, self.node_condition, f"&btree_{self.library.project.lower()}{tree_id}_" + element.get('code'), 
                               "BTREE_DEFINITION_TREE_UNRELATED", node_parent_number, is_reactive])
             node_parent_number -= 1
             if not element.get('code') in self.functions:
-                self.functions[self.tree_function_index].append((element.get('code'), "condition", tree_id))
+                self.functions[self.archives.index(tree_id)].append((element.get('code'), "condition", tree_id))
 
         elif self.node_retry_until_successful == element.tag:
-            self.tree.append([self.node_number, self.node_retry_until_successful, self.attempts, 
+            self.tree.append([self.node_number, self.node_retry_until_successful, self.attempts_blocks, #attempts
                               element.get('num_attempts'), self.check_decorator_retry_depth(element), 
                               "BTREE_DEFINITION_TREE_UNRELATED", node_parent_number, is_reactive])
             node_parent_number = self.node_number
             self.attempts += 1
+            self.attempts_blocks += 1
             is_decoration_attempts = True
             if self.attempts > self.attempts_max:
                 self.attempts_max = self.attempts
 
         elif self.node_decorator_repeat == element.tag:
-            self.tree.append([self.node_number, self.node_decorator_repeat, self.attempts, 
+            self.tree.append([self.node_number, self.node_decorator_repeat, self.attempts_blocks, #attempts
                               element.get('num_cycles'), self.check_decorator_retry_depth(element), 
                               "BTREE_DEFINITION_TREE_UNRELATED", node_parent_number, is_reactive])
             node_parent_number = self.node_number
             self.attempts += 1
+            self.attempts_blocks += 1
             is_decoration_attempts = True
             if self.attempts > self.attempts_max:
                 self.attempts_max = self.attempts
@@ -195,13 +196,11 @@ class BTREE_ARRAY:
             self.node_number -= 1
             root = self.tree_archive.getroot()
             for behavior_tree in root.findall('BehaviorTree'):
-                tree_id = behavior_tree.get('ID')
-                if tree_id == element.get('ID'):
-                    self.tree_function_index += 1
-                    self.archives.append(tree_id)
+                tree_id_provisory = behavior_tree.get('ID')
+                if tree_id_provisory == element.get('ID'):
+                    self.archives.append(tree_id_provisory)
                     self.functions.append([])
-                    self.mount_nodes(behavior_tree, node_parent_number, tree_id, is_reactive)
-                    self.tree_function_index -= 1
+                    self.mount_nodes(behavior_tree, node_parent_number, tree_id_provisory, is_reactive)
         
         elif self.is_node_root_main == False:
             self.node_number = 0
@@ -233,35 +232,31 @@ class BTREE_ARRAY:
                     self.archives.append(self.tree_id)
                 self.functions.append([])
                 self.mount_nodes(behavior_tree, 0, self.tree_id)
-                print(self.functions)
                 self.set_sibling()
                 x = bree_execute.BTREE_EXECUTE()
                 tree_remodeled = x.init_process(self.tree)
-                for i in tree_remodeled:
-                    print(i)
                 text = self.library.tree_vector(self.tree_id, tree_remodeled)
                 self.tree_remodeled_size = len(tree_remodeled)
                 self.tree.clear()
                 self.texts.append(text)
 
-    def load_archives(self):
-        trees = os.listdir(self.folder)
-        for archive in trees:
-            print(archive)
-            if not archive.endswith('.xml'):
-                continue
-            self.open_xml(f"{self.folder}/{archive}")
+    def load_archive(self):
+        if not self.archive.endswith('.xml'):
+            print("Error to load archive")
+            return
+        self.open_xml(f"{self.archive}")
 
-    def process_tree(self, folder, id, parent_tree, local_parent_tree):
-        self.folder = folder
+    def process_tree(self, archive, id, parent_tree, local_parent_tree):
+        self.archive = archive
         self.main_tree = id
         self.subtree_root_data[0] = parent_tree
         self.subtree_root_data[1] = local_parent_tree
-        self.load_archives()
+        self.load_archive()
 
-    def create_trees(self, folder = None, output = None, main_tree = None):
-        self.folder = folder if folder != None else input("Put archive folder:")
+    def create_trees(self, archive = None, output = None, main_tree = None):
+        self.archive = archive if archive != None else input("Put archive archive:")
         self.main_tree = main_tree if main_tree != None else input("Put your main tree:")
-        self.load_archives()
-        self.library.generate_archives(self.archives, self.texts, self.functions, self.attempts_max, self.tree_remodeled_size, output)
+        self.load_archive()
+        #For reactivity, use self.attempts_blocks, if not, use self.attempts_max.
+        self.library.generate_archives(self.archives, self.texts, self.functions, self.attempts_blocks, self.tree_remodeled_size, output)
         self.max_attempts_nodes = 0

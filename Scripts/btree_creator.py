@@ -69,7 +69,6 @@ class ARCHIVE_CREATOR:
 
     def create_declaration_commented(self, archive, functions):
         for function in functions:
-            print(function[0])
             if function[0] not in self.func_commented:
                 self.func_commented.append(function[0])
                 self.text += '/**\n'

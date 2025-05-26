@@ -44,9 +44,8 @@ ble_app/data.csv
 */gecko_sdk_4.3.2/*
 */.uceditor/*
 */__pycache__/*
+*/.devcontainer/*
 /.idea/*
 codeStyles
 .clang-format
 /cmake-build-debug
-docs/build/*
-epaper-btree/build/*
