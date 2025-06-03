@@ -24,9 +24,8 @@
 
 void app_init(void)
 {
-//  SEGGER_RTT_printf(0, "valor %d\n", sizeof(btree_definition_node_t));
   example_task_init();
-//  subtree_task_init();
+  subtree_task_init();
 }
 
 /***************************************************************************//**

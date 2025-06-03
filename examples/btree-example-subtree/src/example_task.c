@@ -44,7 +44,7 @@ static struct {
     .stk = {0},
     .need_tick = true,
     .fuctions_tree = {
-        .function_tick = btree_manager_tick_tree,
+        .function_tick = btree_manager_reactivity_tick_tree,
         .running_case = example_task_running_function,
         .success_case = example_task_success_function,
         .fail_case = example_task_fail_function,

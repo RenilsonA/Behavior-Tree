@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4"
+      main_tree_to_execute="msgs">
+  <BehaviorTree ID="msgs">
+    <ReactiveSequence>
+      <ReactiveFallback>
+        <MyScriptCondition code="has_not_msg_1"/>
+        <SubTree ID="process"
+                 _autoremap="true"/>
+      </ReactiveFallback>
+      <ReactiveFallback>
+        <MyScriptCondition code="has_not_msg_2"/>
+        <SubTree ID="process"
+                 _autoremap="true"/>
+      </ReactiveFallback>
+      <ReactiveFallback>
+        <MyScriptCondition code="has_not_msg_3"/>
+        <SubTree ID="process"
+                 _autoremap="true"/>
+      </ReactiveFallback>
+      <ReactiveFallback>
+        <MyScriptCondition code="has_not_msg_4"/>
+        <SubTree ID="process"
+                 _autoremap="true"/>
+      </ReactiveFallback>
+      <ReactiveFallback>
+        <MyScriptCondition code="has_not_msg_5"/>
+        <SubTree ID="process"
+                 _autoremap="true"/>
+      </ReactiveFallback>
+      <ReactiveFallback>
+        <MyScriptCondition code="has_not_msg_6"/>
+        <SubTree ID="process"
+                 _autoremap="true"/>
+      </ReactiveFallback>
+      <ReactiveFallback>
+        <MyScriptCondition code="has_not_msg_7"/>
+        <SubTree ID="process"
+                 _autoremap="true"/>
+      </ReactiveFallback>
+      <ReactiveFallback>
+        <MyScriptCondition code="has_not_msg_8"/>
+        <SubTree ID="process"
+                 _autoremap="true"/>
+      </ReactiveFallback>
+      <ReactiveFallback>
+        <MyScriptCondition code="has_not_msg_9"/>
+        <SubTree ID="process"
+                 _autoremap="true"/>
+      </ReactiveFallback>
+      <ReactiveFallback>
+        <MyScriptCondition code="has_not_msg_10"/>
+        <SubTree ID="process"
+                 _autoremap="true"/>
+      </ReactiveFallback>
+      <ReactiveFallback>
+        <MyScriptCondition code="has_not_msg_11"/>
+        <SubTree ID="process"
+                 _autoremap="true"/>
+      </ReactiveFallback>
+      <ReactiveFallback>
+        <MyScriptCondition code="has_not_msg_12"/>
+        <SubTree ID="process"
+                 _autoremap="true"/>
+      </ReactiveFallback>
+      <ReactiveFallback>
+        <MyScriptCondition code="has_not_msg_13"/>
+        <SubTree ID="process"
+                 _autoremap="true"/>
+      </ReactiveFallback>
+      <ReactiveFallback>
+        <MyScriptCondition code="has_not_msg_14"/>
+        <SubTree ID="process"
+                 _autoremap="true"/>
+      </ReactiveFallback>
+      <ReactiveFallback>
+        <MyScriptCondition code="has_not_msg_15"/>
+        <SubTree ID="process"
+                 _autoremap="true"/>
+      </ReactiveFallback>
+      <ReactiveFallback>
+        <MyScriptCondition code="has_not_msg_16"/>
+        <SubTree ID="process"
+                 _autoremap="true"/>
+      </ReactiveFallback>
+    </ReactiveSequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="process">
+    <Sequence>
+      <MyScript code="step1"/>
+      <MyScript code="step2"/>
+      <MyScript code="step3"/>
+      <Fallback>
+        <MyScript code="step4"/>
+        <Sequence>
+          <MyScript code="step5"/>
+          <MyScript code="step6"/>
+        </Sequence>
+      </Fallback>
+      <MyScript code="step7"/>
+      <MyScript code="step8"/>
+      <MyScript code="step9"/>
+      <MyScript code="step10"/>
+      <Fallback>
+        <MyScript code="step11"/>
+        <MyScript code="step12"/>
+        <MyScript code="step13"/>
+        <MyScript code="step14"/>
+      </Fallback>
+    </Sequence>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Action ID="MyScript"
+            editable="true">
+      <input_port name="code"/>
+    </Action>
+    <Action ID="MyScriptCondition"
+            editable="true">
+      <input_port name="code"/>
+    </Action>
+  </TreeNodesModel>
+
+</root>

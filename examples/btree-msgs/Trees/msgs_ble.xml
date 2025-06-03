@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree ID="ble">
+    <Fallback>
+      <ScriptCondition code="bluetooth_has_started"/>
+      <Sequence>
+        <Script code="ble_init"/>
+        <Script code="ble_register"/>
+      </Sequence>
+    </Fallback>
+  </BehaviorTree>
+
+  <BehaviorTree ID="main_ble">
+    <ReactiveSequence>
+      <SubTree ID="ble"/>
+      <ReactiveFallback>
+        <ScriptCondition code="not_recv_blinky_msg"/>
+        <Sequence>
+          <Script code="blynk_led"/>
+          <Script code="just_standby"/>
+        </Sequence>
+      </ReactiveFallback>
+      <ReactiveFallback>
+        <ScriptCondition code="is_not_recv_echo_msg"/>
+        <Script code="print_msg"/>
+      </ReactiveFallback>
+    </ReactiveSequence>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel/>
+
+</root>
