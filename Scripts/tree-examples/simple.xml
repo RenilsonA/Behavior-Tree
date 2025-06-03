@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree ID="example">
+    <Sequence>
+      <ReactiveFallback>
+        <ScriptCondition code="condition1"/>
+        <ReactiveSequence>
+          <Script code="action1"/>
+          <Fallback>
+            <ScriptCondition code="condition2"/>
+            <Script code="action2"/>
+            <Script code="action3"/>
+          </Fallback>
+          <Fallback>
+            <ScriptCondition code="condition4"/>
+            <Script code="action4"/>
+          </Fallback>
+        </ReactiveSequence>
+      </ReactiveFallback>
+      <ReactiveFallback>
+        <ScriptCondition code="condition5"/>
+        <Sequence>
+          <Script code="action5"/>
+          <ReactiveFallback>
+            <ScriptCondition code="condition6"/>
+            <Script code="action6"/>
+            <Script code="action7"/>
+          </ReactiveFallback>
+          <Script code="actio8"/>
+          <ReactiveFallback>
+            <ScriptCondition code="condition7"/>
+            <Script code="action9"/>
+          </ReactiveFallback>
+          <ReactiveSequence>
+            <Script code="action10"/>
+            <Script code="action11"/>
+          </ReactiveSequence>
+        </Sequence>
+      </ReactiveFallback>
+    </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="subtree">
+    <Sequence>
+      <ReactiveSequence>
+        <ForceSuccess>
+          <ScriptCondition code="condition1"/>
+        </ForceSuccess>
+        <Inverter>
+          <Script code="action1"/>
+        </Inverter>
+        <Fallback>
+          <ForceFailure>
+            <ScriptCondition code="condition2"/>
+          </ForceFailure>
+          <Script code="action2"/>
+        </Fallback>
+        <RetryUntilSuccessful num_attempts="5">
+          <ReactiveFallback>
+            <ScriptCondition code="condition3"/>
+            <Repeat num_cycles="5">
+              <Script code="action3"/>
+            </Repeat>
+          </ReactiveFallback>
+        </RetryUntilSuccessful>
+      </ReactiveSequence>
+      <KeepRunningUntilFailure>
+        <Script code="action4"/>
+      </KeepRunningUntilFailure>
+      <RetryUntilSuccessful num_attempts="9">
+        <ReactiveSequence>
+          <Script code="action5"/>
+          <Script code="action6"/>
+        </ReactiveSequence>
+      </RetryUntilSuccessful>
+    </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="teste">
+    <Fallback>
+      <Sequence name="Defesa">
+        <ScriptCondition code="InimigoProximo?"/>
+        <Script code="BuscarCobertura"/>
+        <Script code="Atirar"/>
+      </Sequence>
+      <Sequence name="Patrulha">
+        <Script code="MoverParaA"/>
+        <Script code="MoverParaB"/>
+        <Sleep msec="5000"/>
+      </Sequence>
+    </Fallback>
+  </BehaviorTree>
+
+  <BehaviorTree ID="tree">
+    <Fallback>
+      <Sequence name="Defesa">
+        <ScriptCondition code="InimigoProximo?"/>
+        <Script code="BuscarCobertura"/>
+        <Script code="Atirar"/>
+      </Sequence>
+      <Sequence name="Patrulha">
+        <Script code="MoverParaA"/>
+        <Script code="MoverParaB"/>
+        <Sleep msec="5000"/>
+      </Sequence>
+      <RetryUntilSuccessful num_attempts="3">
+        <Sequence name="Pegar">
+          <Script code="MoverParaObjeto"/>
+          <Script code="Guardar"/>
+        </Sequence>
+      </RetryUntilSuccessful>
+      <Fallback>
+        <Sequence name="Pegar">
+          <Script code="MoverParaObjeto"/>
+          <Script code="Guardar"/>
+        </Sequence>
+        <Sequence name="Pegar">
+          <Script code="MoverParaObjeto"/>
+          <Script code="Guardar"/>
+        </Sequence>
+        <Sequence name="Pegar">
+          <Script code="MoverParaObjeto"/>
+          <Script code="Guardar"/>
+        </Sequence>
+      </Fallback>
+    </Fallback>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel/>
+
+</root>

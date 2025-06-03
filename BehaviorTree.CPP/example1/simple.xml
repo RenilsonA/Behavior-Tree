@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree ID="example">
+    <Sequence>
+      <ReactiveFallback>
+        <MyScriptCondition code="condition1"/>
+        <ReactiveSequence>
+          <MyScript code="action1"/>
+          <Fallback>
+            <MyScriptCondition code="condition2"/>
+            <MyScript code="action2"/>
+            <MyScript code="action3"/>
+          </Fallback>
+          <Fallback>
+            <MyScriptCondition code="condition4"/>
+            <MyScript code="action4"/>
+          </Fallback>
+        </ReactiveSequence>
+      </ReactiveFallback>
+      <ReactiveFallback>
+        <MyScriptCondition code="condition5"/>
+        <Sequence>
+          <MyScript code="action5"/>
+          <ReactiveFallback>
+            <MyScriptCondition code="condition6"/>
+            <MyScript code="action6"/>
+            <MyScript code="action7"/>
+          </ReactiveFallback>
+          <MyScript code="actio8"/>
+          <ReactiveFallback>
+            <MyScriptCondition code="condition7"/>
+            <MyScript code="action9"/>
+          </ReactiveFallback>
+          <ReactiveSequence>
+            <MyScript code="action10"/>
+            <MyScript code="action11"/>
+          </ReactiveSequence>
+        </Sequence>
+      </ReactiveFallback>
+    </Sequence>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Action ID="MyScript"
+            editable="true">
+      <input_port name="code"/>
+    </Action>
+    <Action ID="MyScriptCondition"
+            editable="true">
+      <input_port name="code"/>
+    </Action>
+  </TreeNodesModel>
+
+</root>

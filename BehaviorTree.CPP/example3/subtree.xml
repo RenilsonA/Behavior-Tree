@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree ID="subtree">
+    <Sequence>
+      <ReactiveSequence>
+        <ForceSuccess>
+          <MyScriptCondition code="condition1"/>
+        </ForceSuccess>
+        <Inverter>
+          <MyScript code="action1"/>
+        </Inverter>
+        <Fallback>
+          <ForceFailure>
+            <MyScriptCondition code="condition2"/>
+          </ForceFailure>
+          <MyScript code="action2"/>
+        </Fallback>
+        <RetryUntilSuccessful num_attempts="5">
+          <ReactiveFallback>
+            <MyScriptCondition code="condition3"/>
+            <Repeat num_cycles="5">
+              <MyScript code="action3"/>
+            </Repeat>
+          </ReactiveFallback>
+        </RetryUntilSuccessful>
+      </ReactiveSequence>
+      <MyScript code="action4"/>
+      <RetryUntilSuccessful num_attempts="9">
+        <ReactiveSequence>
+          <MyScript code="action5"/>
+          <MyScript code="action6"/>
+        </ReactiveSequence>
+      </RetryUntilSuccessful>
+    </Sequence>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel/>
+
+</root>

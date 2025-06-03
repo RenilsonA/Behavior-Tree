@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree ID="ble">
+    <Fallback>
+      <Sequence>
+        <Sleep msec="1000"/>
+        <ScriptCondition code="have_credentials"/>
+        <ForceSuccess>
+          <Fallback>
+            <Inverter>
+              <ScriptCondition code="bluetooth_has_started"/>
+            </Inverter>
+            <Sequence>
+              <Script code="ble_deinit"/>
+              <Script code="ble_unregister"/>
+              <Script code="ble_disconnect"/>
+            </Sequence>
+          </Fallback>
+        </ForceSuccess>
+      </Sequence>
+      <Sequence>
+        <Inverter>
+          <ScriptCondition code="bluetooth_has_started"/>
+        </Inverter>
+        <Script code="ble_init"/>
+        <Script code="ble_register"/>
+      </Sequence>
+    </Fallback>
+  </BehaviorTree>
+
+  <BehaviorTree ID="main">
+    <Sequence>
+      <SubTree ID="ble"/>
+      <SubTree ID="wifi"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="wifi">
+    <Fallback>
+      <ScriptCondition code="is_connected"/>
+      <ForceFailure>
+        <Sequence>
+          <ScriptCondition code="is_fail"/>
+          <Script code="clear_credentials"/>
+          <Script code="wifi_disconnect"/>
+          <Script code="wifi_unregister"/>
+          <Script code="wifi_deinit"/>
+        </Sequence>
+      </ForceFailure>
+      <Sequence>
+        <ScriptCondition code="have_credentials"/>
+        <Script code="wifi_init"/>
+        <Script code="wifi_register"/>
+        <Script code="wifi_connect"/>
+        <Sleep msec="2000"/>
+        <Script code="ping"/>
+      </Sequence>
+    </Fallback>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel/>
+
+</root>

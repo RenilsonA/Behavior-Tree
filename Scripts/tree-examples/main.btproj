@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4" project_name="Project">
+    <include path="esp32_epaper.xml"/>
+    <include path="msgs.xml"/>
+    <include path="msgs_ble.xml"/>
+    <include path="test.xml"/>
+    <!-- Description of Node Models (used by Groot) -->
+    <TreeNodesModel>
+        <Action ID="MyScript" editable="true">
+            <input_port name="code"/>
+        </Action>
+        <Action ID="MyScriptCondition" editable="true">
+            <input_port name="code"/>
+        </Action>
+    </TreeNodesModel>
+</root>
