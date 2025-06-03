@@ -33,7 +33,6 @@
 */GNU\ ARM\ v12.2.1\ -\ Default/*
 */GNU\ ARM\ v12.2.1\ -\ Debug/*
 *.html
-*.png
 ble_app/data.csv
 */autogen/*
 *.patch
