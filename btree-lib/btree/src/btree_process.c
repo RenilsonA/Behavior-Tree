@@ -175,7 +175,7 @@ btree_process_node(btree_definition_tree_data_t *struct_tree,
     break;
   }
 
-  case BTREE_DEFINITION_NODE_KEEP_RUNNING_UNTIL_FAILURE:
+  case BTREE_DEFINITION_NODE_KEEP_RUNNING_UNTIL_SUCCESS:
   case BTREE_DEFINITION_NODE_REACTIVE_KEEP_RUNNING_UNTIL_FAILURE: {
     if ((struct_tree->last_node_state == BTREE_DEFINITION_STATUS_RUNNING) ||
         (struct_tree->last_node_state == BTREE_DEFINITION_STATUS_FAIL)) {
