@@ -131,11 +131,11 @@ typedef enum {
                                                          until success. */
   BTREE_DEFINITION_NODE_REACTIVE_REPEAT, /**< Type of reactive decorator type
                                             repeat. */
-  BTREE_DEFINITION_NODE_REACTIVE_KEEP_RUNNING_UNTIL_FAILURE, /**< Type of
+  BTREE_DEFINITION_NODE_REACTIVE_KEEP_RUNNING_UNTIL_SUCCESS, /**< Type of
                                                                 reactive
                                                                 decorator type
                                                                 keep running
-                                                                until failure.
+                                                                until success.
                                                               */
   BTREE_DEFINITION_NODE_REACTIVE_INVERTER, /**< Type of reactive decorator type
                                               inverter. */
@@ -385,7 +385,7 @@ typedef struct btree_definition_config_functions {
 #define BTREE_DEFINITION_CREATE_NODE_REACTIVE_KEEP_RUNNING_UNTIL_FAILURE(      \
     _success_target, _fail_target, _node_limit)                       \
   {                                                                            \
-    .node_type = BTREE_DEFINITION_NODE_REACTIVE_KEEP_RUNNING_UNTIL_FAILURE,    \
+    .node_type = BTREE_DEFINITION_NODE_REACTIVE_KEEP_RUNNING_UNTIL_SUCCESS,    \
     .st_index = _success_target, .ft_index = _fail_target,                     \
     .decorator_node.ties_node.node_limit = _node_limit,                        \
   }
