@@ -110,9 +110,9 @@ typedef enum {
   BTREE_DEFINITION_NODE_RETRY_UNTIL_SUCCESS, /**< Type of decorator type retry
                                                 until success. */
   BTREE_DEFINITION_NODE_REPEAT, /**< Type of decorator type repeat. */
-  BTREE_DEFINITION_NODE_KEEP_RUNNING_UNTIL_FAILURE, /**< Type of decorator type
+  BTREE_DEFINITION_NODE_KEEP_RUNNING_UNTIL_SUCCESS, /**< Type of decorator type
                                                        keep running until
-                                                       failure. */
+                                                       success. */
   BTREE_DEFINITION_NODE_INVERTER,      /**< Type of decorator type inverter. */
   BTREE_DEFINITION_NODE_FORCE_SUCCESS, /**< Type of decorator type force
                                           success. */
@@ -285,7 +285,7 @@ typedef struct btree_definition_config_functions {
 #define BTREE_DEFINITION_CREATE_NODE_KEEP_RUNNING_UNTIL_FAILURE(               \
     _success_target, _fail_target, _node_limit)                                \
   {                                                                            \
-    .node_type = BTREE_DEFINITION_NODE_KEEP_RUNNING_UNTIL_FAILURE,             \
+    .node_type = BTREE_DEFINITION_NODE_KEEP_RUNNING_UNTIL_SUCCESS,             \
     .st_index = _success_target, .ft_index = _fail_target,                     \
     .decorator_node.node_limit = _node_limit,                                  \
   }
